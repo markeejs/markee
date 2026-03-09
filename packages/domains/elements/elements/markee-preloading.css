@@ -1,0 +1,33 @@
+@layer markee {
+  markee-preloading {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    div {
+      width: 0.75rem;
+      height: 0.75rem;
+      border-radius: 50%;
+      background: var(--mk-color-primary);
+      animation: markee-preloading-loader 1.2s linear infinite;
+
+      &:nth-child(2) {
+        animation-delay: 0.4s;
+      }
+    }
+  }
+
+  @keyframes markee-preloading-loader {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(0.6);
+      opacity: 0.5;
+    }
+  }
+}

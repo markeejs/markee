@@ -1,0 +1,6 @@
+navigation:
+  - introduction.md
+  - Extensions:
+      - ...
+  - Themes:
+      - ... | *theme.md

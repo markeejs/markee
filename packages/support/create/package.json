@@ -1,0 +1,16 @@
+{
+  "name": "create-markee",
+  "version": "0.1.0",
+  "description": "Create a new Markee project",
+  "license": "MIT",
+  "bin": {
+    "create-markee": "./bin.js"
+  },
+  "files": [
+    "bin.js"
+  ],
+  "type": "module",
+  "dependencies": {
+    "@markee/cli": "0.1.0"
+  }
+}

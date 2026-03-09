@@ -1,0 +1,14 @@
+{
+  "name": "@markee/vite",
+  "version": "0.1.0",
+  "description": "Vite helpers for Markee extension bundles",
+  "license": "MIT",
+  "main": "index.mjs",
+  "types": "index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "vite": "^8.0.0"
+  }
+}

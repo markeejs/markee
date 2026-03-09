@@ -1,0 +1,158 @@
+@import 'prismjs/plugins/line-highlight/prism-line-highlight.css' layer(markee);
+@import 'prismjs/plugins/line-numbers/prism-line-numbers.css' layer(markee);
+@import 'prismjs/plugins/toolbar/prism-toolbar.css' layer(markee);
+@import 'prismjs/plugins/autolinker/prism-autolinker.css' layer(markee);
+@import 'prismjs/plugins/diff-highlight/prism-diff-highlight.css' layer(markee);
+@import 'prismjs/plugins/inline-color/prism-inline-color.css' layer(markee);
+
+@layer markee {
+  code[class*='language-'],
+  pre[class*='language-'] {
+    /* Typography */
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.9rem;
+  }
+
+  div.code-toolbar {
+    > .toolbar {
+      /* Appearance */
+      opacity: 1;
+      content: '---';
+      z-index: 0;
+    }
+
+    pre {
+      /* Box */
+      margin: 0;
+      border-radius: 0.25rem;
+      position: relative;
+
+      /* Appearance */
+      background-color: var(--mk-color-background-code);
+      border: 1px solid var(--mk-color-border);
+
+      &[data-line] {
+        padding: 1em;
+      }
+
+      &[data-start] {
+        padding-left: 3.5em;
+      }
+    }
+
+    > .toolbar > .toolbar-item > button.copy-to-clipboard-button {
+      /* Appearance */
+      background-color: transparent;
+      box-shadow: none;
+
+      /* Display */
+      cursor: pointer;
+    }
+
+    > .toolbar > .toolbar-item > span {
+      border-radius: 3px;
+    }
+
+    .copy-to-clipboard-button {
+      span::after {
+        /* Display */
+        display: block;
+
+        /* Typography */
+        font-family: Material Icons;
+        font-size: 1rem;
+
+        /* Appearance */
+        content: '\e14d';
+      }
+
+      &[data-copy-state='copy-success'] {
+        span::after {
+          /* Appearance */
+          content: '\e876';
+        }
+      }
+
+      &[data-copy-state='copy-error'] {
+        span::after {
+          /* Appearance */
+          content: '\e5cd';
+        }
+      }
+    }
+
+    .line-highlight {
+      /* Appearance */
+      background: rgba(136, 176, 249, 0.27);
+
+      /* Display */
+      &::before,
+      &::after {
+        display: none;
+      }
+    }
+
+    &:has(.mk-prism-title) .line-highlight {
+      margin-top: 3.75rem;
+    }
+
+    &:has(.mk-prism-title) .toolbar {
+      margin-top: -2.5rem;
+    }
+  }
+
+  .mk-admonition {
+    .mk-admonition-content > .code-toolbar {
+      /* Appearance */
+      margin: 0.5rem -0.75rem;
+      border-radius: 0.5rem;
+
+      pre {
+        border-radius: 0.5rem;
+      }
+    }
+  }
+
+  .mk-code-figure {
+    /* Box */
+    margin: 0;
+    padding: 0;
+
+    figcaption {
+      /* Box */
+      padding: 0.25rem 0.75rem;
+      border-bottom: 1px solid var(--mk-color-border);
+
+      /* Appearance */
+      background-color: var(--mk-color-background);
+
+      /* Typography */
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+  }
+
+  .token.operator,
+  .token.entity,
+  .token.url {
+    /* Appearance */
+    background: transparent;
+  }
+
+  .mk-prism-title {
+    font-family: 'Roboto', sans-serif;
+    font-weight: bold;
+    border-bottom: 1px solid var(--mk-color-border);
+    font-size: 0.9rem;
+    margin: -1rem -1rem 1rem;
+    padding: 0.75rem 1rem 0.5rem;
+
+    .line-numbers & {
+      margin-left: -3.5rem;
+    }
+  }
+
+  .code-toolbar:has(> pre > .mk-prism-title) .toolbar {
+    top: 3.125rem;
+  }
+}

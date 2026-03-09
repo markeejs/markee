@@ -1,0 +1,476 @@
+@layer markee {
+  @font-face {
+    /* Typography */
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+
+    /* Appearance */
+    src: url(https://fonts.gstatic.com/s/materialicons/v92/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2)
+      format('woff2');
+  }
+
+  :root {
+    --mk-admonition-color-default: var(
+      --markee-admonition-color-default,
+      rgba(68, 138, 255, 0.8)
+    );
+    --mk-admonition-background-default: var(
+      --markee-admonition-background-default,
+      rgba(68, 138, 255, 0.1)
+    );
+
+    --mk-admonition-color-summary: var(
+      --markee-admonition-color-summary,
+      rgba(0, 176, 255, 0.8)
+    );
+    --mk-admonition-background-summary: var(
+      --markee-admonition-background-summary,
+      rgba(0, 176, 255, 0.1)
+    );
+
+    --mk-admonition-color-hint: var(
+      --markee-admonition-color-hint,
+      rgba(0, 191, 165, 0.8)
+    );
+    --mk-admonition-background-hint: var(
+      --markee-admonition-background-hint,
+      rgba(0, 191, 165, 0.1)
+    );
+
+    --mk-admonition-color-info: var(
+      --markee-admonition-color-info,
+      rgba(0, 184, 212, 0.8)
+    );
+    --mk-admonition-background-info: var(
+      --markee-admonition-background-info,
+      rgba(0, 184, 212, 0.1)
+    );
+
+    --mk-admonition-color-success: var(
+      --markee-admonition-color-success,
+      rgba(0, 200, 83, 0.8)
+    );
+    --mk-admonition-background-success: var(
+      --markee-admonition-background-success,
+      rgba(0, 200, 83, 0.1)
+    );
+
+    --mk-admonition-color-question: var(
+      --markee-admonition-color-question,
+      rgba(100, 221, 23, 0.8)
+    );
+    --mk-admonition-background-question: var(
+      --markee-admonition-background-question,
+      rgba(100, 221, 23, 0.1)
+    );
+
+    --mk-admonition-color-warning: var(
+      --markee-admonition-color-warning,
+      rgba(255, 145, 0, 0.8)
+    );
+    --mk-admonition-background-warning: var(
+      --markee-admonition-background-warning,
+      rgba(255, 145, 0, 0.1)
+    );
+
+    --mk-admonition-color-failure: var(
+      --markee-admonition-color-failure,
+      rgba(255, 82, 82, 0.8)
+    );
+    --mk-admonition-background-failure: var(
+      --markee-admonition-background-failure,
+      rgba(255, 82, 82, 0.1)
+    );
+
+    --mk-admonition-color-danger: var(
+      --markee-admonition-color-danger,
+      rgba(255, 23, 68, 0.8)
+    );
+    --mk-admonition-background-danger: var(
+      --markee-admonition-background-danger,
+      rgba(255, 23, 68, 0.1)
+    );
+
+    --mk-admonition-color-example: var(
+      --markee-admonition-color-example,
+      rgba(124, 77, 255, 0.8)
+    );
+    --mk-admonition-background-example: var(
+      --markee-admonition-background-example,
+      rgba(124, 77, 255, 0.1)
+    );
+
+    --mk-admonition-color-snippet: var(
+      --markee-admonition-color-snippet,
+      rgba(0, 184, 212, 0.8)
+    );
+    --mk-admonition-background-snippet: var(
+      --markee-admonition-background-snippet,
+      rgba(0, 184, 212, 0.1)
+    );
+
+    --mk-admonition-color-quote: var(
+      --markee-admonition-color-quote,
+      rgba(158, 158, 158, 0.8)
+    );
+    --mk-admonition-background-quote: var(
+      --markee-admonition-background-quote,
+      rgba(158, 158, 158, 0.1)
+    );
+
+    --mk-admonition-padding-default: 1.25rem;
+    --mk-admonition-padding-with-icon: 3rem;
+  }
+
+  markee-tabs {
+    display: block;
+  }
+
+  .mk-admonition {
+    /* Variables */
+    --admonition-icon: '';
+    --admonition-background: var(--mk-admonition-background-default);
+    --admonition-color: var(--mk-admonition-color-default);
+    --admonition-padding-left: var(--mk-admonition-padding-default);
+
+    /* Position */
+    position: relative;
+
+    /* Box */
+    margin: 1.5em 0;
+    padding: 0 1.25rem;
+
+    /* Appearance */
+    border: 1px solid var(--admonition-color);
+    border-radius: 0.25rem;
+    box-shadow:
+      0 0.25rem 0.5rem rgba(0, 0, 0, 0.05),
+      0 0 0.05rem rgba(0, 0, 0, 0.1);
+
+    > p {
+      /* Box */
+      margin: 0.75rem 0;
+
+      /* Typography */
+      font-size: 0.85em;
+    }
+
+    > .mk-admonition-title {
+      /* Box */
+      margin: 0 -1.25rem;
+      padding: 0.5rem 1rem 0.5rem var(--admonition-padding-left);
+
+      /* Appearance */
+      background-color: var(--admonition-background);
+
+      /* Display */
+      display: flex;
+      align-items: center;
+
+      /* Typography */
+      font-weight: 700;
+      font-size: 0.9em;
+
+      &:empty {
+        display: none;
+      }
+
+      &:not(:empty):before {
+        /* Typography */
+        font-family: Material Icons;
+        font-style: normal;
+        font-variant: normal;
+        font-weight: 400;
+        font-size: 1.25em;
+
+        /* Appearance */
+        color: var(--admonition-color);
+        content: var(--admonition-icon);
+
+        /* Display */
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+
+        /* Position */
+        position: absolute;
+        left: 1rem;
+      }
+
+      > p {
+        margin: 0;
+      }
+    }
+
+    > .mk-admonition-content {
+      padding-block: 1rem;
+
+      > *:first-child {
+        margin-block-start: 0;
+      }
+
+      > *:last-child {
+        margin-block-end: 0;
+      }
+    }
+
+    /* Note */
+    &.mk-note,
+      /* Summary */
+    &.mk-summary,
+    &.mk-abstract,
+    &.mk-tldr,
+      /* Hint */
+    &.mk-hint,
+    &.mk-tip,
+    &.mk-important,
+      /* Info */
+    &.mk-info,
+    &.mk-todo,
+      /* Success */
+    &.mk-success,
+    &.mk-check,
+    &.mk-done,
+      /* Question */
+    &.mk-question,
+    &.mk-help,
+    &.mk-faq,
+      /* Warning */
+    &.mk-warning,
+    &.mk-attention,
+    &.mk-caution,
+      /* Failure */
+    &.mk-failure,
+    &.mk-fail,
+    &.mk-missing,
+      /* Danger */
+    &.mk-danger,
+    &.mk-error,
+    &.mk-bug,
+      /* Example */
+    &.mk-example,
+      /* Snippet */
+    &.mk-snippet,
+      /* Quote */
+    &.mk-quote,
+    &.mk-cite {
+      /* Appearance */
+      --admonition-padding-left: var(--mk-admonition-padding-with-icon);
+    }
+
+    &.mk-note {
+      /* Appearance */
+      --admonition-icon: '\f05b';
+    }
+
+    &.mk-summary,
+    &.mk-abstract,
+    &.mk-tldr {
+      /* Appearance */
+      --admonition-color: var(--mk-admonition-color-summary);
+      --admonition-background: var(--mk-admonition-background-summary);
+      --admonition-icon: '\E8D2';
+    }
+
+    &.mk-hint,
+    &.mk-tip,
+    &.mk-important {
+      /* Appearance */
+      --admonition-color: var(--mk-admonition-color-hint);
+      --admonition-background: var(--mk-admonition-background-hint);
+      --admonition-icon: '\E80E';
+    }
+
+    &.mk-info,
+    &.mk-todo {
+      /* Appearance */
+      --admonition-color: var(--mk-admonition-color-info);
+      --admonition-background: var(--mk-admonition-background-info);
+      --admonition-icon: '\E88E';
+    }
+
+    &.mk-success,
+    &.mk-check,
+    &.mk-done {
+      /* Appearance */
+      --admonition-color: var(--mk-admonition-color-success);
+      --admonition-background: var(--mk-admonition-background-success);
+      --admonition-icon: '\E876';
+    }
+
+    &.mk-question,
+    &.mk-help,
+    &.mk-faq {
+      /* Appearance */
+      --admonition-color: var(--mk-admonition-color-question);
+      --admonition-background: var(--mk-admonition-background-question);
+      --admonition-icon: '\E887';
+    }
+
+    &.mk-warning,
+    &.mk-attention,
+    &.mk-caution {
+      /* Appearance */
+      --admonition-color: var(--mk-admonition-color-warning);
+      --admonition-background: var(--mk-admonition-background-warning);
+    }
+
+    &.mk-attention {
+      /* Appearance */
+      --admonition-icon: '\E417';
+    }
+
+    &.mk-warning,
+    &.mk-caution {
+      /* Appearance */
+      --admonition-icon: '\E002';
+    }
+
+    &.mk-failure,
+    &.mk-fail,
+    &.mk-missing {
+      /* Appearance */
+      --admonition-color: var(--mk-admonition-color-failure);
+      --admonition-background: var(--mk-admonition-background-failure);
+      --admonition-icon: '\E14C';
+    }
+
+    &.mk-danger,
+    &.mk-error,
+    &.mk-bug {
+      /* Appearance */
+      --admonition-color: var(--mk-admonition-color-danger);
+      --admonition-background: var(--mk-admonition-background-danger);
+    }
+
+    &.mk-danger {
+      /* Appearance */
+      --admonition-icon: '\E3E7';
+    }
+
+    &.mk-error {
+      /* Appearance */
+      --admonition-icon: '\e000';
+    }
+
+    &.mk-bug {
+      /* Appearance */
+      --admonition-icon: '\E868';
+    }
+
+    &.mk-example {
+      /* Appearance */
+      --admonition-color: var(--mk-admonition-color-example);
+      --admonition-background: var(--mk-admonition-background-example);
+      --admonition-icon: '\e0f0';
+    }
+
+    &.mk-snippet {
+      /* Appearance */
+      --admonition-color: var(--mk-admonition-color-snippet);
+      --admonition-background: var(--mk-admonition-background-snippet);
+      --admonition-icon: '\e86f';
+    }
+
+    &.mk-quote,
+    &.mk-cite {
+      /* Appearance */
+      --admonition-color: var(--mk-admonition-color-quote);
+      --admonition-background: var(--mk-admonition-background-quote);
+      --admonition-icon: '\E244';
+    }
+  }
+
+  summary.mk-admonition-title::after {
+    /* Typography */
+    font-family: Material Icons;
+    font-size: 1.5rem;
+
+    /* Display */
+    display: block;
+    content: '\e5cc';
+
+    /* Box */
+    margin-left: auto;
+    margin-top: -0.5rem;
+    margin-bottom: -0.5rem;
+
+    /* Position */
+    transform: rotate(90deg);
+    transition: transform 0.2s;
+  }
+
+  [open] > summary.mk-admonition-title::after {
+    /* Position */
+    transform: rotate(270deg);
+  }
+
+  .mk-tabbed-input {
+    /* Display */
+    display: none;
+
+    & + .mk-tabbed-content {
+      /* Display */
+      display: none;
+    }
+
+    &:checked + .mk-tabbed-content {
+      /* Display */
+      display: block;
+    }
+  }
+
+  .mk-tabbed {
+    > .mk-tabbed-tabs {
+      /* Display */
+      display: flex;
+
+      /* Position */
+      position: relative;
+
+      /* Box */
+      padding: 0;
+    }
+
+    > .mk-admonition-title::before {
+      display: none;
+    }
+  }
+
+  .mk-tabbed-label-input {
+    /* Position */
+    position: absolute;
+
+    /* Appearance */
+    opacity: 0;
+
+    /* Display */
+    pointer-events: none;
+
+    &:checked + .mk-tabbed-title {
+      /* Box */
+      border-bottom: 0.2rem solid var(--admonition-color);
+    }
+
+    &:focus + .mk-tabbed-title {
+      /* Appearance */
+      background-color: var(--admonition-background);
+    }
+  }
+
+  .mk-tabbed-title {
+    /* Display */
+    cursor: pointer;
+
+    /* Box */
+    padding: 0.3rem 1rem;
+    box-sizing: border-box;
+    border-top: 0.2rem solid transparent;
+    border-bottom: 0.2rem solid transparent;
+
+    > p {
+      margin: 0;
+    }
+  }
+}

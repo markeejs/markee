@@ -1,0 +1,8 @@
+import 'prismjs/plugins/toolbar/prism-toolbar.js'
+import 'prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.js'
+import 'prismjs/plugins/line-highlight/prism-line-highlight.js'
+import 'prismjs/plugins/line-numbers/prism-line-numbers.js'
+import 'prismjs/plugins/autolinker/prism-autolinker.js'
+import 'prismjs/components/prism-diff'
+import 'prismjs/plugins/diff-highlight/prism-diff-highlight.js'
+import 'prismjs/plugins/inline-color/prism-inline-color.js'

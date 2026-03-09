@@ -1,0 +1,56 @@
+@layer markee-extension {
+    markee-logo {
+        display: inline-flex;
+        align-items: center;
+        font-weight: 800;
+        font-size: 2rem;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        color: var(--mk-color-text);
+
+        > small {
+            opacity: 0.25;
+            letter-spacing: -0.25em;
+            display: inline-block;
+            padding-inline: 0.25em;
+        }
+
+        > em {
+            font-style: normal;
+            color: var(--mk-color-primary);
+        }
+
+        &:hover > small {
+            transform-origin: 50% 60%;
+            animation: markee-logo-rotate .3s linear forwards;
+        }
+
+        &:hover > em {
+            transform-origin: 0 60%;
+            animation: markee-logo-pulse .3s linear forwards;
+        }
+    }
+
+    @keyframes markee-logo-rotate {
+        0% {
+            transform: rotate(0deg);
+        }
+        50% {
+            transform: rotate(180deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    @keyframes markee-logo-pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(0.7);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+}

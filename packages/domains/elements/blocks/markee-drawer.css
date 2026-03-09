@@ -1,0 +1,52 @@
+@layer markee {
+  markee-drawer [popover] {
+    inset: 0;
+    height: 100%;
+    min-width: 24rem;
+    border: none;
+    margin: 0;
+
+    &[data-side='right'] {
+      left: auto;
+    }
+
+    &::backdrop {
+      opacity: 0;
+      background: rgba(0, 0, 0, 0.5);
+      transition:
+        opacity 0.3s,
+        display 0.2s allow-discrete,
+        overlay 0.2s allow-discrete;
+    }
+
+    transform: translateX(-100%);
+    transition:
+      transform 0.3s,
+      display 0.2s allow-discrete,
+      overlay 0.2s allow-discrete;
+
+    &[data-side='right'] {
+      transform: translateX(100%);
+    }
+
+    &:popover-open {
+      transform: translateX(0);
+
+      &::backdrop {
+        opacity: 1;
+      }
+
+      @starting-style {
+        transform: translateX(-100%);
+
+        &[data-side='right'] {
+          transform: translateX(100%);
+        }
+
+        &::backdrop {
+          opacity: 1;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+markee-collapse {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 250ms ease;
+}
+
+markee-collapse[hidden] {
+  display: grid;
+  grid-template-rows: 0fr;
+}
+
+markee-collapse > div {
+  overflow: hidden;
+  min-height: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  markee-collapse {
+    transition: none;
+  }
+}

@@ -1,0 +1,15 @@
+@layer markee {
+  markee-document-suggestion {
+    [data-breadcrumbs] {
+      font-size: 0.9em;
+    }
+
+    li {
+      margin-block-end: 0.25rem;
+    }
+
+    pre {
+      margin: 0;
+    }
+  }
+}

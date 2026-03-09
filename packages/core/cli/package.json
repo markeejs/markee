@@ -1,0 +1,61 @@
+{
+  "name": "@markee/cli",
+  "version": "0.1.0",
+  "license": "MIT",
+  "bin": {
+    "markee": "./bin.js"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:site": "cd ../../../website && tsx --tsconfig ../packages/core/cli/tsconfig.json ../packages/core/cli/src/index.ts build",
+    "build:website": "pnpm run build:site",
+    "preview:site": "cd ../../../website && tsx --tsconfig ../packages/core/cli/tsconfig.json ../packages/core/cli/src/index.ts serve",
+    "start": "cd ../../../website && tsx --tsconfig ../packages/core/cli/tsconfig.json --watch ../packages/core/cli/src/index.ts dev",
+    "lint:tsc": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@fastify/static": "^9.0.0",
+    "@markee/client": "0.1.0",
+    "@markee/default": "0.1.0",
+    "@markee/runtime": "0.1.0",
+    "attributes-parser": "^2.2.3",
+    "colors": "^1.4.0",
+    "command-line-args": "^6.0.1",
+    "command-line-usage": "^7.0.3",
+    "dedent": "^1.7.2",
+    "deepmerge": "^4.3.1",
+    "enquirer": "^2.4.1",
+    "es-module-lexer": "^2.0.0",
+    "fastify": "^5.8.2",
+    "fastify-sse-v2": "^4.2.2",
+    "fs-extra": "^11.3.4",
+    "github-slugger": "^2.0.0",
+    "globby": "^16.1.1",
+    "js-sha1": "^0.7.0",
+    "markdown-it": "^14.1.1",
+    "markdown-it-attrs": "^4.3.1",
+    "markdown-it-front-matter": "^0.2.4",
+    "micromatch": "^4.0.8",
+    "promise-limit": "^2.7.0",
+    "reading-time-estimator": "^2.1.1",
+    "rss": "^1.2.2",
+    "sitemap": "^9.0.1",
+    "yaml": "^2.8.2"
+  },
+  "devDependencies": {
+    "@types/command-line-args": "^5.2.3",
+    "@types/command-line-usage": "^5.0.4",
+    "@types/fs-extra": "^11.0.4",
+    "@types/markdown-it": "^14.1.2",
+    "@types/markdown-it-attrs": "^4.1.3",
+    "@types/micromatch": "^4.0.10",
+    "@types/rss": "^0.0.32"
+  }
+}

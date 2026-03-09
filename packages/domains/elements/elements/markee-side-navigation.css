@@ -1,0 +1,97 @@
+@layer markee {
+  markee-side-navigation {
+    display: flex;
+    flex-direction: column;
+    padding: 0 1rem;
+    position: sticky;
+    top: calc(var(--mk-header-height) + 1rem);
+    height: 100%;
+    max-height: calc(100vh - 1rem - var(--mk-header-height));
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      ul {
+        padding-inline-start: 1rem;
+      }
+    }
+
+    ul:not(:is(ul ul)) {
+      padding-bottom: 1rem;
+    }
+
+    markee-collapse:not(:is(markee-collapse markee-collapse)) {
+      width: max-content;
+    }
+
+    li > a,
+    li > span {
+      display: flex;
+      align-items: center;
+      flex-wrap: nowrap;
+      text-decoration: none;
+      color: var(--mk-color-text);
+      margin-top: 0.5em;
+      min-width: var(--private-min-entry-width, auto);
+      white-space: var(--private-white-space, normal);
+
+      &[data-selected='true'] {
+        font-weight: 600;
+        color: var(--mk-color-primary);
+      }
+
+      [data-outdated] {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 50%;
+        background: var(--mk-admonition-color-warning);
+        margin-inline-start: auto;
+      }
+
+      markee-hovercard {
+        color: var(--mk-color-text);
+        font-weight: normal;
+
+        > div {
+          max-width: 20rem;
+          background-color: var(--mk-color-background-light);
+          border: 1px solid var(--mk-color-border);
+          padding: 0.5rem;
+          border-radius: 0.25rem;
+        }
+      }
+    }
+
+    > input {
+      anchor-name: --input;
+      appearance: none;
+      -moz-appearance: none;
+      background-color: var(--mk-color-background);
+      border: 1px solid var(--mk-color-border);
+      border-radius: 0.25rem;
+      padding: 0.5em;
+      font-size: 0.9em;
+      transition: width 0.2s;
+    }
+
+    > [data-icon] {
+      position: absolute;
+      position-anchor: --input;
+      /*noinspection ALL*/
+      right: calc(anchor(right) + 0.5rem);
+      /*noinspection ALL*/
+      top: anchor(top);
+      /*noinspection ALL*/
+      bottom: anchor(bottom);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+}

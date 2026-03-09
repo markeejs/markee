@@ -1,0 +1,20 @@
+{
+  "name": "@markee/revealjs",
+  "version": "0.1.0",
+  "description": "Markee RevealJS support",
+  "license": "MIT",
+  "main": "extension.yaml",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vite build",
+    "lint:tsc": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@markee/vite": "0.1.0",
+    "@types/reveal.js": "^5.2.2",
+    "reveal.js": "^5.2.1",
+    "vite": "^8.0.0"
+  }
+}

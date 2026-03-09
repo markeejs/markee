@@ -1,0 +1,105 @@
+@layer markee-extension {
+  markee-kroki {
+    display: grid;
+  }
+
+  [data-color-scheme='dark'] {
+    markee-kroki {
+      filter: invert(88%) hue-rotate(180deg);
+    }
+  }
+
+  markee-kroki {
+    display: block;
+    svg {
+      max-width: 100% !important;
+      height: fit-content !important;
+    }
+  }
+  markee-kroki.ginlined-content {
+    width: 100% !important;
+    height: auto !important;
+
+    svg {
+      width: 100%;
+      height: 95%;
+    }
+  }
+
+  markee-kroki [style*='#filter_blur'] {
+    display: none;
+  }
+
+  .ginlined-content.kroki {
+    user-select: text;
+    min-width: 100vw;
+    padding: 1rem 6rem;
+    text-align: center;
+  }
+
+  a:has(.markee-kroki-error, .markee-kroki-loader) {
+    text-decoration: none;
+  }
+
+  .markee-kroki-loader {
+    color: var(--mk-color-text);
+    font-weight: 700;
+    font-size: 0.8em;
+    border: 1px solid var(--mk-color-border);
+    background: var(--mk-color-background);
+    width: fit-content;
+    padding: 0.5em 0.75em;
+    margin: 0.25em 0;
+    border-radius: 0.5em;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+
+    > span {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+    }
+
+    > span::after {
+      content: '';
+      display: block;
+      box-sizing: border-box;
+      border-radius: 1rem;
+      border-width: 0.125rem;
+      border-style: solid;
+      width: 1rem;
+      height: 1rem;
+      border-color: var(--mk-color-primary) var(--mk-color-primary)
+        var(--mk-color-primary) transparent;
+      animation: markee-kroki-loading 1.2s linear infinite;
+    }
+  }
+
+  .markee-kroki-error {
+    text-decoration: none;
+    color: var(--mk-admonition-color-danger);
+    font-weight: 700;
+    font-size: 0.8em;
+    background: var(--mk-admonition-background-danger);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    width: fit-content;
+    padding: 0.5em 0.75em;
+    margin: 0.25em 0;
+    border-radius: 0.5em;
+    gap: 0.5em;
+  }
+
+  a:has(.markee-kroki-error, .markee-kroki-loader) {
+    pointer-events: none;
+  }
+
+  @keyframes markee-kroki-loading {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(1turn);
+    }
+  }
+}

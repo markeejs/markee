@@ -1,0 +1,7 @@
+@import 'glightbox/dist/css/glightbox.css' layer(markee);
+@import '@fortawesome/fontawesome-free/css/fontawesome.css' layer(markee);
+@import '@fortawesome/fontawesome-free/css/brands.css' layer(markee);
+@import '@fortawesome/fontawesome-free/css/solid.css' layer(markee);
+@import '@fortawesome/fontawesome-free/css/regular.css' layer(markee);
+@import '@mdi/font/css/materialdesignicons.css' layer(markee);
+@import 'simple-icons-font/font/simple-icons.css' layer(markee);

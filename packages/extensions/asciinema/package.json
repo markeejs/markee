@@ -1,0 +1,19 @@
+{
+  "name": "@markee/asciinema",
+  "version": "0.1.0",
+  "description": "Markee Asciinema support",
+  "license": "MIT",
+  "main": "extension.yaml",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vite build",
+    "lint:tsc": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@markee/vite": "0.1.0",
+    "asciinema-player": "^3.15.1",
+    "vite": "^8.0.0"
+  }
+}

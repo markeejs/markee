@@ -1,0 +1,18 @@
+@layer markee {
+  .ginlined-content.mermaid {
+    user-select: text;
+    min-width: 100vw;
+    padding: 1rem 6rem;
+    text-align: center;
+
+    svg {
+      margin: auto;
+    }
+  }
+  .mermaid-glightbox {
+    display: none;
+  }
+  .gslide-media {
+    background-color: var(--mk-color-background-light);
+  }
+}

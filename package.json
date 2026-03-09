@@ -1,0 +1,44 @@
+{
+  "name": "markee",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Markdown-based website generator",
+  "license": "MIT",
+  "scripts": {
+    "format": "pnpm run format:syncpack && pnpm run format:oxfmt",
+    "format:oxfmt": "oxfmt package.json packages",
+    "format:syncpack": "syncpack fix",
+    "licenses:sync": "pnpm -r --filter './packages/**' exec sh -c 'node-jq \".license = \\\"MIT\\\"\" package.json > _package.json && mv _package.json package.json && cp ../../../LICENSE LICENSE' && pnpm format:syncpack",
+    "lint": "pnpm run lint:oxfmt && pnpm run lint:oxlint && pnpm run lint:syncpack",
+    "lint:oxfmt": "oxfmt --check package.json packages",
+    "lint:oxlint": "oxlint packages",
+    "lint:syncpack": "syncpack lint --dependency-types prod,dev",
+    "lint:tsc": "pnpm -r lint:tsc",
+    "preview": "cd website && markee preview",
+    "start": "pnpm --parallel -F @markee/client -F @markee/cli start"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.30.0",
+    "node-jq": "^6.3.1",
+    "oxfmt": "^0.40.0",
+    "oxlint": "^1.55.0",
+    "syncpack": "^14.2.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "resolutions": {
+    "lodash-es": "^4.17.23",
+    "prismjs": "^1.30.0",
+    "seroval": "^1.5.1"
+  },
+  "packageManager": "pnpm@9.1.1",
+  "syncpack": {
+    "versionGroups": [
+      {
+        "dependencies": [
+          "@markee/*"
+        ]
+      }
+    ]
+  }
+}

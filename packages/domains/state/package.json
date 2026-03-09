@@ -1,0 +1,19 @@
+{
+  "name": "@markee/state",
+  "version": "0.1.0",
+  "description": "Stateful atoms for the Markee site generator",
+  "license": "MIT",
+  "main": "index.js",
+  "types": "index.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@markee/pipeline": "0.1.0",
+    "@markee/search": "0.1.0",
+    "@markee/types": "0.1.0",
+    "@nanostores/persistent": "^1.2.0",
+    "@nanostores/router": "^1.0.0",
+    "nanostores": "^1.1.0"
+  }
+}

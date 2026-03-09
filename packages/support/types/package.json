@@ -1,0 +1,9 @@
+{
+  "name": "@markee/types",
+  "version": "0.1.0",
+  "license": "MIT",
+  "types": "index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  }
+}

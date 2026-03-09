@@ -1,0 +1,338 @@
+.home {
+    .btn {
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        display: inline-block;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        background-color: var(--mk-flow-color-background-secondary);
+        color: var(--mk-color-text);
+        margin-inline: 0.5rem;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+    }
+
+    .btn-primary {
+        background: var(--mk-color-text);
+        color: var(--mk-color-background-light);
+    }
+
+    .btn-cta {
+        display: inline-flex;
+        gap: 0.5em;
+        cursor: pointer;
+        background: var(--mk-color-primary);
+        color: white;
+
+        &::after {
+            content: '⇢';
+            display: inline-block;
+            margin-inline-end: -0.25rem;
+            transition: transform 0.3s ease;
+        }
+
+        &:hover::after {
+            transform: scale(1.25) translateX(0.125rem);
+        }
+    }
+
+    #markee-header {
+        border: none;
+        background: none;
+        height: 5rem;
+    }
+
+    #markee-main {
+        display: grid;
+        grid-template-areas: "main";
+        grid-template-columns: 1fr;
+    }
+
+    #markee-section-main {
+        max-width: 90rem;
+        padding-block-end: 10rem;
+        padding-inline: 2rem;
+    }
+
+    #hero {
+        text-align: center;
+        padding: 6rem 0 2rem 0;
+        margin-block-end: 4rem;
+
+        h2 {
+            font-size: calc(4rem  * var(--private-heading-font-scale));
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.025em;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+
+            > span {
+                background-size: 200% 100%;
+                animation: markee-flow-glimmer 6s linear infinite;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+            > :first-child {
+                background-image: linear-gradient(135deg,
+                    var(--mk-color-text),
+                    var(--mk-color-text),
+                    var(--mk-color-hint),
+                    var(--mk-color-text),
+                    var(--mk-color-text)
+                );
+            }
+
+            > :last-child {
+                background-image: linear-gradient(135deg,
+                    var(--mk-color-primary),
+                    var(--mk-color-primary),
+                    var(--mk-flow-color-secondary),
+                    var(--mk-flow-color-secondary-lighter),
+                    var(--mk-color-primary),
+                    var(--mk-color-primary)
+                );
+                animation-direction: reverse;
+            }
+        }
+
+        p {
+            max-width: 600px;
+            margin: 0 auto 2.5rem auto;
+            font-size: 1.35rem;
+        }
+    }
+
+    h3 {
+        font-size: calc(2.5rem * var(--private-heading-font-scale));
+        margin-block: 1rem;
+        letter-spacing: -0.025em;
+        font-weight: 800;
+    }
+
+    h4 {
+        font-size: calc(1.5rem * var(--private-heading-font-scale));
+        margin-block: 0.5rem;
+        letter-spacing: -0.025em;
+        font-weight: 800;
+    }
+
+    markee-content p {
+        font-size: 1.125rem;
+    }
+
+    .feature {
+        display: flex;
+        align-items: center;
+        gap: 4rem;
+        margin-block-end: 8rem;
+
+        > div, > pre {
+            flex: 1;
+        }
+
+        > :last-child {
+            background: var(--mk-flow-color-background);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--mk-flow-color-border);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+        }
+    }
+
+    #routing {
+        .fs-visualizer {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .fs-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+        }
+
+        .fs-arrow {
+            color: var(--mk-color-primary);
+        }
+
+        .fs-file {
+            color: var(--mk-color-text);
+            font-weight: bold;
+        }
+
+        .fs-url {
+            color: var(--mk-color-hint);
+            background: var(--mk-flow-color-background-element);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+    }
+
+    #pipeline {
+        flex-direction: row-reverse;
+
+        > :last-child {
+            display:flex;
+            flex-direction: column;
+            gap:1rem;
+            align-items:center;
+            font-weight: 700;
+        }
+    }
+
+    #layout {
+        .layout-grid-visual {
+            display: grid;
+            grid-template-areas:
+                'head head head'
+                'top top top'
+                'left doc right'
+                'bottom bottom bottom'
+                'foot foot foot';
+            grid-template-columns: 1fr 3fr 1fr;
+            grid-template-rows: 1fr 1fr 2fr 1fr 1fr;
+            gap: 8px;
+            height: 300px;
+            padding: 8px;
+        }
+
+        .lg-part {
+            background: var(--mk-flow-color-background-element);
+            border: 2px dashed rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--mk-color-primary);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .lg-doc {
+            grid-area: doc;
+            background: rgba(139, 92, 246, 0.1);
+            border-color: rgba(139, 92, 246, 0.3);
+            color: var(--mk-flow-color-secondary);
+        }
+
+        .lg-head { grid-area: head; }
+        .lg-foot { grid-area: foot; }
+        .lg-top { grid-area: top; }
+        .lg-bottom { grid-area: bottom; }
+        .lg-left { grid-area: left; }
+        .lg-right { grid-area: right; }
+
+        .lg-head, .lg-foot {
+            background: rgba(139, 139, 139, 0.1);
+            border-color: rgba(139, 139, 139, 0.3);
+            color: var(--mk-color-hint);
+        }
+    }
+
+    #extensibility {
+        gap: 2rem;
+        align-items: stretch;
+
+        h3:has(+ &) {
+            justify-content: center;
+            margin-block-end: 2rem;
+        }
+
+        > :first-child {
+            background: var(--mk-flow-color-background);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--mk-flow-color-border);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+        }
+
+        > :last-child {
+            padding: 0;
+            background: none;
+            border: none;
+            box-shadow: none;
+        }
+
+        pre {
+            margin: 0;
+            border-radius: 1.5rem;
+        }
+    }
+
+    #flow {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #markee-footer {
+        markee-logo {
+            display: inline-flex;
+        }
+
+        padding-bottom: 4rem;
+    }
+
+    @media (max-width: 60rem) {
+        #markee-section-main {
+            padding-inline: 1rem;
+        }
+
+        markee-content h3, markee-content h4 {
+            text-align: center;
+        }
+
+        markee-content p {
+            text-align: center;
+        }
+
+        .feature, #pipeline, #extensibility {
+            flex-direction: column;
+            align-items: center;
+
+            > div {
+                width: 100%;
+                max-width: 40rem;
+            }
+        }
+
+        .feature:not(#extensibility) {
+            > div:last-child {
+                padding: 1rem;
+            }
+        }
+    }
+
+    @media (max-width: 40rem) {
+        #hero {
+            padding-block: 2rem 0;
+        }
+    }
+}
+
+@keyframes markee-flow-glimmer {
+    from {
+        background-position: 0% 50%;
+    }
+    to {
+        background-position: 200% 50%;
+    }
+}

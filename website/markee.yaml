@@ -1,0 +1,51 @@
+title: Markee
+theme: flow
+repository: https://github.com/markeejs/markee/blob/main
+repositoryRoot: website/
+
+sources:
+  - root: pages
+    mount: /
+  - root: docs
+    mount: /docs
+  - root: blog
+    mount: /blog
+
+build:
+  rss:
+    blog:
+      filter:
+        folder: blog/
+      settings:
+        title: Markee Blog
+        description: 'Latest Markee news'
+        site: 'https://markee.dev'
+  sitemap:
+    site: 'https://markee.dev'
+
+plugins:
+  fileInclude:
+    includeCharacter: '%'
+  tooltips:
+    footnotes: true
+  kroki:
+    serverUrl: 'https://kroki.io/'
+    prerender: true
+
+extensions:
+  - '@markee/theme-flow'
+  - '@markee/asciinema'
+  - '@markee/diagrams'
+  - '@markee/mathjax'
+  - '@markee/likec4'
+  - '@markee/swaggerui'
+  - '@markee/revealjs'
+  - '@markee/placeholders'
+  - '@markee/tooltips'
+  - '@markee/kroki'
+
+watch:
+  - ../packages/extensions
+
+redirects:
+  redirect/test: /

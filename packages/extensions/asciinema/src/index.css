@@ -1,0 +1,7 @@
+asciinema-player {
+  display: block;
+
+  .ap-wrapper {
+    margin-inline: auto;
+  }
+}

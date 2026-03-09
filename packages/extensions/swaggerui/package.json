@@ -1,0 +1,21 @@
+{
+  "name": "@markee/swaggerui",
+  "version": "0.1.0",
+  "description": "Markee OpenAPI rendering with Swagger UI",
+  "license": "MIT",
+  "main": "extension.yaml",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vite build",
+    "lint:tsc": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@markee/vite": "0.1.0",
+    "attributes-parser": "^2.2.3",
+    "swagger-ui-dist": "^5.20.1",
+    "vite": "^8.0.0",
+    "yaml": "^2.8.2"
+  }
+}

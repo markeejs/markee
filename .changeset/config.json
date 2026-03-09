@@ -1,0 +1,37 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
+  "changelog": [
+    "@changesets/cli/changelog",
+    null
+  ],
+  "commit": false,
+  "fixed": [
+    [
+      "@markee/asciinema",
+      "@markee/cli",
+      "@markee/client",
+      "@markee/default",
+      "@markee/diagrams",
+      "@markee/elements",
+      "@markee/kroki",
+      "@markee/likec4",
+      "@markee/mathjax",
+      "@markee/pipeline",
+      "@markee/placeholders",
+      "@markee/revealjs",
+      "@markee/runtime",
+      "@markee/search",
+      "@markee/state",
+      "@markee/swaggerui",
+      "@markee/theme-flow",
+      "@markee/tooltips",
+      "@markee/types",
+      "@markee/vite"
+    ]
+  ],
+  "linked": [],
+  "access": "public",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "ignore": []
+}

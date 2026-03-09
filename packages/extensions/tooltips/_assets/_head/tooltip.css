@@ -1,0 +1,50 @@
+@layer markee-extension {
+  markee-title-tooltip {
+    position: relative;
+    display: inline-block;
+  }
+
+  markee-title-tooltip-content {
+    box-shadow: 1px 1px 1rem rgba(0, 0, 0, 0.1);
+    background: var(--mk-color-background-light);
+    border: 1px solid var(--mk-color-border);
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
+
+    position: fixed;
+    font-weight: 700;
+    font-size: 0.9rem;
+    pointer-events: none;
+
+    transform: translateY(-20%);
+    opacity: 0;
+
+    transition:
+      opacity 0.3s,
+      transform 0.3s,
+      pointer-events 0.3s allow-discrete;
+    transition-delay: 0s, 0s, 0.3s;
+    z-index: 100;
+
+    [data-footnote-tooltip] & {
+      font-weight: 500;
+      font-size: 0.9em;
+      padding: 0.5rem 0.75rem;
+      max-width: 24rem;
+      width: max-content;
+      transition-delay: 0.4s, 0.4s, 0.7s;
+    }
+  }
+
+  markee-title-tooltip:hover markee-title-tooltip-content,
+  markee-title-tooltip:focus-within markee-title-tooltip-content {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.4s, 0.4s, 0s;
+    pointer-events: all;
+  }
+
+  markee-title-tooltip-paragraph {
+    display: block;
+  }
+}

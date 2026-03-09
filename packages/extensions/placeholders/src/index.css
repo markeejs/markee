@@ -1,0 +1,91 @@
+:root {
+  --markee-color-placeholders: var(--mk-admonition-color-example);
+  --markee-color-background-placeholders: var(
+    --mk-admonition-background-example
+  );
+}
+
+body {
+  --mk-color-placeholders: var(--markee-color-placeholders);
+  --mk-color-background-placeholders: var(
+    --markee-color-background-placeholders
+  );
+}
+
+markee-placeholder,
+markee-placeholder-variable {
+  color: var(--mk-color-placeholders);
+  font-weight: 700;
+  background-color: var(--mk-color-background-placeholders);
+  border-radius: 0.25em;
+  padding-inline-end: 0.25em;
+
+  display: inline-flex;
+  gap: 0.25em;
+  align-items: center;
+
+  span,
+  code {
+    color: var(--mk-color-placeholders);
+    padding-inline-start: 0.25em;
+    padding-inline-end: 1.25em;
+    margin-inline-end: -1.25em;
+    background-color: transparent;
+  }
+
+  i {
+    pointer-events: none;
+    font-size: 0.75em;
+    opacity: 0.5;
+  }
+
+  &:focus-within i,
+  &:hover i {
+    opacity: 1;
+  }
+}
+
+markee-placeholder-variable {
+  background-color: transparent;
+  padding-inline: 0;
+
+  span,
+  code {
+    padding-inline: 0;
+    margin-inline: 0;
+  }
+
+  &:has(span:empty),
+  span:empty {
+    display: inline-block;
+  }
+}
+
+markee-placeholder-inputs {
+  display: block;
+
+  table {
+    width: fit-content;
+    margin-bottom: 2rem;
+  }
+
+  table tbody td:first-child {
+    font-family: 'Roboto Mono', monospace;
+    vertical-align: middle;
+
+    small {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      background-color: var(--mk-color-background-code);
+      padding: 0.2em 0.4em;
+      border-radius: 0.4em;
+      margin-left: 0.5em;
+    }
+  }
+  table input {
+    border: 1px solid var(--mk-color-border);
+    border-radius: 0.25rem;
+    padding: 0.25rem;
+  }
+}

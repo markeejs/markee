@@ -1,0 +1,197 @@
+@layer markee {
+  markee-search {
+    > [data-results] {
+      display: none;
+      z-index: 1;
+      position: absolute;
+      position-anchor: --input;
+      /*noinspection ALL*/
+      top: calc(anchor(bottom) + 0.5rem);
+      /*noinspection ALL*/
+      right: anchor(right);
+      width: 50rem;
+      height: min(60vh, 48rem);
+      background-color: var(--mk-color-background-light);
+      border: 1px solid var(--mk-color-border);
+      border-radius: 0.25rem;
+      overflow-y: auto;
+      overflow-x: hidden;
+
+      markee-search[data-active] > & {
+        display: block;
+      }
+    }
+
+    > [data-icon] {
+      position: absolute;
+      position-anchor: --input;
+      /*noinspection ALL*/
+      right: calc(anchor(right) + 0.5rem);
+      /*noinspection ALL*/
+      top: anchor(top);
+      /*noinspection ALL*/
+      bottom: anchor(bottom);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    > [data-backdrop] {
+      display: none;
+      position: fixed;
+      inset: 0;
+      height: 100dvh;
+      background-color: rgba(0, 0, 0, 0.25);
+      z-index: 1;
+
+      markee-search[data-active] > & {
+        display: block;
+      }
+    }
+
+    > input {
+      anchor-name: --input;
+      appearance: none;
+      -moz-appearance: none;
+      background-color: var(--mk-color-background);
+      border: 1px solid var(--mk-color-border);
+      border-radius: 0.25rem;
+      padding: 0.5em;
+      font-size: 0.9em;
+      transition: width 0.2s;
+      width: 10rem;
+      color: var(--mk-color-text);
+
+      &:active,
+      &:focus {
+        width: 20rem;
+      }
+    }
+
+    &[data-active] > input {
+      z-index: 1;
+      position: relative;
+    }
+
+    &[data-active] > [data-icon] {
+      z-index: 1;
+    }
+  }
+
+  markee-search-section {
+    > strong {
+      width: 100%;
+      display: inline-block;
+      padding: 0.5em;
+      background-color: var(--mk-color-background);
+      border-bottom: 1px solid var(--mk-color-border);
+    }
+
+    &:not(:first-child) > strong {
+      border-top: 1px solid var(--mk-color-border);
+    }
+  }
+
+  markee-search-file {
+    display: block;
+    padding-block: 0.5rem;
+
+    a[data-result] {
+      color: inherit;
+      text-decoration: none;
+      display: block;
+      margin-block: 0.5em;
+      padding-block: 0.5em;
+      padding-inline: 2em 1em;
+
+      > div > :first-child {
+        margin-block-start: 0;
+      }
+      > div > :last-child {
+        margin-block-end: 0;
+      }
+
+      &:hover {
+        color: inherit;
+        background-color: var(--mk-color-background);
+      }
+    }
+
+    pre {
+      background-color: var(--mk-color-background);
+      border-radius: 0.25rem;
+      border: 1px solid var(--mk-color-border);
+      padding: 0.5rem;
+      overflow-x: auto;
+    }
+
+    > strong {
+      font-size: 1.2em;
+      padding-inline: 1rem;
+    }
+
+    > div:nth-of-type(1) {
+      font-weight: 600;
+      font-size: 0.9em;
+      padding-inline: 1rem;
+
+      :not([data-separator]) {
+        opacity: 0.7;
+      }
+
+      [data-separator] {
+        color: var(--mk-color-primary);
+        font-weight: 600;
+      }
+    }
+
+    > div:nth-of-type(2) {
+      margin-top: 0.5rem;
+      padding-inline: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      font-size: 0.8em;
+
+      > span {
+        padding: 0.125rem 0.75rem;
+        border-radius: 5rem;
+        border: 1px solid var(--mk-color-border);
+        background-color: var(--mk-color-background);
+
+        &:has(mark) {
+          background-color: var(--mk-color-background-mark);
+          border-color: var(--mk-color-primary);
+        }
+
+        mark {
+          display: contents;
+        }
+      }
+    }
+
+    > button {
+      appearance: none;
+      -moz-appearance: none;
+      background-color: transparent;
+      border: none;
+      color: var(--mk-color-primary);
+      padding-inline: 1rem;
+      font-size: 1em;
+      cursor: pointer;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    &:has(+ markee-search-file) {
+      border-bottom: 1px solid var(--mk-color-border);
+      padding-bottom: 1em;
+      margin-bottom: 0.5em;
+    }
+  }
+}

@@ -1,0 +1,50 @@
+@layer markee {
+  markee-select {
+    display: contents;
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5em;
+      appearance: none;
+      -moz-appearance: none;
+      background-color: var(--mk-color-background);
+      border: 1px solid var(--mk-color-border);
+      border-radius: 0.25rem;
+      padding: 0.25em 0.5em;
+      font-size: 0.9em;
+      cursor: pointer;
+
+      [aria-hidden='true'] {
+        transform: translateY(-1px);
+      }
+    }
+
+    [role='listbox'] {
+      flex-direction: column;
+      background-color: var(--mk-color-background-light);
+      border: 1px solid var(--mk-color-border);
+      border-radius: 0.25rem;
+      font-size: 0.9em;
+
+      &[data-open='true'] {
+        display: flex;
+      }
+
+      > div {
+        display: flex;
+        flex-direction: column;
+      }
+    }
+  }
+
+  markee-option {
+    display: block;
+    cursor: pointer;
+    padding: 0.25em 0.5em;
+
+    &:hover {
+      background-color: var(--mk-color-background-target);
+    }
+  }
+}

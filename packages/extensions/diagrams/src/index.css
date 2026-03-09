@@ -1,0 +1,73 @@
+@layer markee-extension {
+  markee-diagram {
+    display: block;
+    margin: 1.2rem 0;
+  }
+
+  a.glightbox > markee-diagram {
+    position: relative;
+  }
+
+  a.glightbox > markee-diagram::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .ginlined-content.diagram {
+    min-width: 100vw;
+    padding: 1rem 6rem;
+    text-align: center;
+  }
+
+  markee-diagram .markee-diagram-status,
+  markee-diagram .markee-diagram-error {
+    border: 1px solid var(--mk-color-border, #d9d9d9);
+    border-radius: 0.5rem;
+    background: var(--mk-color-background, #fafafa);
+    color: var(--mk-color-text, #333);
+    padding: 0.75rem 0.9rem;
+  }
+
+  markee-diagram .markee-diagram-status {
+    font-style: italic;
+  }
+
+  markee-diagram .markee-diagram-error {
+    border-left: 4px solid var(--mk-admonition-color-danger);
+  }
+
+  markee-diagram .markee-diagram-error pre {
+    margin: 0.6rem 0 0;
+    overflow: auto;
+    font-size: 0.875rem;
+    white-space: pre-wrap;
+  }
+
+  markee-diagram .markee-diagram-mermaid,
+  markee-diagram .markee-diagram-dbml {
+    overflow-x: auto;
+  }
+
+  markee-diagram .markee-diagram-mermaid > svg,
+  markee-diagram .markee-diagram-dbml > svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+  }
+
+  markee-diagram .markee-diagram-dbml,
+  markee-diagram .markee-diagram-dbml * {
+    pointer-events: none !important;
+  }
+
+  [data-color-scheme='dark'] {
+    markee-diagram {
+      filter: invert(88%) hue-rotate(180deg);
+    }
+  }
+}

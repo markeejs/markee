@@ -1,0 +1,37 @@
+blog-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    color: var(--mk-flow-color-text-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-block-end: -1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    position: relative;
+
+    span:nth-of-type(1) {
+        color: var(--mk-color-primary);
+    }
+    span:nth-of-type(2n) {
+        font-size: 2rem;
+        font-family: "Maple Mono", monospace;
+    }
+
+    img {
+        position: absolute;
+        top: -3rem;
+        left: -4rem;
+        right: -4rem;
+        max-width: calc(100% + 8rem);
+        border-radius: 1.5rem 1.5rem 0 0;
+        z-index: -1;
+
+        mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 1));
+
+        body[data-color-scheme='dark'] & {
+            filter: invert(1) hue-rotate(180deg);
+        }
+    }
+}

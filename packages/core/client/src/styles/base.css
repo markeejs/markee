@@ -1,0 +1,185 @@
+@layer markee {
+  * {
+    box-sizing: border-box;
+  }
+
+  html[class] {
+    overflow: visible;
+  }
+
+  body {
+    --mk-color-text: var(--markee-color-text, #000000);
+    --mk-color-hint: var(--markee-color-hint, #868e96);
+    --mk-color-navlink: var(--markee-color-navlink, #212529);
+    --mk-color-primary: var(--markee-color-primary, #3b82f6);
+    --mk-color-primary-darker: var(--markee-color-primary-darker, #1864ab);
+    --mk-color-background: var(--markee-color-background, #f8f9fa);
+    --mk-color-background-light: var(--markee-color-background-light, #ffffff);
+    --mk-color-background-code: var(--markee-color-background-code, #f8f9fa);
+    --mk-color-background-mark: var(--markee-color-mark, #228be633);
+    --mk-color-background-target: var(
+      --markee-color-background-target,
+      #228be633
+    );
+    --mk-color-border: var(--markee-color-border, #e9ecefff);
+    --mk-color-border-blockquote: var(
+      --markee-color-border-blockquote,
+      #ced4daff
+    );
+    --mk-max-width: var(--markee-max-width, 100rem);
+    --mk-header-height: var(--markee-header-height, 3rem);
+    --mk-footer-height: var(--markee-footer-height, 0rem);
+    --mk-color-outdated: var(
+      --markee-color-outdated,
+      var(--mk-admonition-color-warning)
+    );
+
+    --private-heading-font-scale: 1;
+  }
+
+  body[data-color-scheme='dark'] {
+    --mk-color-text: var(--markee-color-text, #c9c9c9);
+    --mk-color-hint: var(--markee-color-hint, #ced4da);
+    --mk-color-navlink: var(--markee-color-navlink, #c9c9c9);
+    --mk-color-background: var(--markee-color-background, #141414);
+    --mk-color-background-light: var(--markee-color-background-light, #2e2e2e);
+    --mk-color-background-code: var(--markee-color-background-code, #1f1f1f);
+    --mk-color-background-mark: var(--markee-color-mark, #74c0fc);
+    --mk-color-background-target: var(
+      --markee-color-background-target,
+      #74c0fc
+    );
+    --mk-color-border: var(--markee-color-border, #212121);
+    --mk-color-border-blockquote: var(
+      --markee-color-border-blockquote,
+      #424242
+    );
+  }
+
+  html,
+  body {
+    /* Typography */
+    line-height: 1.5;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    font-family: sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+
+    /* Box */
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    min-height: 100vh;
+  }
+
+  body {
+    color: var(--mk-color-text);
+    background-color: var(--mk-color-background-light);
+  }
+
+  markee-root {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  #markee-main {
+    display: flex;
+  }
+
+  #markee-section-left {
+    grid-area: left;
+  }
+
+  #markee-section-right {
+    grid-area: right;
+  }
+
+  #markee-section-main {
+    grid-area: main;
+    min-width: 0;
+    max-width: 56rem;
+    width: 100%;
+    margin-inline: auto;
+    padding-inline: 1rem;
+    padding-block-end: 10rem;
+  }
+
+  #markee-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-inline: 0.5rem;
+    height: var(--mk-header-height, 3rem);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: var(--mk-color-background-light);
+    border-bottom: 1px solid var(--mk-color-border);
+
+    markee-header-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+  }
+
+  content-grid[class],
+  card-grid[class] {
+    display: grid;
+    grid-gap: 0.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    margin: 1em 0;
+  }
+
+  card-grid[class] {
+    > * {
+      margin: 0;
+    }
+    > *:not(.mk-admonition) {
+      border: 1px solid var(--mk-color-border);
+      background-color: var(--mk-color-background-light);
+      border-radius: 3px;
+      display: block;
+      padding: 0.75rem;
+
+      > p:first-child {
+        margin-top: 0;
+      }
+
+      > p:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  @media (max-width: 75rem) {
+    body {
+      --private-heading-font-scale: 0.9;
+    }
+
+    #markee-section-right {
+      display: none;
+    }
+  }
+
+  @media (max-width: 60rem) {
+    body {
+      --private-heading-font-scale: 0.75;
+    }
+
+    #markee-section-left {
+      display: none;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    body {
+      --private-heading-font-scale: 0.66;
+    }
+  }
+}

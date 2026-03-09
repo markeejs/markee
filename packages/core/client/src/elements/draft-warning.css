@@ -1,0 +1,26 @@
+@layer markee {
+  markee-draft-warning:not(:empty) {
+    width: 100%;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin-block-end: 2rem;
+
+    background: repeating-linear-gradient(
+      60deg,
+      color(from var(--mk-admonition-color-warning) srgb r g b / 0.05),
+      color(from var(--mk-admonition-color-warning) srgb r g b / 0.05) 10px,
+      color(from var(--mk-admonition-color-warning) srgb r g b / 0.1) 10px,
+      color(from var(--mk-admonition-color-warning) srgb r g b / 0.1) 20px
+    );
+    border-left: 0.25rem solid
+      color(from var(--mk-admonition-color-warning) srgb r g b / 0.5);
+    border-radius: 0.25rem;
+
+    & > strong {
+      display: contents;
+    }
+  }
+}
