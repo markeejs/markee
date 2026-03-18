@@ -22,7 +22,7 @@ extensions:
 After that, elements with a `title` attribute are rendered with tooltips automatically:
 
 ```md
-[This link has a title](# "My title")
+[This link has a title](# 'My title')
 
 [This paragraph has a title]{title="Title on paragraph"}
 ```

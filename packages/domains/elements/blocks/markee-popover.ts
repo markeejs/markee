@@ -37,7 +37,7 @@ abstract class AnchoredFloating extends HTMLElement {
     return ['for', 'placement', 'disabled']
   }
 
-  protected anchor: HTMLElement | null = null
+  protected anchor!: HTMLElement
   protected panelEl!: HTMLElement
 
   protected open = false
@@ -151,7 +151,6 @@ abstract class AnchoredFloating extends HTMLElement {
     this.unbindAnchorOpenClose()
     this.onUnbindAria()
 
-    this.anchor = null
     this.pointerInsideAnchor = false
     this.focusInsideAnchor = false
   }
@@ -364,17 +363,14 @@ export class MarkeeTooltip extends AnchoredFloating {
   }
 
   protected onBindAria() {
-    if (!this.anchor) return
     addAriaToken(this.anchor, 'aria-describedby', this.tooltipId)
   }
 
   protected onUnbindAria() {
-    if (!this.anchor) return
     removeAriaToken(this.anchor, 'aria-describedby', this.tooltipId)
   }
 
   protected bindAnchorOpenClose() {
-    if (!this.anchor) return
     this.anchor.addEventListener('pointerenter', this.openFromPointer, {
       passive: true,
     })
@@ -386,7 +382,6 @@ export class MarkeeTooltip extends AnchoredFloating {
   }
 
   protected unbindAnchorOpenClose() {
-    if (!this.anchor) return
     this.anchor.removeEventListener('pointerenter', this.openFromPointer as any)
     this.anchor.removeEventListener(
       'pointerleave',
@@ -434,6 +429,7 @@ export class MarkeeHovercard extends AnchoredFloating {
 
   disconnectedCallback() {
     super.disconnectedCallback()
+    this.untrackPanelPresence()
     this.mo?.disconnect()
     this.mo = null
   }
@@ -463,19 +459,16 @@ export class MarkeeHovercard extends AnchoredFloating {
   }
 
   protected onBindAria() {
-    if (!this.anchor) return
     if (!this.anchor.hasAttribute('aria-haspopup'))
       this.anchor.setAttribute('aria-haspopup', 'dialog')
     addAriaToken(this.anchor, 'aria-controls', this.cardId)
   }
 
   protected onUnbindAria() {
-    if (!this.anchor) return
     removeAriaToken(this.anchor, 'aria-controls', this.cardId)
   }
 
   protected bindAnchorOpenClose() {
-    if (!this.anchor) return
     this.anchor.addEventListener('pointerenter', this.openFromPointer, {
       passive: true,
     })
@@ -487,7 +480,6 @@ export class MarkeeHovercard extends AnchoredFloating {
   }
 
   protected unbindAnchorOpenClose() {
-    if (!this.anchor) return
     this.anchor.removeEventListener('pointerenter', this.openFromPointer as any)
     this.anchor.removeEventListener(
       'pointerleave',

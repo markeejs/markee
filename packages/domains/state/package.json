@@ -8,6 +8,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "scripts": {
+    "lint:tsc": "tsc --noEmit"
+  },
   "dependencies": {
     "@markee/pipeline": "0.1.0",
     "@markee/search": "0.1.0",
