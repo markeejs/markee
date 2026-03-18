@@ -14,14 +14,6 @@ export function isItem(item: TreeItem | TreeLeaf, path: string): boolean {
   return item.key === path || ('indexKey' in item && item.indexKey === path)
 }
 
-export function getVersionedFolderFileLink(
-  currentVersion: TreeItem | PagesFile,
-  targetVersion: TreeItem | PagesFile,
-  link: string,
-) {
-  return link.replace(currentVersion.link!, targetVersion.link!)
-}
-
 export function containsItem(item: TreeItem | TreeLeaf, path: string): boolean {
   if ('versions' in item && item?.versions?.length) {
     return !!item.versions?.some((child) => containsItem(child, path))
@@ -69,4 +61,12 @@ export function getFileFromLink(path: string) {
     key: file[0],
     ...file[1],
   }
+}
+
+export function getVersionedFolderFileLink(
+  currentVersion: TreeItem | PagesFile,
+  targetVersion: TreeItem | PagesFile,
+  link: string,
+) {
+  return link.replace(currentVersion.link!, targetVersion.link!)
 }

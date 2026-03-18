@@ -13,6 +13,8 @@ if (!HTMLElement.prototype.scrollIntoView) {
   })
 }
 
+window.matchMedia = () => ({ matches: false }) as MediaQueryList
+
 afterEach(() => {
   document.body.innerHTML = ''
 })
