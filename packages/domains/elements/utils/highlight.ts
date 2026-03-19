@@ -1,4 +1,4 @@
-import Mark from 'mark.js'
+import { markApi } from './mark.js'
 
 export function highlight(
   element: HTMLElement,
@@ -6,7 +6,7 @@ export function highlight(
   complementary = true,
 ) {
   const markable = element.querySelectorAll('[data-markable]')
-  const mark = new Mark(markable)
+  const mark = markApi.create(markable)
 
   markable.forEach((e: any) => {
     e.innerHTML = e.content

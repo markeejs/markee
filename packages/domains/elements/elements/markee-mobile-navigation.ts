@@ -18,7 +18,7 @@ export class MarkeeMobileNavigationToc extends MarkeeElement {
     return html`
       <a href="#${this.header.id}"> ${this.header.label} </a>
       ${
-        'items' in this.header && this.header.items?.length
+        this.header.items?.length
           ? html`<ul>
             ${this.header.items.map(
               (header) =>
@@ -40,6 +40,17 @@ export class MarkeeMobileNavigationItem extends MarkeeElement {
   @property({ type: Object })
   item: TreeItem = {} as TreeItem
 
+  #handleExpandClick = (e: MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    this.dispatchEvent(
+      new CustomEvent('open-children', {
+        bubbles: true,
+        composed: true,
+      }),
+    )
+  }
+
   render() {
     return html`
       <a href=${this.item.link ? this.item.link : nothing}>
@@ -49,7 +60,7 @@ export class MarkeeMobileNavigationItem extends MarkeeElement {
       ${
         'items' in this.item && (this.item.items?.length ?? 0) > 0
           ? html`
-              <button>
+              <button @click=${this.#handleExpandClick}>
                 <i class="mdi mdi-chevron-right"></i>
               </button>
             `
@@ -81,12 +92,9 @@ export class MarkeeMobileNavigation extends MarkeeElement.with({
   #lastKnownKey = ''
   #lastOpened = false
 
-  render() {
-    const { tree } = store.$navigation.get()
-    const file = store.$currentLoader.get()?.data
-    const fileKey = file?.key
+  #syncState() {
+    const fileKey = store.$currentLoader.get()?.data?.key
     const path = fileKey ?? '/'
-    const headers = getHeaders(false, this.tocDepth)
 
     if (fileKey && fileKey !== this.#lastKnownKey) {
       this.#lastKnownKey = fileKey
@@ -98,7 +106,14 @@ export class MarkeeMobileNavigation extends MarkeeElement.with({
       this.#lastOpened = this.opened
       this.shownPath = path
     }
+  }
 
+  #getNavigationState() {
+    const { tree } = store.$navigation.get()
+    const file = store.$currentLoader.get()?.data
+    const fileKey = file?.key
+    const path = fileKey ?? '/'
+    const headers = getHeaders(false, this.tocDepth)
     const ancestors = tree.getAncestorsForKey(this.shownPath)
     const root = ancestors.at(
       Math.max(0, this.rootSegments - 1),
@@ -106,13 +121,13 @@ export class MarkeeMobileNavigation extends MarkeeElement.with({
     const current = ancestors.at(-1)
     const backPath =
       this.shownPath === root?.key ? root?.key : current?.parent?.key
-
-    const parentTree = tree.getBranchByKey(backPath!)
+    const parentTree = backPath ? tree.getBranchByKey(backPath) : null
 
     const showTableOfContents =
-      (headers.length && current?.key === fileKey) ||
-      ((current as TreeItem)?.indexKey === fileKey &&
-        !(current as TreeItem)?.items?.length)
+      !!fileKey &&
+      ((headers.length > 0 && current?.key === fileKey) ||
+        ((current as TreeItem)?.indexKey === fileKey &&
+          !(current as TreeItem)?.items?.length))
     const showParentTree = !headers.length && this.shownPath === fileKey
     const shownTree = showParentTree ? parentTree : current
     const self =
@@ -120,21 +135,62 @@ export class MarkeeMobileNavigation extends MarkeeElement.with({
         ? shownTree.items?.find((i) => i.key === fileKey)
         : shownTree
 
-    const navigateBack = () => {
-      this.shownPath = backPath!
+    return {
+      fileKey,
+      path,
+      headers,
+      root,
+      current,
+      backPath,
+      shownTree,
+      self,
+      showTableOfContents,
     }
+  }
+
+  #handleNavigateBack = () => {
+    const { backPath } = this.#getNavigationState()
+    if (backPath) {
+      this.shownPath = backPath
+    }
+  }
+
+  #handleClose = () => {
+    this.opened = false
+  }
+
+  #handleDrawerChange = (e: Event) => {
+    this.opened = (e.currentTarget as any).open
+  }
+
+  #handleTocClick = () => {
+    this.opened = false
+  }
+
+  #handleItemOpen = (e: Event, key: string) => {
+    e.stopPropagation()
+    this.shownPath = key
+  }
+
+  willUpdate() {
+    this.#syncState()
+  }
+
+  render() {
+    const { fileKey, headers, root, shownTree, self, showTableOfContents } =
+      this.#getNavigationState()
 
     const backArrowFragment =
       this.shownPath !== root?.key
         ? html`
-            <button @click=${navigateBack}>
+            <button @click=${this.#handleNavigateBack}>
               <i class="mdi mdi-chevron-left"></i>
             </button>
           `
         : nothing
 
     const closeArrowFragment = html`
-      <button @click=${() => (this.opened = false)}>
+      <button @click=${this.#handleClose}>
         <i class="mdi mdi-close"></i>
       </button>
     `
@@ -151,7 +207,7 @@ export class MarkeeMobileNavigation extends MarkeeElement.with({
             (header) =>
               html`<li>
                 <markee-mobile-navigation-toc
-                  @click=${() => (this.opened = false)}
+                  @click=${this.#handleTocClick}
                   .header=${header}
                 />
               </li>`,
@@ -172,7 +228,10 @@ export class MarkeeMobileNavigation extends MarkeeElement.with({
               [],
             (item) => item.key,
             (item) => html`<li data-selected=${fileKey === item.key}>
-              <markee-mobile-navigation-item @click=${() => (this.shownPath = item.key)} .item=${item}>
+              <markee-mobile-navigation-item
+                @open-children=${(e: Event) => this.#handleItemOpen(e, item.key)}
+                .item=${item}
+              >
             </li>`,
           )}
         </ul>
@@ -183,7 +242,7 @@ export class MarkeeMobileNavigation extends MarkeeElement.with({
       <markee-drawer
         .open=${this.opened}
         .side=${this.position}
-        @change=${(e: Event) => (this.opened = (e.currentTarget as any).open)}
+        @change=${this.#handleDrawerChange}
       >
         <i slot="button" class="fa fa-bars"></i>
         ${showTableOfContents ? tableOfContentsFragment : nothing}

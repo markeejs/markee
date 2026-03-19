@@ -1,27 +1,23 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-
-const navigationState = vi.hoisted(() => ({
-  value: { files: {} as Record<string, any> },
-}))
-
-vi.mock('@markee/state', () => ({
-  state: {
-    $navigation: {
-      get: () => navigationState.value,
-    },
-  },
-}))
-
-const {
+import { state } from '@markee/state'
+import {
   isItem,
   filterItem,
   containsItem,
   getFileFromLink,
   getVersionedFolderFileLink,
-} = await import('./navigation')
+} from './navigation'
+
+const navigationState = {
+  value: { files: {} as Record<string, any> },
+}
 
 beforeEach(() => {
+  vi.restoreAllMocks()
   navigationState.value = { files: {} }
+  vi.spyOn(state.$navigation, 'get').mockImplementation(
+    () => navigationState.value as any,
+  )
 })
 
 describe('isItem', () => {

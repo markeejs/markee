@@ -18,3 +18,8 @@ window.matchMedia = () => ({ matches: false }) as MediaQueryList
 afterEach(() => {
   document.body.innerHTML = ''
 })
+
+;(globalThis as { litIssuedWarnings?: Set<string> }).litIssuedWarnings =
+  new Set([
+    'Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.',
+  ])

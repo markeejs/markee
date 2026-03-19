@@ -1,12 +1,5 @@
-import {
-  autoUpdate,
-  computePosition,
-  flip,
-  offset,
-  shift,
-  size,
-} from '@floating-ui/dom'
 import { customElement } from 'lit/decorators.js'
+import { floatingUi } from '../utils/floating-ui.js'
 
 import './markee-select.css'
 
@@ -378,8 +371,10 @@ export class MarkeeSelect extends HTMLElement {
 
   #startAutoUpdate() {
     this.#stopAutoUpdate()
-    this.#cleanupAutoUpdate = autoUpdate(this.#triggerEl, this.#panelEl, () =>
-      this.#position(),
+    this.#cleanupAutoUpdate = floatingUi.autoUpdate(
+      this.#triggerEl,
+      this.#panelEl,
+      () => this.#position(),
     )
   }
 
@@ -389,16 +384,16 @@ export class MarkeeSelect extends HTMLElement {
   }
 
   async #position() {
-    const { x, y, placement, strategy } = await computePosition(
+    const { x, y, placement, strategy } = await floatingUi.computePosition(
       this.#triggerEl,
       this.#panelEl,
       {
         placement: 'bottom-start',
         middleware: [
-          offset(6),
-          flip(),
-          shift({ padding: 8 }),
-          size({
+          floatingUi.offset(6),
+          floatingUi.flip(),
+          floatingUi.shift({ padding: 8 }),
+          floatingUi.size({
             apply: ({ rects, elements }) => {
               ;(elements.floating as HTMLElement).style.minWidth =
                 `${rects.reference.width}px`

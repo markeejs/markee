@@ -1,15 +1,18 @@
-markee-color-scheme-manager {
-  cursor: pointer;
+@layer markee {
+  markee-color-scheme-manager {
+    cursor: pointer;
 
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  width: 2rem;
-  height: 2rem;
+    --fa-display: inline-flex;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 2rem;
+    height: 2rem;
 
-  &:focus-visible {
-    outline: 2px solid var(--mk-color-primary);
-    outline-offset: 2px;
+    &:focus-visible {
+      outline: 2px solid var(--mk-color-primary);
+      outline-offset: 2px;
+    }
   }
 }

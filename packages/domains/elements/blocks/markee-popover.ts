@@ -1,13 +1,9 @@
-import {
-  autoUpdate,
-  computePosition,
-  flip,
-  offset,
-  shift,
-  type Placement,
-  type Middleware,
-} from '@floating-ui/dom'
 import { customElement } from 'lit/decorators.js'
+import {
+  floatingUi,
+  type Middleware,
+  type Placement,
+} from '../utils/floating-ui.js'
 
 function isHTMLElement(node: unknown): node is HTMLElement {
   return node instanceof HTMLElement
@@ -216,7 +212,9 @@ abstract class AnchoredFloating extends HTMLElement {
   protected startAutoUpdate() {
     this.stopAutoUpdate()
     if (!this.anchor) return
-    this.cleanup = autoUpdate(this.anchor, this.panelEl, () => this.position())
+    this.cleanup = floatingUi.autoUpdate(this.anchor, this.panelEl, () =>
+      this.position(),
+    )
   }
 
   protected stopAutoUpdate() {
@@ -227,7 +225,7 @@ abstract class AnchoredFloating extends HTMLElement {
   protected async position() {
     if (!this.anchor || !this.open) return
 
-    const { x, y, placement, strategy } = await computePosition(
+    const { x, y, placement, strategy } = await floatingUi.computePosition(
       this.anchor,
       this.panelEl,
       {
@@ -359,7 +357,11 @@ export class MarkeeTooltip extends AnchoredFloating {
   }
 
   protected middleware(): Middleware[] {
-    return [offset(6), flip(), shift({ padding: 8 })]
+    return [
+      floatingUi.offset(6),
+      floatingUi.flip(),
+      floatingUi.shift({ padding: 8 }),
+    ]
   }
 
   protected onBindAria() {
@@ -455,7 +457,11 @@ export class MarkeeHovercard extends AnchoredFloating {
   }
 
   protected middleware(): Middleware[] {
-    return [offset(8), flip(), shift({ padding: 10 })]
+    return [
+      floatingUi.offset(8),
+      floatingUi.flip(),
+      floatingUi.shift({ padding: 10 }),
+    ]
   }
 
   protected onBindAria() {

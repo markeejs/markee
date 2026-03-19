@@ -1,26 +1,37 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { floatingUi } from '../utils/floating-ui'
+import { MarkeeHovercard, MarkeeTooltip } from './markee-popover'
 
-const floatingSpies = vi.hoisted(() => ({
+const floatingSpies = {
   cleanup: vi.fn(),
-  autoUpdate: vi.fn(() => floatingSpies.cleanup),
-  computePosition: vi.fn(
-    async (_anchor: Element, _panel: HTMLElement, options: any) => {
-      return {
-        x: 10,
-        y: 20,
-        placement: options.placement,
-        strategy: options.strategy,
-      }
-    },
-  ),
-  flip: vi.fn(() => ({ name: 'flip' })),
-  offset: vi.fn((value: number) => ({ name: 'offset', value })),
-  shift: vi.fn((options?: unknown) => ({ name: 'shift', options })),
-}))
+}
 
-vi.mock('@floating-ui/dom', () => floatingSpies)
-
-const { MarkeeHovercard, MarkeeTooltip } = await import('./markee-popover')
+vi.spyOn(floatingUi, 'autoUpdate').mockImplementation(
+  (...[_anchor, _panel, update]: Parameters<typeof floatingUi.autoUpdate>) => {
+    update()
+    return floatingSpies.cleanup
+  },
+)
+vi.spyOn(floatingUi, 'computePosition').mockImplementation(
+  async (...[_anchor, _panel, options]: Parameters<typeof floatingUi.computePosition>) => {
+    return {
+      x: 10,
+      y: 20,
+      placement: options?.placement ?? 'bottom',
+      strategy: options?.strategy ?? 'fixed',
+      middlewareData: {},
+    } as Awaited<ReturnType<typeof floatingUi.computePosition>>
+  },
+)
+vi.spyOn(floatingUi, 'flip').mockImplementation(() => ({ name: 'flip' } as any))
+vi.spyOn(floatingUi, 'offset').mockImplementation(
+  (value: Parameters<typeof floatingUi.offset>[0]) =>
+    ({ name: 'offset', value }) as any,
+)
+vi.spyOn(floatingUi, 'shift').mockImplementation(
+  (options: Parameters<typeof floatingUi.shift>[0]) =>
+    ({ name: 'shift', options }) as any,
+)
 
 function eventWithPath(type: string, path: EventTarget[]): Event {
   const event = new Event(type, { bubbles: true, composed: true })
@@ -113,7 +124,7 @@ describe('markee-tooltip', () => {
     anchoredPrototype.onUnbindAria.call(tooltip)
 
     expect(tooltip.querySelectorAll(':scope > div')).toHaveLength(1)
-    expect(floatingSpies.autoUpdate).not.toHaveBeenCalled()
+    expect(floatingUi.autoUpdate).not.toHaveBeenCalled()
   })
 
   it('binds to anchors, manages aria, positions itself, and responds to open-close interactions', async () => {
@@ -165,7 +176,7 @@ describe('markee-tooltip', () => {
     expect(panel.style.left).toBe('10px')
     expect(panel.style.top).toBe('20px')
     expect(panel.dataset.placement).toBe('top')
-    expect(floatingSpies.autoUpdate).toHaveBeenCalledTimes(1)
+    expect(floatingUi.autoUpdate).toHaveBeenCalledTimes(1)
 
     document.dispatchEvent(eventWithPath('pointerdown', [document.body]))
     expect(tooltip.dataset.open).toBe('true')
@@ -248,7 +259,7 @@ describe('markee-tooltip', () => {
     document.body.dispatchEvent(keydown('Escape'))
 
     await flushMicrotasks()
-    expect(floatingSpies.computePosition).not.toHaveBeenCalled()
+    expect(floatingUi.computePosition).not.toHaveBeenCalled()
   })
 
   it('tolerates rebinding when aria-describedby has already been removed', () => {
@@ -433,16 +444,14 @@ describe('markee-hovercard', () => {
     await flushMicrotasks()
     expect(card.dataset.open).toBe('true')
 
-    const beforeCalls = floatingSpies.computePosition.mock.calls.length
+    const beforeCalls = vi.mocked(floatingUi.computePosition).mock.calls.length
     const added = document.createElement('span')
     added.textContent = 'Added later'
     card.append(added)
     await flushMicrotasks()
 
     expect(content.contains(added)).toBe(true)
-    expect(floatingSpies.computePosition.mock.calls.length).toBeGreaterThan(
-      beforeCalls,
-    )
+    expect(vi.mocked(floatingUi.computePosition).mock.calls.length).toBeGreaterThan(beforeCalls)
 
     card.disabled = true
     expect(card.dataset.open).toBe('false')
@@ -492,7 +501,7 @@ describe('markee-hovercard', () => {
 
     await flushMicrotasks()
     expect(panel.hidden).toBe(true)
-    expect(floatingSpies.computePosition).not.toHaveBeenCalled()
+    expect(floatingUi.computePosition).not.toHaveBeenCalled()
   })
 
   it('coalesces and ignores mutation observer callbacks appropriately', async () => {

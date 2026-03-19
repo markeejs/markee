@@ -28,59 +28,61 @@ export class MarkeeContribute extends MarkeeElement.with({
     }
   }
 
+  #getBase(repository: string, root = '/') {
+    return (
+      (repository.endsWith('/') ? repository.slice(0, -1) : repository) +
+      '/' +
+      (root.startsWith('/') ? root.slice(1) : root)
+    )
+  }
+
+  #renderLink(href: string, title: string, defaultContent: unknown) {
+    return html`
+      <a
+        ?data-default=${!this.content}
+        title="${title}"
+        target="_blank"
+        rel="noopener noreferrer"
+        href="${href}"
+      >
+        ${this.content ? unsafeHTML(this.content) : defaultContent}
+      </a>
+    `
+  }
+
   render() {
     const config = state.$config.get()
 
     if (!config?.repository) return nothing
     if (this.dataset.root === undefined) {
-      return this.renderAsFile(
+      return this.#renderAsFile(
         config.repository,
         config.repositoryRoot,
         state.$currentFile.get()?.key,
       )
     } else {
-      return this.renderAsRoot(config.repository, config.repositoryRoot)
+      return this.#renderAsRoot(config.repository, config.repositoryRoot)
     }
   }
-  renderAsFile(repository: string, root = '/', file = '') {
-    const base =
-      (repository.endsWith('/') ? repository.slice(0, -1) : repository) +
-      '/' +
-      (root.startsWith('/') ? root.slice(1) : root)
+
+  #renderAsFile(repository: string, root = '/', file = '') {
+    const base = this.#getBase(repository, root)
     const defaultContent = html`<i class="${this.icon || 'fa fa-pen'}"></i>`
 
-    return html`
-      <a
-        ?data-default=${!this.content}
-        title="${this.hint || 'Edit this page'}"
-        target="_blank"
-        rel="noopener noreferrer"
-        href="${(base.endsWith('/') ? base.slice(0, -1) : base) + file}"
-      >
-        ${this.content ? unsafeHTML(this.content) : defaultContent}
-      </a>
-    `
+    return this.#renderLink(
+      (base.endsWith('/') ? base.slice(0, -1) : base) + file,
+      this.hint || 'Edit this page',
+      defaultContent,
+    )
   }
-  renderAsRoot(repository: string, root = '/') {
-    const base =
-      (repository.endsWith('/') ? repository.slice(0, -1) : repository) +
-      '/' +
-      (root.startsWith('/') ? root.slice(1) : root)
+
+  #renderAsRoot(repository: string, root = '/') {
+    const base = this.#getBase(repository, root)
     const defaultContent = html`
       <i class="${this.icon || 'si si-github'}"></i>
       <span>${this.label || base}</span>
     `
 
-    return html`
-      <a
-        ?data-default=${!this.content}
-        title="${this.hint || 'Edit this site'}"
-        target="_blank"
-        rel="noopener noreferrer"
-        href="${base}"
-      >
-        ${this.content ? unsafeHTML(this.content) : defaultContent}
-      </a>
-    `
+    return this.#renderLink(base, this.hint || 'Edit this site', defaultContent)
   }
 }

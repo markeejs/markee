@@ -13,6 +13,58 @@ const TAG_REGEX = /\btag:(?:"([^"]*)"|'([^']*)'|([^\s"']+))/g
 
 const plural = (n: number) => (n === 1 ? '' : 's')
 
+function parseSearchValue(input: string) {
+  const tags = (input.match(TAG_REGEX) ?? [])
+    .map((tag) => tag.slice(4).trim())
+    .map((tag) =>
+      (tag.at(0) === '"' && tag.at(-1) === '"') ||
+      (tag.at(0) === "'" && tag.at(-1) === "'")
+        ? tag.slice(1, -1)
+        : tag,
+    )
+    .filter((tag) => tag.length)
+  const value = input.replace(TAG_REGEX, '').trim()
+
+  return {
+    value: value.length ? value : tags.join(' '),
+    tags,
+    highlight: (value + ' ' + tags.join(' ')).trim(),
+  }
+}
+
+function searchWithShards(
+  search: ReturnType<typeof store.$search.get>,
+  value: string,
+  tags: string[],
+) {
+  const shards = safelyRun(() => extend.search.getShardingKeys?.(), [])
+  if (!shards?.length) return search(value)
+
+  return shards.flatMap((shard) =>
+    search(value, {
+      filters: [
+        search.anyOf?.(
+          'key',
+          [MarkeeSearch.getShardValue(shard)],
+          MarkeeSearch.getShardStrategy(shard),
+        ),
+        tags.length ? search.allOf?.('tags', tags, 'equals') : undefined,
+      ].filter((filter) => !!filter),
+    }),
+  )
+}
+
+function groupSearchResults(results: SearchResult[]) {
+  const grouped = safelyRun(
+    () => extend.search.groupResults?.(results) ?? results,
+    results,
+  )
+
+  return grouped[0] && 'sectionName' in grouped[0]
+    ? (grouped as { sectionName: string; results: SearchResult[] }[])
+    : [{ sectionName: '', results: grouped }]
+}
+
 @customElement('markee-search-file')
 export class MarkeeSearchFile extends MarkeeElement.with({
   stores: [store.$navigation],
@@ -29,15 +81,30 @@ export class MarkeeSearchFile extends MarkeeElement.with({
   @state()
   expanded = false
 
+  #handleResultClick = () => {
+    this.dispatchEvent(
+      new CustomEvent('search-result-selected', {
+        bubbles: true,
+        composed: true,
+      }),
+    )
+  }
+
   render() {
     const { file, results } = this
     const { tree, files } = store.$navigation.get()
     const ancestors = tree.getAncestorsForKey(file)
-    const more = results.slice(1)
+    const currentFile = ancestors.at(-1)
+    const [primaryResult, ...more] = results
     const frontMatter = files[file]?.frontMatter
+    const fileLink = currentFile?.link ?? ''
+
+    if (!currentFile || !primaryResult) {
+      return nothing
+    }
 
     return html`
-      <strong>${ancestors.at(-1)?.label}</strong>
+      <strong>${currentFile.label}</strong>
       <div>
         ${ancestors.slice(1, -1).map(
           (a, i) => html`
@@ -67,12 +134,11 @@ export class MarkeeSearchFile extends MarkeeElement.with({
 
       <a
         data-result
-        @click=${() =>
-          ((this.closest('markee-search') as HTMLInputElement).value = '')}
-        href="${ancestors.at(-1)?.link + results[0].anchor}"
+        @click=${this.#handleResultClick}
+        href="${fileLink + primaryResult.anchor}"
       >
-        <strong data-markable .content="${results[0].label}"> </strong>
-        <div data-markable .content="${results[0].content}"></div>
+        <strong data-markable .content="${primaryResult.label}"> </strong>
+        <div data-markable .content="${primaryResult.content}"></div>
       </a>
 
       ${
@@ -91,7 +157,8 @@ export class MarkeeSearchFile extends MarkeeElement.with({
           (result) =>
             html`<a
               data-result
-              href="${ancestors.at(-1)?.link + result.anchor}"
+              @click=${this.#handleResultClick}
+              href="${fileLink + result.anchor}"
             >
               <strong data-markable .content="${result.label}"> </strong>
               <div data-markable .content="${result.content}"></div>
@@ -118,11 +185,12 @@ export class MarkeeSearchSection extends MarkeeElement {
   results: SearchResult[] = []
 
   render() {
+    const label = this.sectionName
+      ? `${this.results.length} matching document${plural(this.results.length)} in ${this.sectionName}`
+      : `${this.results.length} matching document${plural(this.results.length)}`
+
     return html`
-      <strong
-        >${this.results.length} matching document${plural(this.results.length)}
-        in ${this.sectionName}</strong
-      >
+      <strong>${label}</strong>
       <article>
         ${this.results.map((result) => {
           const { results, file } = result
@@ -172,13 +240,21 @@ export class MarkeeSearch extends MarkeeElement.with({
 
   #debounce = 0
 
+  #commitInputValue(value: string) {
+    this.value = value
+    window.setTimeout(() => {
+      this.querySelector('[data-results]')?.scrollTo({ top: 0 })
+    }, 10)
+  }
+
+  #clear = () => {
+    this.value = ''
+  }
+
   #handleInput = (e: Event) => {
     clearTimeout(this.#debounce)
     this.#debounce = window.setTimeout(() => {
-      this.value = (e.target as HTMLInputElement).value
-      setTimeout(() => {
-        this.querySelector('[data-results]')?.scrollTo({ top: 0 })
-      }, 10)
+      this.#commitInputValue((e.target as HTMLInputElement).value)
     }, 200)
   }
 
@@ -194,79 +270,46 @@ export class MarkeeSearch extends MarkeeElement.with({
     }
 
     if (e.key === 'Escape') {
-      this.value = ''
+      this.#clear()
       this.querySelector('input')?.blur()
     }
   }
 
   #handleBackdropClick = () => {
-    this.value = ''
+    this.#clear()
   }
 
-  #treatValue() {
-    const tags = (this.value.match(TAG_REGEX) ?? [])
-      .map((tag) => tag.slice(4).trim())
-      .map((tag) =>
-        (tag.at(0) === '"' && tag.at(-1) === '"') ||
-        (tag.at(0) === "'" && tag.at(-1) === "'")
-          ? tag.slice(1, -1)
-          : tag,
-      )
-      .filter((tag) => tag.length)
-    const value = this.value.replace(TAG_REGEX, '').trim()
-    return {
-      value: value.length ? value : tags.join(' '),
-      tags: tags,
-      highlight: value + ' ' + tags.join(' '),
-    }
+  #handleResultSelected = () => {
+    this.#clear()
   }
 
   render() {
     const search = store.$search.get()
 
-    const { value, tags, highlight } = this.#treatValue()
-
-    const shards = safelyRun(() => extend.search.getShardingKeys?.(), [])
-    const results = shards?.length
-      ? shards.flatMap((shard) =>
-          search(value, {
-            filters: [
-              search.anyOf?.(
-                'key',
-                [MarkeeSearch.getShardValue(shard)],
-                MarkeeSearch.getShardStrategy(shard),
-              ),
-              tags.length ? search.allOf?.('tags', tags, 'equals') : undefined,
-            ].filter((t) => !!t),
-          }),
-        )
-      : search(value)
-
-    const _groups = safelyRun(
-      () => extend.search.groupResults?.(results) ?? results,
-      results,
-    )
-    const groups =
-      _groups[0] && 'sectionName' in _groups[0]
-        ? (_groups as { sectionName: string; results: SearchResult[] }[])
-        : [{ sectionName: '', results: _groups }]
-
-    if (groups.some((g) => g.results.length > 0)) {
-      this.dataset.active = ''
-    } else {
-      delete this.dataset.active
-    }
+    const { value, tags, highlight } = parseSearchValue(this.value)
+    const results = searchWithShards(search, value, tags)
+    const groups = groupSearchResults(results)
+    const hasResults = groups.some((group) => group.results.length > 0)
 
     return html`
-      <div data-backdrop @click=${this.#handleBackdropClick}></div>
+      <div
+        data-backdrop
+        ?data-active=${hasResults}
+        @click=${this.#handleBackdropClick}
+      ></div>
       <input
+        ?data-active=${hasResults}
         .value="${this.value}"
         placeholder=${this.placeholder}
         @input=${this.#handleInput}
         @keydown=${this.#handleKeyDown}
       />
-      <div data-icon class=${this.icon}></div>
-      <div data-results>
+      <div data-icon ?data-active=${hasResults} class=${this.icon}></div>
+      <div
+        data-results
+        ?data-active=${hasResults}
+        @search-result-selected=${this.#handleResultSelected}
+      >
         ${groups
           .filter(({ results }) => results.length)
           .map(

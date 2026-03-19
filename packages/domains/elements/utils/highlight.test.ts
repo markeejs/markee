@@ -1,25 +1,25 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { markApi } from './mark'
+import { highlight } from './highlight'
 
-const markState = vi.hoisted(() => ({
+const markState = {
   instances: [] as unknown[],
   calls: [] as Array<{ term: string; options: Record<string, unknown> }>,
-}))
+}
 
-vi.mock('mark.js', () => ({
-  default: class MockMark {
-    constructor(target: unknown) {
-      markState.instances.push(target)
-    }
-
-    mark(term: string, options: Record<string, unknown>) {
-      markState.calls.push({ term, options })
-      const done = options.done
-      if (typeof done === 'function') done()
-    }
-  },
-}))
-
-const { highlight } = await import('./highlight')
+beforeEach(() => {
+  vi.restoreAllMocks()
+  vi.spyOn(markApi, 'create').mockImplementation((target: unknown) => {
+    markState.instances.push(target)
+    return {
+      mark(term: string, options: Record<string, unknown>) {
+        markState.calls.push({ term, options })
+        const done = options.done
+        if (typeof done === 'function') done()
+      },
+    } as any
+  })
+})
 
 afterEach(() => {
   markState.instances.length = 0
@@ -37,7 +37,9 @@ describe('highlight', () => {
     `
 
     const root = document.getElementById('root') as HTMLElement
-    const [paragraph, div] = Array.from(root.querySelectorAll('[data-markable]'))
+    const [paragraph, div] = Array.from(
+      root.querySelectorAll('[data-markable]'),
+    )
 
     ;(paragraph as any).content = '<em>Alpha</em>'
     ;(div as any).content = '<strong>Beta</strong>'

@@ -13,7 +13,6 @@ import { highlight } from '../utils/highlight.js'
 function makeNavigationLabel(options: {
   item: TreeLeaf | TreeItem
   selected: boolean
-  current: boolean
   collapsible: boolean
   expanded: boolean
   onExpandedChange?: (expanded: boolean) => void
@@ -139,22 +138,32 @@ export class MarkeeNavigationItem extends MarkeeElement {
   @state()
   expanded = false
 
-  constructor() {
-    super()
-    const collapsible =
-      'collapsible' in this.item
-        ? !!this.item.collapsible
-        : this.defaults.collapsible
+  #expandedInitialized = false
+
+  #getCollapsible() {
+    return 'collapsible' in this.item
+      ? !!this.item.collapsible
+      : this.defaults.collapsible
+  }
+
+  willUpdate(changedProperties: Map<string, unknown>) {
+    const hasRelevantChanges = ['item', 'defaults', 'selected'].some((property) =>
+      changedProperties.has(property),
+    )
+
+    if (this.#expandedInitialized || !hasRelevantChanges) {
+      return
+    }
+
+    const collapsible = this.#getCollapsible()
     const initiallyExpanded = this.defaults.expanded ? true : !collapsible
 
     this.expanded = initiallyExpanded || this.selected
+    this.#expandedInitialized = true
   }
 
   render() {
-    const collapsible =
-      'collapsible' in this.item
-        ? !!this.item.collapsible
-        : this.defaults.collapsible
+    const collapsible = this.#getCollapsible()
 
     if (this.item.hidden) return nothing
 
@@ -163,7 +172,6 @@ export class MarkeeNavigationItem extends MarkeeElement {
         ${makeNavigationLabel({
           item: this.item,
           selected: this.selected,
-          current: this.current,
           expanded: this.expanded,
           collapsible,
           onExpandedChange: (expanded) => (this.expanded = expanded),
@@ -239,18 +247,25 @@ export class MarkeeSideNavigation extends MarkeeElement.with({
   @state()
   filter = ''
 
-  constructor() {
-    super()
-
+  #syncStyles() {
     if (this.minEntryWidth) {
       this.style.setProperty('--private-min-entry-width', this.minEntryWidth)
+    } else {
+      this.style.removeProperty('--private-min-entry-width')
     }
+
     if (this.whiteSpace) {
       this.style.setProperty('--private-white-space', this.whiteSpace)
+    } else {
+      this.style.removeProperty('--private-white-space')
     }
   }
 
-  render() {
+  #handleFilterInput = (e: InputEvent) => {
+    this.filter = (e.currentTarget as HTMLInputElement).value
+  }
+
+  #getVisibleRoot() {
     const { tree } = store.$navigation.get()
     const { key } = store.$currentLoader.get().data ?? {
       key: '',
@@ -263,10 +278,29 @@ export class MarkeeSideNavigation extends MarkeeElement.with({
     }
 
     if (!root) {
-      return nothing
+      return { key, root: null, ancestors }
     }
 
     if (this.minRootSegments && ancestors.length < this.minRootSegments) {
+      return { key, root: null, ancestors }
+    }
+
+    return { key, root, ancestors }
+  }
+
+  willUpdate(changedProperties: Map<string, unknown>) {
+    if (
+      changedProperties.has('minEntryWidth') ||
+      changedProperties.has('whiteSpace')
+    ) {
+      this.#syncStyles()
+    }
+  }
+
+  render() {
+    const { key, root } = this.#getVisibleRoot()
+
+    if (!root) {
       return nothing
     }
 
@@ -276,7 +310,6 @@ export class MarkeeSideNavigation extends MarkeeElement.with({
           ? makeNavigationLabel({
               item: root,
               selected: key === root.key,
-              current: key === root.key,
               collapsible: false,
               expanded: true,
             })
@@ -287,8 +320,7 @@ export class MarkeeSideNavigation extends MarkeeElement.with({
           ? html`<input
               .value="${this.filter}"
               placeholder=${this.filterPlaceholder}
-              @input=${(e: InputEvent) =>
-                (this.filter = (e.currentTarget as HTMLInputElement).value)}
+              @input=${this.#handleFilterInput}
             />
             <div data-icon class=${this.filterIcon}></div>`
           : nothing

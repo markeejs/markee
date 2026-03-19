@@ -7,6 +7,18 @@ import { getPageLink, getPagination } from '../utils/pagination.js'
 
 import './markee-article-list.css'
 
+type FilterSame =
+  | 'folder'
+  | `root:${number}`
+  | 'authors:first'
+  | 'authors:any'
+  | 'authors:all'
+  | 'authors:exactly'
+  | 'tags:first'
+  | 'tags:any'
+  | 'tags:all'
+  | 'tags:exactly'
+
 @customElement('markee-article-list')
 export class MarkeeArticleList extends MarkeeElement.with({
   stores: [store.$navigation, store.$currentLoader],
@@ -102,23 +114,53 @@ export class MarkeeArticleList extends MarkeeElement.with({
     return values[method]((t) => candidate.includes(t))
   }
 
+  static compareByPath(
+    files: Record<string, MarkdownFile>,
+    a: string,
+    b: string,
+  ) {
+    const aLink = files[a].link || ''
+    const bLink = files[b].link || ''
+    return aLink.localeCompare(bLink)
+  }
+
+  static compareByTitle(
+    files: Record<string, MarkdownFile>,
+    a: string,
+    b: string,
+  ) {
+    const aTitle = files[a].frontMatter?.title || ''
+    const bTitle = files[b].frontMatter?.title || ''
+    return aTitle.localeCompare(bTitle, undefined, {
+      numeric: true,
+      sensitivity: 'base',
+    })
+  }
+
+  static compareByDate(
+    files: Record<string, MarkdownFile>,
+    a: string,
+    b: string,
+  ) {
+    const aDate = new Date(
+      files[a].frontMatter?.modificationDate || files[a].frontMatter?.date || 0,
+    ).valueOf()
+    const bDate = new Date(
+      files[b].frontMatter?.modificationDate || files[b].frontMatter?.date || 0,
+    ).valueOf()
+    const aRevision = new Date(files[a].revisionDate || 0).valueOf()
+    const bRevision = new Date(files[b].revisionDate || 0).valueOf()
+
+    return bDate - aDate || bRevision - aRevision
+  }
+
   static filterRule(
     file: string | undefined,
     files: Record<string, MarkdownFile>,
     filterFolder?: string,
     filterTag?: string,
     filterAuthor?: string,
-    filterSame?:
-      | 'folder'
-      | `root:${number}`
-      | 'authors:first'
-      | 'authors:any'
-      | 'authors:all'
-      | 'authors:exactly'
-      | 'tags:first'
-      | 'tags:any'
-      | 'tags:all'
-      | 'tags:exactly',
+    filterSame?: FilterSame | `${string}:${string}`,
   ) {
     const fileData = file
       ? (files[file] as MarkdownFile)
@@ -144,7 +186,7 @@ export class MarkeeArticleList extends MarkeeElement.with({
       }
 
       if (filterSame && file) {
-        const rules = filterSame.split(';')
+        const rules = filterSame.split(';') as FilterSame[]
         rules.forEach((rule) => {
           if (rule === 'folder') {
             const folder = file!.split('/').slice(0, -1).join('/')
@@ -207,35 +249,12 @@ export class MarkeeArticleList extends MarkeeElement.with({
     const { files } = store.$navigation.get()
 
     const sortFunction = {
-      path: (a: string, b: string) => {
-        const aLink = files[a].link || ''
-        const bLink = files[b].link || ''
-        return aLink.localeCompare(bLink)
-      },
-      title: (a: string, b: string) => {
-        const aTitle = files[a].frontMatter?.title || ''
-        const bTitle = files[b].frontMatter?.title || ''
-        return aTitle.localeCompare(bTitle, undefined, {
-          numeric: true,
-          sensitivity: 'base',
-        })
-      },
-      date: (a: string, b: string) => {
-        const aDate = new Date(
-          files[a].frontMatter?.modificationDate ||
-            files[a].frontMatter?.date ||
-            0,
-        ).valueOf()
-        const bDate = new Date(
-          files[b].frontMatter?.modificationDate ||
-            files[b].frontMatter?.date ||
-            0,
-        ).valueOf()
-        const aRevision = new Date(files[a].revisionDate || '').valueOf()
-        const bRevision = new Date(files[b].revisionDate || '').valueOf()
-
-        return bDate - aDate || bRevision - aRevision
-      },
+      path: (a: string, b: string) =>
+        MarkeeArticleList.compareByPath(files, a, b),
+      title: (a: string, b: string) =>
+        MarkeeArticleList.compareByTitle(files, a, b),
+      date: (a: string, b: string) =>
+        MarkeeArticleList.compareByDate(files, a, b),
     }[MarkeeArticleList.getOrder(this.order)]
 
     const articles = Object.keys(files)

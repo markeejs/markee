@@ -33,6 +33,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: './vitest.setup.ts',
+    css: true,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
@@ -40,54 +41,7 @@ export default defineConfig({
       include: ['blocks/**/*.ts', 'elements/**/*.ts', 'utils/**/*.ts'],
       exclude: ['**/*.test.ts', 'vitest.config.ts', 'vitest.setup.ts'],
       thresholds: {
-        'blocks/markee-collapse.ts': {
-          100: true,
-        },
-        'blocks/markee-drawer.ts': {
-          100: true,
-        },
-        'blocks/markee-popover.ts': {
-          100: true,
-        },
-        'blocks/markee-select.ts': {
-          100: true,
-        },
-        'blocks/markee-scroll-area.ts': {
-          100: true,
-        },
-        'elements/markee-article.ts': {
-          100: true,
-        },
-        'elements/markee-article-list.ts': {
-          100: true,
-        },
-        'utils/compare-link.ts': {
-          100: true,
-        },
-        'utils/extensions.ts': {
-          100: true,
-        },
-        'utils/highlight.ts': {
-          100: true,
-        },
-        'utils/navigation.ts': {
-          100: true,
-        },
-        'utils/pagination.ts': {
-          100: true,
-        },
-        'utils/prism.ts': {
-          100: true,
-        },
-        'utils/scrollarea.ts': {
-          100: true,
-        },
-        'utils/siblings.ts': {
-          100: true,
-        },
-        'utils/table-of-contents.ts': {
-          100: true,
-        },
+        100: true,
       },
     },
   },

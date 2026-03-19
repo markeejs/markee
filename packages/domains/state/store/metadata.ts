@@ -1,6 +1,9 @@
 import { computed, map, onMount } from 'nanostores'
 import { cache } from '../cache.js'
 
+// @ts-ignore
+const isTestEnv = !!import.meta.env.VITEST
+
 async function loadMetadataFile(path: string) {
   const content = await cache(`/_markee/${path}.json`, 'json')
 
@@ -89,9 +92,11 @@ function createMetadataStore<T>(path: string) {
     return $map.promise
   }
 
-  onMount($map, () => {
-    requestAnimationFrame(refresh)
-  })
+  if (!isTestEnv) {
+    onMount($map, () => {
+      requestAnimationFrame(refresh)
+    })
+  }
   $map.refresh = refresh
 
   return $map
@@ -126,7 +131,9 @@ export async function revalidateMetadata() {
   void $layoutsLoader.refresh()
 }
 
-requestAnimationFrame(revalidateMetadata)
+if (!isTestEnv) {
+  requestAnimationFrame(revalidateMetadata)
+}
 
 export const $navigation = computed(
   $navigationLoader,

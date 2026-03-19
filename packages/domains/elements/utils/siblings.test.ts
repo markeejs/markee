@@ -1,32 +1,28 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { state } from '@markee/state'
+import { $siblings } from './siblings'
 
-const siblingsState = vi.hoisted(() => ({
+const siblingsState = {
   current: { data: null as any },
   navigation: { files: {}, tree: null as any },
-}))
+}
 
-vi.mock('nanostores', () => ({
-  computed: (stores: Array<{ get: () => unknown }>, transform: (...values: any[]) => unknown) => ({
-    get: () => transform(...stores.map((store) => store.get())),
-  }),
-}))
-
-vi.mock('@markee/state', () => ({
-  state: {
-    $currentLoader: {
-      get: () => siblingsState.current,
-    },
-    $navigation: {
-      get: () => siblingsState.navigation,
-    },
-  },
-}))
-
-const { $siblings } = await import('./siblings')
+function notifyStores() {
+  state.$currentLoader.notify(undefined)
+  state.$navigation.notify(undefined)
+}
 
 beforeEach(() => {
+  vi.restoreAllMocks()
   siblingsState.current = { data: null }
   siblingsState.navigation = { files: {}, tree: null }
+  vi.spyOn(state.$currentLoader, 'get').mockImplementation(
+    () => siblingsState.current as any,
+  )
+  vi.spyOn(state.$navigation, 'get').mockImplementation(
+    () => siblingsState.navigation as any,
+  )
+  notifyStores()
 })
 
 describe('$siblings', () => {
@@ -89,13 +85,7 @@ describe('$siblings', () => {
       hidden: false,
     }
     const hidden = { key: 'hidden.md', link: '/hidden', hidden: true }
-    const items = [
-      intro,
-      guides,
-      hidden,
-      blog,
-      reference,
-    ]
+    const items = [intro, guides, hidden, blog, reference]
     const root = {
       key: 'root',
       link: '/root',
@@ -151,6 +141,7 @@ describe('$siblings', () => {
         getBranchByKey: () => null,
       },
     }
+    notifyStores()
 
     expect($siblings.get()).toEqual({ previous: null, next: null })
   })
@@ -160,6 +151,7 @@ describe('$siblings', () => {
 
     siblingsState.current = { data: { key: 'guide/api/index.md' } }
     siblingsState.navigation = { files, tree: root }
+    notifyStores()
 
     expect($siblings.get()).toEqual({
       previous: { key: 'guide/advanced.md', file: { title: 'Advanced' } },
@@ -172,6 +164,7 @@ describe('$siblings', () => {
 
     siblingsState.current = { data: { key: 'blog/index.md' } }
     siblingsState.navigation = { files, tree: root }
+    notifyStores()
 
     expect($siblings.get()).toEqual({
       previous: { key: 'guide/api/hooks.md', file: { title: 'Hooks' } },
@@ -184,6 +177,7 @@ describe('$siblings', () => {
 
     siblingsState.current = { data: { key: 'guide/api/hooks.md' } }
     siblingsState.navigation = { files, tree: root }
+    notifyStores()
 
     expect($siblings.get()).toEqual({
       previous: { key: 'guide/api/auth.md', file: { title: 'Auth' } },
@@ -197,12 +191,14 @@ describe('$siblings', () => {
     siblingsState.navigation = { files, tree: root }
 
     siblingsState.current = { data: { key: 'intro.md' } }
+    notifyStores()
     expect($siblings.get()).toEqual({
       previous: { key: undefined, file: undefined },
       next: { key: 'guide/index.md', file: { title: 'Guide' } },
     })
 
     siblingsState.current = { data: { key: 'reference.md' } }
+    notifyStores()
     expect($siblings.get()).toEqual({
       previous: { key: 'blog/changelog.md', file: { title: 'Changelog' } },
       next: { key: undefined, file: undefined },
@@ -230,6 +226,7 @@ describe('$siblings', () => {
       },
       tree: root,
     }
+    notifyStores()
 
     expect($siblings.get()).toEqual({
       previous: { key: undefined, file: undefined },

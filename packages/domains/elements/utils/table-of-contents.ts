@@ -13,30 +13,37 @@ function convertRemToPixels(rem: number) {
   return rem * parseFloat(getComputedStyle(document.documentElement).fontSize)
 }
 
-let forcedHighlight: string | null = location.hash.slice(1) || null
+let forcedHighlight: string | null = null
 let debounced = true
-window.addEventListener('scroll', () => {
-  if (debounced) {
-    forcedHighlight = null
-  }
-})
-window.addEventListener('hashchange', () => {
+let initialized = false
+
+function refreshForcedHighlight() {
   debounced = false
   forcedHighlight = location.hash.slice(1) || forcedHighlight
   window.dispatchEvent(new CustomEvent('scroll'))
   setTimeout(() => (debounced = true), 300)
-})
-state.$router.subscribe(() => {
-  debounced = false
-  forcedHighlight = location.hash.slice(1) || forcedHighlight
-  window.dispatchEvent(new CustomEvent('scroll'))
-  setTimeout(() => (debounced = true), 300)
-})
+}
+
+function ensureTrackingInitialized() {
+  if (initialized) return
+  initialized = true
+  forcedHighlight = location.hash.slice(1) || null
+
+  window.addEventListener('scroll', () => {
+    if (debounced) {
+      forcedHighlight = null
+    }
+  })
+  window.addEventListener('hashchange', refreshForcedHighlight)
+  state.$router.subscribe(refreshForcedHighlight)
+}
 
 export function getHeaders(
   bottom: boolean,
   depth: 3 | 4 | 5 | 6 = 6,
 ): TocItem[] {
+  ensureTrackingInitialized()
+
   const highlightStrategy = forcedHighlight
     ? 'forced'
     : bottom

@@ -1,48 +1,26 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const runtimeState = ((globalThis as any).__markeeArticleListRuntimeState ??= {
+import { state } from '@markee/runtime'
+import { MarkeeArticleList } from './markee-article-list'
+
+const runtimeState = {
   navigation: { files: {} },
-  current: { data: null },
-})
-
-vi.mock('@markee/runtime', async () => {
-  const { LitElement } = await import('lit')
-
-  function BooleanConverter(value: string | null) {
-    if (value === 'false') return false
-    return value != null
-  }
-
-  class TestMarkeeElement extends LitElement {
-    static with(_options: { role?: string; stores?: unknown[] }) {
-      return this
-    }
-
-    createRenderRoot() {
-      return this
-    }
-  }
-
-  return {
-    BooleanConverter,
-    MarkeeElement: TestMarkeeElement,
-    state: {
-      $navigation: {
-        get: () => runtimeState.navigation,
-      },
-      $currentLoader: {
-        get: () => runtimeState.current,
-      },
-    },
-  }
-})
-
-const { MarkeeArticleList } = await import('./markee-article-list')
+  current: { data: null } as ReturnType<typeof state.$currentLoader.get>,
+}
 
 beforeEach(() => {
   runtimeState.navigation = { files: {} }
-  runtimeState.current = { data: null }
+  runtimeState.current = { data: null, error: null, loading: false }
   history.replaceState({}, '', '/')
+  vi.restoreAllMocks()
+  vi.spyOn(state.$navigation, 'get').mockImplementation(
+    () => runtimeState.navigation as any,
+  )
+  vi.spyOn(state.$navigation, 'subscribe').mockImplementation(() => () => {})
+  vi.spyOn(state.$currentLoader, 'get').mockImplementation(
+    () => runtimeState.current as any,
+  )
+  vi.spyOn(state.$currentLoader, 'subscribe').mockImplementation(() => () => {})
 
   if (!customElements.get('test-article-card')) {
     customElements.define('test-article-card', class extends HTMLElement {})
@@ -80,13 +58,115 @@ describe('MarkeeArticleList.matchCandidate', () => {
   })
 
   it('supports any: filters and missing arrays', () => {
-    expect(MarkeeArticleList.matchCandidate('any:guides;api', ['reference'])).toBe(
-      false,
-    )
+    expect(
+      MarkeeArticleList.matchCandidate('any:guides;api', ['reference']),
+    ).toBe(false)
     expect(MarkeeArticleList.matchCandidate('any:guides;api', ['API'])).toBe(
       true,
     )
     expect(MarkeeArticleList.matchCandidate('guides')).toBe(false)
+  })
+})
+
+describe('MarkeeArticleList.compareByPath', () => {
+  it('sorts by link and falls back to an empty link when needed', () => {
+    const files = {
+      'docs/linked.md': {
+        link: '/linked',
+        frontMatter: { title: 'Linked' },
+      },
+      'docs/unlinked.md': {
+        frontMatter: { title: 'Unlinked' },
+      },
+    }
+
+    expect(
+      MarkeeArticleList.compareByPath(
+        files as any,
+        'docs/linked.md',
+        'docs/unlinked.md',
+      ),
+    ).toBeGreaterThan(0)
+    expect(
+      MarkeeArticleList.compareByPath(
+        files as any,
+        'docs/unlinked.md',
+        'docs/linked.md',
+      ),
+    ).toBeLessThan(0)
+  })
+})
+
+describe('MarkeeArticleList.compareByTitle', () => {
+  it('sorts by title and falls back to an empty title when needed', () => {
+    const files = {
+      'docs/titled.md': {
+        link: '/docs/titled',
+        frontMatter: { title: 'Titled' },
+      },
+      'docs/untitled.md': {
+        link: '/docs/untitled',
+        frontMatter: {},
+      },
+    }
+
+    expect(
+      MarkeeArticleList.compareByTitle(
+        files as any,
+        'docs/titled.md',
+        'docs/untitled.md',
+      ),
+    ).toBeGreaterThan(0)
+    expect(
+      MarkeeArticleList.compareByTitle(
+        files as any,
+        'docs/untitled.md',
+        'docs/titled.md',
+      ),
+    ).toBeLessThan(0)
+  })
+})
+
+describe('MarkeeArticleList.compareByDate', () => {
+  it('sorts by modification and revision dates and falls back to empty values', () => {
+    const files = {
+      'posts/with-date.md': {
+        link: '/posts/with-date',
+        revisionDate: '2024-01-03',
+        frontMatter: { title: 'With date', modificationDate: '2024-01-04' },
+      },
+      'posts/dated-by-revision.md': {
+        link: '/posts/dated-by-revision',
+        revisionDate: '2024-01-02',
+        frontMatter: { title: 'Revision only' },
+      },
+      'posts/without-revision.md': {
+        link: '/posts/without-revision',
+        frontMatter: { title: 'Without revision' },
+      },
+    }
+
+    expect(
+      MarkeeArticleList.compareByDate(
+        files as any,
+        'posts/with-date.md',
+        'posts/dated-by-revision.md',
+      ),
+    ).toBeLessThan(0)
+    expect(
+      MarkeeArticleList.compareByDate(
+        files as any,
+        'posts/dated-by-revision.md',
+        'posts/without-revision.md',
+      ),
+    ).toBeLessThan(0)
+    expect(
+      MarkeeArticleList.compareByDate(
+        files as any,
+        'posts/without-revision.md',
+        'posts/dated-by-revision.md',
+      ),
+    ).toBeGreaterThan(0)
   })
 })
 
@@ -241,15 +321,6 @@ describe('markee-article-list', () => {
       },
     }
 
-    const originalSort = Array.prototype.sort
-    const sortSpy = vi
-      .spyOn(Array.prototype, 'sort')
-      .mockImplementation(function (compareFn) {
-        compareFn?.('docs/linked.md', 'docs/unlinked.md')
-        compareFn?.('docs/unlinked.md', 'docs/linked.md')
-        return originalSort.call(this, compareFn as any)
-      })
-
     const element = createElement()
     element.order = 'path'
     await element.requestUpdate()
@@ -260,8 +331,6 @@ describe('markee-article-list', () => {
         article.getAttribute('data-article'),
       ),
     ).toEqual(['docs/unlinked.md', 'docs/linked.md'])
-
-    sortSpy.mockRestore()
   })
 
   it('sorts title entries even when some titles are missing', async () => {
@@ -278,15 +347,6 @@ describe('markee-article-list', () => {
       },
     }
 
-    const originalSort = Array.prototype.sort
-    const sortSpy = vi
-      .spyOn(Array.prototype, 'sort')
-      .mockImplementation(function (compareFn) {
-        compareFn?.('docs/titled.md', 'docs/untitled.md')
-        compareFn?.('docs/untitled.md', 'docs/titled.md')
-        return originalSort.call(this, compareFn as any)
-      })
-
     const element = createElement()
     element.order = 'title'
     await element.requestUpdate()
@@ -297,8 +357,6 @@ describe('markee-article-list', () => {
         article.getAttribute('data-article'),
       ),
     ).toEqual(['docs/untitled.md', 'docs/titled.md'])
-
-    sortSpy.mockRestore()
   })
 
   it('sorts by date using modification and revision dates and tracks popstate', async () => {
@@ -389,15 +447,6 @@ describe('markee-article-list', () => {
       },
     }
 
-    const originalSort = Array.prototype.sort
-    const sortSpy = vi
-      .spyOn(Array.prototype, 'sort')
-      .mockImplementation(function (compareFn) {
-        compareFn?.('posts/with-revision.md', 'posts/without-revision.md')
-        compareFn?.('posts/without-revision.md', 'posts/with-revision.md')
-        return originalSort.call(this, compareFn as any)
-      })
-
     const element = createElement()
     await element.updateComplete
 
@@ -406,8 +455,6 @@ describe('markee-article-list', () => {
         article.getAttribute('data-article'),
       ),
     ).toEqual(['posts/with-revision.md', 'posts/without-revision.md'])
-
-    sortSpy.mockRestore()
   })
 
   it('renders custom article elements, page leads, reversed title order, and ellipsis pagination', async () => {
@@ -425,7 +472,11 @@ describe('markee-article-list', () => {
     )
 
     runtimeState.navigation = { files }
-    runtimeState.current = { data: { key: 'posts/article-11.md' } }
+    runtimeState.current = {
+      data: { key: 'posts/article-11.md', layout: '', content: '' },
+      error: null,
+      loading: false,
+    }
 
     const element = createElement()
     element.articleElement = 'test-article-card'
@@ -459,11 +510,10 @@ describe('markee-article-list', () => {
     const nextLink = element.querySelector(
       'markee-article-list-pagination a:last-child',
     ) as HTMLAnchorElement
-    nextLink.addEventListener(
-      'click',
-      (event) => event.preventDefault(),
-      { once: true, capture: true },
-    )
+    nextLink.addEventListener('click', (event) => event.preventDefault(), {
+      once: true,
+      capture: true,
+    })
     nextLink.click()
     await element.updateComplete
 
