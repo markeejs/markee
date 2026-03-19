@@ -17,6 +17,7 @@
     "lit": "^3.3.2"
   },
   "devDependencies": {
+    "@markee/vitest": "0.1.0",
     "@floating-ui/dom": "^1.7.4",
     "@types/mark.js": "^8.11.12",
     "@vitest/coverage-v8": "^3.2.4",

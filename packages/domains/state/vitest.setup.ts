@@ -1,6 +1,7 @@
 import { installMarkeeVitestSetup } from '@markee/vitest/setup'
 
 installMarkeeVitestSetup({
-  protectCustomElements: true,
-  muteLitDevWarnings: true,
+  restoreMocks: true,
+  clearBodyLoading: true,
+  clearStorage: true,
 })

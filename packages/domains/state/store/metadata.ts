@@ -92,14 +92,27 @@ function createMetadataStore<T>(path: string) {
     return $map.promise
   }
 
+  /* v8 ignore start */
   if (!isTestEnv) {
-    onMount($map, () => {
-      requestAnimationFrame(refresh)
-    })
+    installMetadataAutoRefresh($map, refresh)
   }
+  /* v8 ignore stop */
   $map.refresh = refresh
 
   return $map
+}
+
+export function queueMetadataRefresh(refresh: () => void) {
+  requestAnimationFrame(refresh)
+}
+
+export function installMetadataAutoRefresh(
+  store: Parameters<typeof onMount>[0],
+  refresh: () => void,
+) {
+  return onMount(store, () => {
+    queueMetadataRefresh(refresh)
+  })
 }
 
 export const $navigationLoader = createMetadataStore<{
@@ -131,9 +144,15 @@ export async function revalidateMetadata() {
   void $layoutsLoader.refresh()
 }
 
-if (!isTestEnv) {
+export function scheduleMetadataRevalidation() {
   requestAnimationFrame(revalidateMetadata)
 }
+
+/* v8 ignore start */
+if (!isTestEnv) {
+  scheduleMetadataRevalidation()
+}
+/* v8 ignore stop */
 
 export const $navigation = computed(
   $navigationLoader,

@@ -204,6 +204,9 @@ importers:
       '@floating-ui/dom':
         specifier: ^1.7.4
         version: 1.7.4
+      '@markee/vitest':
+        specifier: 0.1.0
+        version: link:../../support/vitest
       '@types/mark.js':
         specifier: ^8.11.12
         version: 8.11.12
@@ -347,6 +350,19 @@ importers:
       nanostores:
         specifier: ^1.1.0
         version: 1.1.0
+    devDependencies:
+      '@markee/vitest':
+        specifier: 0.1.0
+        version: link:../../support/vitest
+      '@vitest/coverage-v8':
+        specifier: ^3.2.4
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
+      jsdom:
+        specifier: ^29.0.0
+        version: 29.0.0
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/extensions/asciinema:
     devDependencies:
@@ -493,6 +509,12 @@ importers:
       vite:
         specifier: ^8.0.0
         version: 8.0.0(@types/node@25.0.3)(esbuild@0.27.2)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
+
+  packages/support/vitest:
+    dependencies:
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/themes/flow: {}
 
@@ -3366,10 +3388,6 @@ packages:
 
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
-
-  lru-cache@11.2.4:
-    resolution: {integrity: sha512-B5Y16Jr9LB9dHVkh6ZevG+vAbOsNOYCX+sXvFWFu7B3Iz5mijW3zdbMyhsh8ANd2mSWBYdJgnqi+mL7/LrOPYg==}
-    engines: {node: 20 || >=22}
 
   lru-cache@11.2.7:
     resolution: {integrity: sha512-aY/R+aEsRelme17KGQa/1ZSIpLpNYYrhcrepKTZgE+W3WM16YMCaPwOHLHsmopZHELU0Ojin1lPVxKR0MihncA==}
@@ -8038,8 +8056,6 @@ snapshots:
 
   lru-cache@10.4.3: {}
 
-  lru-cache@11.2.4: {}
-
   lru-cache@11.2.7: {}
 
   magic-string@0.30.21:
@@ -8739,7 +8755,7 @@ snapshots:
 
   path-scurry@2.0.2:
     dependencies:
-      lru-cache: 11.2.4
+      lru-cache: 11.2.7
       minipass: 7.1.3
 
   path-to-regexp@8.3.0: {}
