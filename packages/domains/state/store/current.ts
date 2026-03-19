@@ -25,6 +25,7 @@ export const $current = atom<{
 export const $currentFile = computed(
   [$router, $navigationLoader],
   (router, navigationStore) => {
+    /* v8 ignore next */
     const path = router?.path || '/'
     const navigation = navigationStore?.data || { folders: {}, files: {} }
     const file = Object.entries(navigation.files).find(
@@ -54,7 +55,7 @@ const markeeContentPromise = Promise.resolve(
   '<markee-content></markee-content>',
 )
 
-export async function preload(file: string) {
+export async function preload(file: string, navigationKey = file) {
   const navigation = $navigationLoader.get().data ?? {
     files: {},
     folders: {},
@@ -62,11 +63,11 @@ export async function preload(file: string) {
   }
 
   const contentPromise = cache(file, 'markdown')
-  const layout = await loadLayout(navigation.files[file].layout)
+  const layout = await loadLayout(navigation.files[navigationKey].layout)
 
   return {
-    key: file,
-    file: navigation.files[file],
+    key: navigationKey,
+    file: navigation.files[navigationKey],
     content: await contentPromise,
     ...layout,
   }
@@ -149,7 +150,7 @@ onNotify($metadataReady, reload)
 onNotify($navigationLoader, () => !$navigationLoader.get().loading && reload())
 onNotify($lock, () => !$lock.get() && reload())
 
-function root(file: MarkdownFile) {
+export function root(file: MarkdownFile) {
   if (file.root)
     return file.root.endsWith('/') ? file.root.slice(0, -1) : file.root
   return ''
@@ -174,7 +175,7 @@ function reload() {
   }
 
   document.body.dataset.loading = 'true'
-  preload(root(currentFile) + currentFile.key)
+  preload(root(currentFile) + currentFile.key, currentFile.key)
     .then((file) => {
       $current.set(file)
       $currentLoader.set({

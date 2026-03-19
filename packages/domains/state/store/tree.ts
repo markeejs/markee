@@ -25,6 +25,7 @@ function savedVersion(key: string) {
 }
 
 function findFirstLink(root: TreeItem | TreeLeaf | null) {
+  /* v8 ignore next */
   if (!root) return
   if (root.link) return root.link
   if ('items' in root && root.items?.length)
@@ -37,6 +38,7 @@ function computeVersionedContent(
   folder: boolean,
   forceTitle?: string,
 ) {
+  /* v8 ignore next */
   const currentFile = savedVersion(tree.key) ?? $currentFile.get()?.key
 
   if (folder) {

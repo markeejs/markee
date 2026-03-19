@@ -24,53 +24,61 @@ export function compareLink(link: string, path: string) {
   return link === decodeURIComponent(path)
 }
 
-if (!isTestEnv) {
-  document.addEventListener('click', (event) => {
-    const { files } = $navigation.get()
-    const link = (event.target as HTMLElement)?.closest('a')
-    const file =
-      files[link?.dataset?.file as string] ||
-      Object.values(files).find(
-        (f) =>
-          compareLink(f.link, link?.pathname as string) ||
-          f.alias?.some((alias) =>
-            compareLink(alias, link?.pathname as string),
-          ),
-      )
+function findInternalNavigationFile(link: HTMLAnchorElement | null) {
+  const { files } = $navigation.get()
 
-    if (
-      link &&
-      file &&
-      event.button === 0 && // Left mouse button
-      link.rel !== 'external' && // Not external link
-      link.target !== '_blank' && // Not for new tab
-      link.target !== '_self' && // Not manually disabled
-      link.origin === location.origin && // Not external link
-      !link.download && // Not download link
-      !event.altKey && // Not download link by user
-      !event.metaKey && // Not open in new tab by user
-      !event.ctrlKey && // Not open in new tab by user
-      !event.shiftKey && // Not open in new window by user
-      !event.defaultPrevented // Click was not cancelled
-    ) {
-      // Prevent default if nothing changed (link to same page was clicked)
-      if (link.pathname === location.pathname && link.href === location.href) {
-        event.preventDefault()
-      }
-
-      // Prevent default and navigate if path changed
-      if (
-        link.pathname !== location.pathname ||
-        link.search !== location.search
-      ) {
-        event.preventDefault()
-        $router.open(link.href)
-      }
-
-      // Scroll into view on same hash click
-      if (link.hash && link.pathname === location.pathname) {
-        document.querySelector(link.hash)?.scrollIntoView()
-      }
-    }
-  })
+  return (
+    files[link?.dataset?.file as string] ||
+    Object.values(files).find(
+      (f) =>
+        compareLink(f.link, link?.pathname as string) ||
+        f.alias?.some((alias) => compareLink(alias, link?.pathname as string)),
+    )
+  )
 }
+
+export function handleRouterNavigationClick(event: MouseEvent) {
+  const link = (event.target as HTMLElement | null)?.closest?.(
+    'a',
+  ) as HTMLAnchorElement | null
+  const file = findInternalNavigationFile(link)
+
+  if (!link || !file) return
+  if (event.button !== 0) return
+  if (link.rel === 'external') return
+  if (link.target === '_blank') return
+  if (link.target === '_self') return
+  if (link.origin !== location.origin) return
+  if (link.download) return
+  if (event.altKey) return
+  if (event.metaKey) return
+  if (event.ctrlKey) return
+  if (event.shiftKey) return
+  if (event.defaultPrevented) return
+
+  if (link.pathname === location.pathname && link.href === location.href) {
+    event.preventDefault()
+  }
+
+  if (link.pathname !== location.pathname || link.search !== location.search) {
+    event.preventDefault()
+    $router.open(link.href)
+  }
+
+  if (link.hash && link.pathname === location.pathname) {
+    document.querySelector(link.hash)?.scrollIntoView()
+  }
+}
+
+export function installRouterNavigationListener() {
+  document.addEventListener(
+    'click',
+    handleRouterNavigationClick as EventListener,
+  )
+}
+
+/* v8 ignore start */
+if (!isTestEnv) {
+  installRouterNavigationListener()
+}
+/* v8 ignore stop */

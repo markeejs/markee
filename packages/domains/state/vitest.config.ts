@@ -4,10 +4,9 @@ import { createMarkeeVitestConfig } from '@markee/vitest'
 export default defineConfig(
   createMarkeeVitestConfig({
     test: {
-      css: true,
       coverage: {
-        provider: 'v8',
-        include: ['blocks/**/*.ts', 'elements/**/*.ts', 'utils/**/*.ts'],
+        include: ['index.ts', 'cache.ts', 'store/**/*.ts'],
+        thresholds: { 100: true },
       },
     },
   }),
