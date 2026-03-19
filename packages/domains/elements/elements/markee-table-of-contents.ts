@@ -87,7 +87,7 @@ export class MarkeeTableOfContents extends MarkeeElement.with({
     }
 
     return html`
-      ${title ? html`<strong>${title}</strong>` : nothing}
+      <strong>${title}</strong>
       <markee-scroll-area>
         <ul>
           ${tree.map(

@@ -1,6 +1,9 @@
 import { createRouter } from '@nanostores/router'
 import { $navigation } from './metadata.js'
 
+// @ts-ignore
+const isTestEnv = !!import.meta.env.VITEST
+
 export const $router = createRouter(
   {
     article: /\/(.*)/,
@@ -21,49 +24,53 @@ export function compareLink(link: string, path: string) {
   return link === decodeURIComponent(path)
 }
 
-document.addEventListener('click', (event) => {
-  const { files } = $navigation.get()
-  const link = (event.target as HTMLElement)?.closest('a')
-  const file =
-    files[link?.dataset?.file as string] ||
-    Object.values(files).find(
-      (f) =>
-        compareLink(f.link, link?.pathname as string) ||
-        f.alias?.some((alias) => compareLink(alias, link?.pathname as string)),
-    )
+if (!isTestEnv) {
+  document.addEventListener('click', (event) => {
+    const { files } = $navigation.get()
+    const link = (event.target as HTMLElement)?.closest('a')
+    const file =
+      files[link?.dataset?.file as string] ||
+      Object.values(files).find(
+        (f) =>
+          compareLink(f.link, link?.pathname as string) ||
+          f.alias?.some((alias) =>
+            compareLink(alias, link?.pathname as string),
+          ),
+      )
 
-  if (
-    link &&
-    file &&
-    event.button === 0 && // Left mouse button
-    link.rel !== 'external' && // Not external link
-    link.target !== '_blank' && // Not for new tab
-    link.target !== '_self' && // Not manually disabled
-    link.origin === location.origin && // Not external link
-    !link.download && // Not download link
-    !event.altKey && // Not download link by user
-    !event.metaKey && // Not open in new tab by user
-    !event.ctrlKey && // Not open in new tab by user
-    !event.shiftKey && // Not open in new window by user
-    !event.defaultPrevented // Click was not cancelled
-  ) {
-    // Prevent default if nothing changed (link to same page was clicked)
-    if (link.pathname === location.pathname && link.href === location.href) {
-      event.preventDefault()
-    }
-
-    // Prevent default and navigate if path changed
     if (
-      link.pathname !== location.pathname ||
-      link.search !== location.search
+      link &&
+      file &&
+      event.button === 0 && // Left mouse button
+      link.rel !== 'external' && // Not external link
+      link.target !== '_blank' && // Not for new tab
+      link.target !== '_self' && // Not manually disabled
+      link.origin === location.origin && // Not external link
+      !link.download && // Not download link
+      !event.altKey && // Not download link by user
+      !event.metaKey && // Not open in new tab by user
+      !event.ctrlKey && // Not open in new tab by user
+      !event.shiftKey && // Not open in new window by user
+      !event.defaultPrevented // Click was not cancelled
     ) {
-      event.preventDefault()
-      $router.open(link.href)
-    }
+      // Prevent default if nothing changed (link to same page was clicked)
+      if (link.pathname === location.pathname && link.href === location.href) {
+        event.preventDefault()
+      }
 
-    // Scroll into view on same hash click
-    if (link.hash && link.pathname === location.pathname) {
-      document.querySelector(link.hash)?.scrollIntoView()
+      // Prevent default and navigate if path changed
+      if (
+        link.pathname !== location.pathname ||
+        link.search !== location.search
+      ) {
+        event.preventDefault()
+        $router.open(link.href)
+      }
+
+      // Scroll into view on same hash click
+      if (link.hash && link.pathname === location.pathname) {
+        document.querySelector(link.hash)?.scrollIntoView()
+      }
     }
-  }
-})
+  })
+}

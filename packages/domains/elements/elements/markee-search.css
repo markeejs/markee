@@ -16,8 +16,7 @@
       border-radius: 0.25rem;
       overflow-y: auto;
       overflow-x: hidden;
-
-      markee-search[data-active] > & {
+      &[data-active] {
         display: block;
       }
     }
@@ -47,8 +46,7 @@
       height: 100dvh;
       background-color: rgba(0, 0, 0, 0.25);
       z-index: 1;
-
-      markee-search[data-active] > & {
+      &[data-active] {
         display: block;
       }
     }
@@ -72,12 +70,12 @@
       }
     }
 
-    &[data-active] > input {
+    > input[data-active] {
       z-index: 1;
       position: relative;
     }
 
-    &[data-active] > [data-icon] {
+    > [data-icon][data-active] {
       z-index: 1;
     }
   }

@@ -38,12 +38,11 @@ describe('scrollToRef', () => {
     const viewport = document.createElement('div')
     viewport.scrollTop = 0
     viewport.getBoundingClientRect = () =>
-      ({ top: 100, height: 200 } as DOMRect)
+      ({ top: 100, height: 200 }) as DOMRect
 
     const ref = document.createElement('div')
     ref.closest = vi.fn(() => viewport)
-    ref.getBoundingClientRect = () =>
-      ({ top: 350, height: 20 } as DOMRect)
+    ref.getBoundingClientRect = () => ({ top: 350, height: 20 }) as DOMRect
 
     scrollToRef(ref)
     callbacks[0](0)
@@ -64,12 +63,11 @@ describe('scrollToRef', () => {
     const viewport = document.createElement('div')
     viewport.scrollTop = 0
     viewport.getBoundingClientRect = () =>
-      ({ top: 10, height: viewportHeight } as DOMRect)
+      ({ top: 10, height: viewportHeight }) as DOMRect
 
     const ref = document.createElement('div')
     ref.closest = vi.fn(() => viewport)
-    ref.getBoundingClientRect = () =>
-      ({ top: 10, height: 0 } as DOMRect)
+    ref.getBoundingClientRect = () => ({ top: 10, height: 0 }) as DOMRect
 
     scrollToRef(ref)
     callbacks[0](0)

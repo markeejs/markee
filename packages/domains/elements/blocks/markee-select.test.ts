@@ -3,38 +3,46 @@ import type {
   MarkeeOption as IMarkeeOption,
   MarkeeSelect as IMarkeeSelect,
 } from './markee-select'
+import { floatingUi } from '../utils/floating-ui'
+import { MarkeeSelect } from './markee-select'
 
-const floatingSpies = vi.hoisted(() => ({
+const floatingSpies = {
   autoUpdateCleanup: vi.fn(),
-  autoUpdate: vi.fn(() => floatingSpies.autoUpdateCleanup),
-  computePosition: vi.fn(
-    async (_reference: Element, floating: HTMLElement, options?: any) => {
-      const sizeMiddleware = options?.middleware?.find(
-        (middleware: any) => typeof middleware?.apply === 'function',
-      )
+}
 
-      sizeMiddleware?.apply?.({
-        rects: { reference: { width: 111 } },
-        elements: { floating },
-      })
+vi.spyOn(floatingUi, 'autoUpdate').mockImplementation(
+  () => floatingSpies.autoUpdateCleanup,
+)
+vi.spyOn(floatingUi, 'computePosition').mockImplementation(
+  async (...[_reference, floating, options]: Parameters<typeof floatingUi.computePosition>) => {
+    const sizeMiddleware = (options?.middleware as any[] | undefined)?.find(
+      (middleware: any) => typeof middleware?.apply === 'function',
+    )
 
-      return {
-        x: 12,
-        y: 24,
-        placement: 'bottom-start',
-        strategy: 'absolute',
-      }
-    },
-  ),
-  flip: vi.fn(() => ({ name: 'flip' })),
-  offset: vi.fn((value: number) => ({ name: 'offset', value })),
-  shift: vi.fn((options?: unknown) => ({ name: 'shift', options })),
-  size: vi.fn((options: unknown) => options),
-}))
+    sizeMiddleware?.apply?.({
+      rects: { reference: { width: 111 } },
+      elements: { floating },
+    })
 
-vi.mock('@floating-ui/dom', () => floatingSpies)
-
-const { MarkeeSelect } = await import('./markee-select')
+    return {
+      x: 12,
+      y: 24,
+      placement: 'bottom-start',
+      strategy: 'absolute',
+      middlewareData: {},
+    } as Awaited<ReturnType<typeof floatingUi.computePosition>>
+  },
+)
+vi.spyOn(floatingUi, 'flip').mockImplementation(() => ({ name: 'flip' } as any))
+vi.spyOn(floatingUi, 'offset').mockImplementation(
+  (value: Parameters<typeof floatingUi.offset>[0]) =>
+    ({ name: 'offset', value }) as any,
+)
+vi.spyOn(floatingUi, 'shift').mockImplementation(
+  (options: Parameters<typeof floatingUi.shift>[0]) =>
+    ({ name: 'shift', options }) as any,
+)
+vi.spyOn(floatingUi, 'size').mockImplementation((options: unknown) => options as any)
 
 function renderSelect(markup: string) {
   document.body.innerHTML = markup
@@ -285,7 +293,7 @@ describe('markee-select', () => {
 
     expect(panel.dataset.open).toBe('false')
     expect(document.activeElement).toBe(trigger)
-    expect(floatingSpies.autoUpdate).toHaveBeenCalledTimes(2)
+    expect(floatingUi.autoUpdate).toHaveBeenCalledTimes(2)
     expect(floatingSpies.autoUpdateCleanup).toHaveBeenCalledTimes(2)
   })
 

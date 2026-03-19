@@ -1,36 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const runtimeState = ((globalThis as any).__markeeArticleRuntimeState ??= {
+import { state } from '@markee/runtime'
+import { MarkeeArticle } from './markee-article'
+
+const runtimeState = {
   navigation: { files: {} },
-})
-
-vi.mock('@markee/runtime', async () => {
-  const { LitElement } = await import('lit')
-
-  class TestMarkeeElement extends LitElement {
-    static with(_options: { role?: string }) {
-      return this
-    }
-
-    createRenderRoot() {
-      return this
-    }
-  }
-
-  return {
-    MarkeeElement: TestMarkeeElement,
-    state: {
-      $navigation: {
-        get: () => runtimeState.navigation,
-      },
-    },
-  }
-})
-
-await import('./markee-article')
+}
 
 beforeEach(() => {
   runtimeState.navigation = { files: {} }
+  vi.restoreAllMocks()
+  vi.spyOn(state.$navigation, 'get').mockImplementation(
+    () => runtimeState.navigation as any,
+  )
+  vi.spyOn(state.$navigation, 'subscribe').mockImplementation(() => () => {})
 })
 
 describe('markee-article', () => {
@@ -44,22 +27,22 @@ describe('markee-article', () => {
       },
     }
 
-    const element = document.createElement('markee-article')
-    element.setAttribute('data-article', 'docs/guide.md')
+    const element = new MarkeeArticle()
+    element.article = 'docs/guide.md'
     document.body.append(element)
 
-    await (element as any).updateComplete
+    await element.updateComplete
 
     expect(element.querySelector('a')?.getAttribute('href')).toBe('/docs/guide')
     expect(element.textContent).toBe('Guide')
   })
 
   it('renders an empty anchor when the article is missing', async () => {
-    const element = document.createElement('markee-article')
-    element.setAttribute('data-article', 'missing.md')
+    const element = new MarkeeArticle()
+    element.article = 'missing.md'
     document.body.append(element)
 
-    await (element as any).updateComplete
+    await element.updateComplete
 
     expect(element.querySelector('a')).not.toBeNull()
     expect(element.querySelector('a')?.getAttribute('href')).toBe('')
@@ -67,7 +50,7 @@ describe('markee-article', () => {
   })
 
   it('falls back to an empty lookup key when article is unset', async () => {
-    const element = document.createElement('markee-article') as any
+    const element = new MarkeeArticle() as any
     element.article = undefined
     document.body.append(element)
 

@@ -1,31 +1,32 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { state } from '@markee/state'
+import { getHeaders } from './table-of-contents'
 
-const tocState = vi.hoisted(() => ({
-  subscribers: [] as Array<() => void>,
-}))
+const tocState = {
+  subscribers: [] as Array<(_: any) => void>,
+}
 
-vi.mock('@markee/state', () => ({
-  state: {
-    $router: {
-      subscribe(callback: () => void) {
-        tocState.subscribers.push(callback)
-        return () => {}
-      },
-    },
-  },
-}))
-
-const { getHeaders } = await import('./table-of-contents')
+const subscribeSpy = vi
+  .spyOn(state.$router, 'subscribe')
+  .mockImplementation((callback: (_: any) => void) => {
+    tocState.subscribers.push(callback)
+    return () => {}
+  })
 
 function setRect(element: Element, top: number) {
   Object.defineProperty(element, 'getBoundingClientRect', {
     configurable: true,
-    value: () => ({ top, height: 24 } as DOMRect),
+    value: () => ({ top, height: 24 }) as DOMRect,
   })
 }
 
 function createRoot(
-  headers: Array<{ tag: 'h3' | 'h4' | 'h5' | 'h6'; id: string; label: string; top: number }>,
+  headers: Array<{
+    tag: 'h3' | 'h4' | 'h5' | 'h6'
+    id: string
+    label: string
+    top: number
+  }>,
   headerHeight = '64px',
 ) {
   document.body.innerHTML = ''
@@ -56,7 +57,9 @@ afterEach(() => {
 })
 
 describe('table of contents utils', () => {
-  it('builds classic and bottom-highlighted trees', () => {
+  it('subscribes lazily on first render and builds classic and bottom-highlighted trees', () => {
+    expect(subscribeSpy).not.toHaveBeenCalled()
+
     createRoot(
       [
         { tag: 'h3', id: 'intro', label: 'Intro', top: 40 },
@@ -67,6 +70,7 @@ describe('table of contents utils', () => {
     )
 
     const classic = getHeaders(false, 4)
+    expect(subscribeSpy).toHaveBeenCalledTimes(1)
     expect(classic).toHaveLength(2)
     expect(classic[0].active).toBe(true)
     expect(classic[0].current).toBe(false)
@@ -75,6 +79,7 @@ describe('table of contents utils', () => {
     expect(classic[1].active).toBe(false)
 
     const bottom = getHeaders(true, 4)
+    expect(subscribeSpy).toHaveBeenCalledTimes(1)
     expect(bottom[1].active).toBe(true)
     expect(bottom[1].current).toBe(true)
     expect(bottom[0].passed).toBe(true)
@@ -125,7 +130,7 @@ describe('table of contents utils', () => {
     expect(headers[0].items[0].current).toBe(true)
 
     history.replaceState({}, '', '/')
-    tocState.subscribers[0]?.()
+    tocState.subscribers[0]?.({})
 
     headers = getHeaders(false, 4)
     expect(headers[0].items[0].current).toBe(true)
@@ -161,7 +166,9 @@ describe('table of contents utils', () => {
   })
 
   it('falls back to an empty label when a heading has no text content', () => {
-    const root = createRoot([{ tag: 'h3', id: 'empty', label: 'placeholder', top: 10 }])
+    const root = createRoot([
+      { tag: 'h3', id: 'empty', label: 'placeholder', top: 10 },
+    ])
     const header = root.querySelector('h3') as HTMLHeadingElement
 
     Object.defineProperty(header, 'textContent', {
