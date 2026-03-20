@@ -161,6 +161,9 @@ importers:
       '@markee/tsconfig':
         specifier: 0.1.0
         version: link:../../support/tsconfig
+      '@markee/vitest':
+        specifier: 0.1.0
+        version: link:../../support/vitest
       '@nanostores/lit':
         specifier: ^0.2.3
         version: 0.2.3(lit@3.3.2)(nanostores@1.1.0)
@@ -170,6 +173,12 @@ importers:
       '@nanostores/router':
         specifier: ^1.0.0
         version: 1.0.0(nanostores@1.1.0)
+      '@vitest/coverage-v8':
+        specifier: ^3.2.4
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
+      jsdom:
+        specifier: ^29.0.0
+        version: 29.0.0
       lit:
         specifier: ^3.3.2
         version: 3.3.2
@@ -182,6 +191,9 @@ importers:
       vite:
         specifier: ^8.0.0
         version: 8.0.0(@types/node@25.0.3)(esbuild@0.27.2)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/core/runtime:
     dependencies:
@@ -201,6 +213,18 @@ importers:
       '@markee/tsconfig':
         specifier: 0.1.0
         version: link:../../support/tsconfig
+      '@markee/vitest':
+        specifier: 0.1.0
+        version: link:../../support/vitest
+      '@vitest/coverage-v8':
+        specifier: ^3.2.4
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
+      jsdom:
+        specifier: ^29.0.0
+        version: 29.0.0
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/domains/elements:
     dependencies:

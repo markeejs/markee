@@ -3,5 +3,6 @@
   "compilerOptions": {
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "vite", "vite.config.ts"]
+  "include": ["*.ts", "**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }
