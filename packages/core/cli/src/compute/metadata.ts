@@ -8,7 +8,7 @@ import { GitCache } from '../cache/git-cache.js'
 export const MetadataCompute = {
   frontMatterInheritance: async (
     files: Record<string, MarkdownFile>,
-    folders: Record<string, PagesFile>,
+    folders: Record<string, SectionFile>,
   ) => {
     await Promise.all(
       Object.keys(files)
@@ -65,7 +65,7 @@ export const MetadataCompute = {
             // Set the file's title in its front-matter data
             files[file].frontMatter.title =
               ancestorTitle ||
-              ((fileName[0]?.toUpperCase() ?? '') + fileName.slice(1))
+              (fileName.charAt(0).toUpperCase() + fileName.slice(1))
                 .replaceAll('-', ' ')
                 .replaceAll('_', ' ')
           }
@@ -76,10 +76,7 @@ export const MetadataCompute = {
             ...(ancestorDraft ? { draft: true } : {}),
             ...(ancestorHidden ? { hidden: true } : {}),
           }
-          files[file].frontMatter = merge(
-            meta ?? {},
-            files[file].frontMatter ?? {},
-          )
+          files[file].frontMatter = merge(meta, files[file].frontMatter)
 
           // Inherit or set default value for indexable only if not found
           if (files[file].frontMatter.indexable === undefined) {
@@ -107,7 +104,7 @@ export const MetadataCompute = {
 
   versionedContentOrdering: (
     files: Record<string, MarkdownFile>,
-    folders: Record<string, PagesFile>,
+    folders: Record<string, SectionFile>,
   ) => {
     Object.keys(folders).map((key) => {
       const folder = folders[key]

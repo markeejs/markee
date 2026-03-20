@@ -105,12 +105,13 @@ describe('micromarkGenericTag', () => {
   })
 
   it('rejects repeated markers, escaped-less repeated starts, and too-short sequences', () => {
-    const repeatedStart = runTokenizer(
+    const repeatedStart = runTokenizer(codes.equalsTo, types.data, [
       codes.equalsTo,
-      types.data,
-      [codes.equalsTo],
-    )
-    expect(repeatedStart.result).toEqual({ status: 'nok', code: codes.equalsTo })
+    ])
+    expect(repeatedStart.result).toEqual({
+      status: 'nok',
+      code: codes.equalsTo,
+    })
 
     const tooShort = runTokenizer(null, types.data, [
       codes.equalsTo,
@@ -118,11 +119,11 @@ describe('micromarkGenericTag', () => {
     ])
     expect(tooShort.result).toEqual({ status: 'nok', code: 'a'.codePointAt(0) })
 
-    const tooLong = runTokenizer(
-      null,
-      types.data,
-      [codes.equalsTo, codes.equalsTo, codes.equalsTo],
-    )
+    const tooLong = runTokenizer(null, types.data, [
+      codes.equalsTo,
+      codes.equalsTo,
+      codes.equalsTo,
+    ])
     expect(tooLong.result).toEqual({ status: 'nok', code: codes.equalsTo })
   })
 
@@ -132,9 +133,20 @@ describe('micromarkGenericTag', () => {
     const openExit = ['exit', { ...openEnter[1], _open: true }, {}] as any
     const innerEnter = createEvent('chunkText', 2, 4)
     const innerExit = ['exit', innerEnter[1], {}] as any
-    const closeEnter = ['enter', { ...openEnter[1], start: { offset: 4 }, end: { offset: 6 }, _close: true }, {}] as any
+    const closeEnter = [
+      'enter',
+      {
+        ...openEnter[1],
+        start: { offset: 4 },
+        end: { offset: 6 },
+        _close: true,
+      },
+      {},
+    ] as any
     const closeExit = ['exit', closeEnter[1], {}] as any
-    const context = { parser: { constructs: { insideSpan: { null: [] } } } } as any
+    const context = {
+      parser: { constructs: { insideSpan: { null: [] } } },
+    } as any
 
     const events = tokenizer.resolveAll(
       [openEnter, openExit, innerEnter, innerExit, closeEnter, closeExit],
@@ -159,7 +171,16 @@ describe('micromarkGenericTag', () => {
     const tokenizer = createTokenizer()
     const openEnter = createEvent('markSequenceTemporary', 0, 2)
     const openExit = ['exit', { ...openEnter[1], _open: true }, {}] as any
-    const closeEnter = ['enter', { ...openEnter[1], start: { offset: 4 }, end: { offset: 7 }, _close: true }, {}] as any
+    const closeEnter = [
+      'enter',
+      {
+        ...openEnter[1],
+        start: { offset: 4 },
+        end: { offset: 7 },
+        _close: true,
+      },
+      {},
+    ] as any
     const closeExit = ['exit', closeEnter[1], {}] as any
     const context = {
       parser: { constructs: { insideSpan: { null: undefined } } },
@@ -170,6 +191,8 @@ describe('micromarkGenericTag', () => {
       context,
     )
 
-    expect(events.every((event: any) => event[1].type === types.data)).toBe(true)
+    expect(events.every((event: any) => event[1].type === types.data)).toBe(
+      true,
+    )
   })
 })

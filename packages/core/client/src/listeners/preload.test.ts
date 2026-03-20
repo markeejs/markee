@@ -59,14 +59,13 @@ describe('preload listener', () => {
 
   it('falls back to matching links and aliases when data-file is missing', async () => {
     await import('./preload.js')
-    preloadState.compareLink.mockImplementation(
-      ((a: string, b: string) => (a === b ? true : undefined)) as any,
-    )
+    preloadState.compareLink.mockImplementation(((a: string, b: string) =>
+      a === b ? true : undefined) as any)
 
     document.body.innerHTML = `<a id="alias" href="${window.location.origin}/docs/start">Start</a>`
-    document.getElementById('alias')!.dispatchEvent(
-      new MouseEvent('mousemove', { bubbles: true }),
-    )
+    document
+      .getElementById('alias')!
+      .dispatchEvent(new MouseEvent('mousemove', { bubbles: true }))
 
     expect(preloadState.compareLink).toHaveBeenCalled()
     expect(preloadState.preload).toHaveBeenCalledWith(

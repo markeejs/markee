@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "description": "Stateful atoms for the Markee site generator",
   "license": "MIT",
+  "type": "module",
   "main": "index.js",
   "types": "index.ts",
-  "type": "module",
   "publishConfig": {
     "access": "public"
   },

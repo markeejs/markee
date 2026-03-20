@@ -1,6 +1,6 @@
 import { state } from '@markee/state'
 
-function findVersionRoot(link: string, folders: Record<string, PagesFile>) {
+function findVersionRoot(link: string, folders: Record<string, SectionFile>) {
   const path = link.split('/').slice(0, -1)
   while (path.length) {
     if (folders[path.join('/')]?.version) {

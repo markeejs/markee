@@ -7,6 +7,7 @@ import { readingTime } from 'reading-time-estimator'
 import { ROOT_DIR } from '../constants.js'
 
 import { PathHelpers } from '../helpers/path.js'
+import { ModuleHelpers } from '../helpers/module.js'
 
 import { FileCache } from '../cache/file-cache.js'
 import { ConfigCache } from '../cache/config-cache.js'
@@ -161,7 +162,7 @@ async function resolveIncludeMarkdown({
   let originFilePath = originFile
   if (originFilePath.startsWith('/_assets/_extension/')) {
     const extensionFile = originFilePath.slice('/_assets/_extension/'.length)
-    originFilePath = new URL(import.meta.resolve(extensionFile)).pathname
+    originFilePath = ModuleHelpers.resolve(extensionFile)
   } else {
     originFilePath = PathHelpers.concat(ROOT_DIR, originFilePath)
   }
@@ -344,7 +345,9 @@ function indent(value: string) {
 function sanitizeFrontMatterValues(frontMatter: Frontmatter) {
   if ('author' in frontMatter) {
     frontMatter.authors = [
-      ...(frontMatter.authors ?? []),
+      ...(Array.isArray(frontMatter.authors)
+        ? frontMatter.authors
+        : [frontMatter.authors as unknown as string]),
       ...(Array.isArray(frontMatter.author)
         ? frontMatter.author
         : [frontMatter.author as string]),
@@ -544,7 +547,7 @@ function resolveLinks(
   return chunks.join('').replace(/<!-- markee:origin-indices:(.*)? -->/, '')
 }
 
-function isVersioned(file: string, folders: Record<string, PagesFile>) {
+function isVersioned(file: string, folders: Record<string, SectionFile>) {
   return Object.keys(folders).some(
     (f) => folders[f].version && file.startsWith(f),
   )
@@ -567,10 +570,7 @@ function stringifyAttrs(attrs: Record<string, string | number | boolean>) {
         if (v === k) {
           return `${k}`
         }
-        if (v.includes('')) {
-          return `${k}='${v}'`
-        }
-        return `${k}="${v}"`
+        return `${k}='${v}'`
       }
       return `${k}=${v}`
     })
@@ -608,8 +608,6 @@ async function preloadFencesAndDirectives(
       markup: string
     },
   ) => {
-    if (!params.lang && !Object.keys(params.attrs).length)
-      return `${options.markup}`
     if (!params.lang) {
       params.lang = 'none'
     }
@@ -627,7 +625,7 @@ async function preloadFencesAndDirectives(
     },
   ) => {
     const attrs = stringifyAttrs(params.attrs)
-    return `${options.markup}${params.type}${params.label ? `[${params.label}]` : ''}${attrs ? `{${attrs}}` : ''}`
+    return `${options.markup}${params.type}${params.label ? `[${params.label}]` : ''}{${attrs}}`
   }
 
   const fences = tokens
@@ -995,7 +993,7 @@ export const MarkdownCompute = {
       }[]
     >
     frontMatter: Frontmatter
-    folders: Record<string, PagesFile>
+    folders: Record<string, SectionFile>
   }) => {
     const lines = source.split('\n')
     const candidates = [...linksData.entries()].flatMap(([link, data]) =>
@@ -1018,9 +1016,7 @@ export const MarkdownCompute = {
               const extensionFile = link.link.slice(
                 '/_assets/_extension/'.length,
               )
-              return (await fs.pathExists(
-                new URL(import.meta.resolve(extensionFile)).pathname,
-              ))
+              return (await fs.pathExists(ModuleHelpers.resolve(extensionFile)))
                 ? []
                 : [link]
             }

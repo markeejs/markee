@@ -13,7 +13,9 @@ vi.spyOn(floatingUi, 'autoUpdate').mockImplementation(
   },
 )
 vi.spyOn(floatingUi, 'computePosition').mockImplementation(
-  async (...[_anchor, _panel, options]: Parameters<typeof floatingUi.computePosition>) => {
+  async (
+    ...[_anchor, _panel, options]: Parameters<typeof floatingUi.computePosition>
+  ) => {
     return {
       x: 10,
       y: 20,
@@ -23,7 +25,7 @@ vi.spyOn(floatingUi, 'computePosition').mockImplementation(
     } as Awaited<ReturnType<typeof floatingUi.computePosition>>
   },
 )
-vi.spyOn(floatingUi, 'flip').mockImplementation(() => ({ name: 'flip' } as any))
+vi.spyOn(floatingUi, 'flip').mockImplementation(() => ({ name: 'flip' }) as any)
 vi.spyOn(floatingUi, 'offset').mockImplementation(
   (value: Parameters<typeof floatingUi.offset>[0]) =>
     ({ name: 'offset', value }) as any,
@@ -451,7 +453,9 @@ describe('markee-hovercard', () => {
     await flushMicrotasks()
 
     expect(content.contains(added)).toBe(true)
-    expect(vi.mocked(floatingUi.computePosition).mock.calls.length).toBeGreaterThan(beforeCalls)
+    expect(
+      vi.mocked(floatingUi.computePosition).mock.calls.length,
+    ).toBeGreaterThan(beforeCalls)
 
     card.disabled = true
     expect(card.dataset.open).toBe('false')

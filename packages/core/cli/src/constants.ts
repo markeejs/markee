@@ -1,13 +1,12 @@
 import { PathHelpers } from './helpers/path.js'
+import { ModuleHelpers } from './helpers/module.js'
 import colors from 'colors/safe.js'
 
 export const ROOT_DIR = process.cwd() || (process.env.INIT_CWD as string)
 
 let clientFile = ''
 try {
-  clientFile = PathHelpers.sanitize(
-    new URL(import.meta.resolve('@markee/client')).pathname,
-  )
+  clientFile = PathHelpers.sanitize(ModuleHelpers.resolve('@markee/client'))
 } catch (err) {
   void err
 }
@@ -20,7 +19,7 @@ let glyph = 0
 let mode = 'default' as keyof typeof allGlyphs
 const now = new Date()
 if (now.getMonth() === 11 && now.getDate() >= 23) mode = 'christmas'
-if (now.getMonth() === 10 && now.getDate() === 31) mode = 'halloween'
+if (now.getMonth() === 9 && now.getDate() === 31) mode = 'halloween'
 
 const allGlyphs = {
   default: [

@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { state } from '@markee/runtime'
-import { MarkeeTableOfContents, MarkeeTableOfContentsEntry } from './markee-table-of-contents'
+import {
+  MarkeeTableOfContents,
+  MarkeeTableOfContentsEntry,
+} from './markee-table-of-contents'
 
 const currentLoaderSubscribe = vi.fn(() => () => {})
 
@@ -46,15 +49,15 @@ beforeEach(() => {
   vi.spyOn(state.$currentLoader, 'subscribe').mockImplementation(
     currentLoaderSubscribe,
   )
-  vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation(
-    ((callback: FrameRequestCallback) => {
-      callback(0)
-      return 1
-    }) as typeof requestAnimationFrame,
+  vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation(((
+    callback: FrameRequestCallback,
+  ) => {
+    callback(0)
+    return 1
+  }) as typeof requestAnimationFrame)
+  vi.spyOn(globalThis, 'cancelAnimationFrame').mockImplementation(
+    () => undefined,
   )
-  vi
-    .spyOn(globalThis, 'cancelAnimationFrame')
-    .mockImplementation(() => undefined)
 })
 
 describe('markee-table-of-contents-entry', () => {
@@ -99,7 +102,9 @@ describe('markee-table-of-contents-entry', () => {
     expect(element.querySelector('li')?.dataset.active).toBe('true')
     expect(element.querySelector('li')?.dataset.current).toBe('true')
     expect(element.querySelector('a')?.getAttribute('href')).toBe('#intro')
-    expect(element.querySelectorAll('markee-table-of-contents-entry')).toHaveLength(1)
+    expect(
+      element.querySelectorAll('markee-table-of-contents-entry'),
+    ).toHaveLength(1)
     expect(viewport.scrollTop).toBe(120)
   })
 
@@ -158,7 +163,9 @@ describe('markee-table-of-contents', () => {
     expect(currentLoaderSubscribe).toHaveBeenCalled()
     expect(element.getAttribute('aria-role')).toBe('navigation')
     expect(element.querySelector('strong')?.textContent).toBe(' ')
-    expect(element.querySelectorAll('markee-table-of-contents-entry')).toHaveLength(2)
+    expect(
+      element.querySelectorAll('markee-table-of-contents-entry'),
+    ).toHaveLength(2)
   })
 
   it('tracks window scroll on connect and removes the listener on disconnect', async () => {
@@ -198,6 +205,9 @@ describe('markee-table-of-contents', () => {
     expect(element.windowScroll).toBe(48)
 
     element.disconnectedCallback()
-    expect(removeEventListener).toHaveBeenCalledWith('scroll', expect.any(Function))
+    expect(removeEventListener).toHaveBeenCalledWith(
+      'scroll',
+      expect.any(Function),
+    )
   })
 })

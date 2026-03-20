@@ -92,31 +92,14 @@ function createMetadataStore<T>(path: string) {
     return $map.promise
   }
 
-  /* v8 ignore start */
-  if (!isTestEnv) {
-    installMetadataAutoRefresh($map, refresh)
-  }
-  /* v8 ignore stop */
+  installMetadataAutoRefresh($map, refresh, isTestEnv)
   $map.refresh = refresh
 
   return $map
 }
 
-export function queueMetadataRefresh(refresh: () => void) {
-  requestAnimationFrame(refresh)
-}
-
-export function installMetadataAutoRefresh(
-  store: Parameters<typeof onMount>[0],
-  refresh: () => void,
-) {
-  return onMount(store, () => {
-    queueMetadataRefresh(refresh)
-  })
-}
-
 export const $navigationLoader = createMetadataStore<{
-  folders: Record<string, PagesFile>
+  folders: Record<string, SectionFile>
   files: Record<string, MarkdownFile>
   assets: Record<string, string>
 }>('navigation')
@@ -144,15 +127,23 @@ export async function revalidateMetadata() {
   void $layoutsLoader.refresh()
 }
 
-export function scheduleMetadataRevalidation() {
+export function scheduleMetadataRevalidation(skip?: boolean) {
+  if (skip) return
   requestAnimationFrame(revalidateMetadata)
 }
 
-/* v8 ignore start */
-if (!isTestEnv) {
-  scheduleMetadataRevalidation()
+export function installMetadataAutoRefresh(
+  store: Parameters<typeof onMount>[0],
+  refresh: () => void,
+  skip?: boolean,
+) {
+  if (skip) return
+  return onMount(store, () => {
+    requestAnimationFrame(refresh)
+  })
 }
-/* v8 ignore stop */
+
+scheduleMetadataRevalidation(isTestEnv)
 
 export const $navigation = computed(
   $navigationLoader,

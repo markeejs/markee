@@ -51,7 +51,7 @@ describe('$navigationTree', () => {
             ],
             excluded: [{ key: 'hidden.md' }],
           } as any,
-          guides: {
+          'guides': {
             navigation: [{ key: 'guides/index.md' }, { key: 'guides/page.md' }],
             title: 'Guides',
           } as any,
@@ -82,9 +82,7 @@ describe('$navigationTree', () => {
       tree
         .getAncestorsForKey('guides/page.md')
         .map((item: TreeItem | TreeLeaf) => item.key),
-    ).toEqual(
-      ['/', 'guides', 'guides/page.md'],
-    )
+    ).toEqual(['/', 'guides', 'guides/page.md'])
     expect(tree.getBranchByKey('missing')).toBeNull()
   })
 
@@ -99,10 +97,10 @@ describe('$navigationTree', () => {
           '/': {
             navigation: [{ key: 'guides' }, { key: 'empty' }],
           } as any,
-          guides: {
+          'guides': {
             navigation: [{ key: 'guides/index.md' }],
           } as any,
-          empty: {
+          'empty': {
             navigation: [],
           } as any,
         },
@@ -112,9 +110,9 @@ describe('$navigationTree', () => {
     })
 
     const initial = $navigationTree.get()
-    expect(initial.items?.map((item: TreeItem | TreeLeaf) => item.key)).toEqual([
-      'guides',
-    ])
+    expect(initial.items?.map((item: TreeItem | TreeLeaf) => item.key)).toEqual(
+      ['guides'],
+    )
     expect(initial.getBranchByKey('empty')).toBeNull()
 
     $navigationLoader.set({
@@ -128,7 +126,7 @@ describe('$navigationTree', () => {
           '/': {
             navigation: [{ key: 'guides' }],
           } as any,
-          guides: {
+          'guides': {
             navigation: [{ key: 'guides/index.md' }, { key: 'guides/page.md' }],
           } as any,
         },
@@ -159,18 +157,24 @@ describe('$navigationTree', () => {
           '/': {
             navigation: [{ key: 'docs' }],
           } as any,
-          docs: {
+          'docs': {
             title: 'Docs',
             version: { folder: true },
             versions: [{ key: 'docs/v1' }, { key: 'docs/v2' }],
             navigation: [],
           } as any,
           'docs/v1': {
-            navigation: [{ key: 'docs/v1/index.md' }, { key: 'docs/v1/page.md' }],
+            navigation: [
+              { key: 'docs/v1/index.md' },
+              { key: 'docs/v1/page.md' },
+            ],
             title: 'Version 1',
           } as any,
           'docs/v2': {
-            navigation: [{ key: 'docs/v2/index.md' }, { key: 'docs/v2/page.md' }],
+            navigation: [
+              { key: 'docs/v2/index.md' },
+              { key: 'docs/v2/page.md' },
+            ],
             title: 'Version 2',
           } as any,
         },
@@ -201,7 +205,7 @@ describe('$navigationTree', () => {
           '/': {
             navigation: [{ key: 'docs' }],
           } as any,
-          docs: {
+          'docs': {
             version: { folder: true },
             versions: [{ key: 'docs/v1' }, { key: 'docs/v2' }],
             navigation: [],
@@ -234,7 +238,7 @@ describe('$navigationTree', () => {
           '/': {
             navigation: [{ key: 'docs' }],
           } as any,
-          docs: {
+          'docs': {
             version: { folder: true },
             versions: [{ key: 'docs/v1' }, { key: 'docs/v2' }],
             navigation: [],
@@ -269,7 +273,7 @@ describe('$navigationTree', () => {
           '/': {
             navigation: [{ key: 'guide' }],
           } as any,
-          guide: {
+          'guide': {
             title: 'Guide',
             version: { folder: false },
             versions: [{ key: 'guide/v1.md' }, { key: 'guide/v2.md' }],
@@ -311,7 +315,7 @@ describe('$navigationTree', () => {
           '/': {
             navigation: [{ key: 'guide' }],
           } as any,
-          guide: {
+          'guide': {
             version: { folder: false },
             versions: [{ key: 'guide/v1.md' }, { key: 'guide/v2.md' }],
             navigation: [],
@@ -362,18 +366,22 @@ describe('$navigationTree', () => {
         },
         folders: {
           '/': {
-            navigation: [{ key: 'group' }, { key: 'guide' }, { key: 'plain.md' }],
+            navigation: [
+              { key: 'group' },
+              { key: 'guide' },
+              { key: 'plain.md' },
+            ],
           } as any,
-          group: {
+          'group': {
             inferredTitle: 'Group',
             navigation: [{ key: 'group/child.md' }],
           } as any,
-          guide: {
+          'guide': {
             version: {},
             versions: [{ key: 'guide/v1.md' }],
             navigation: [],
           } as any,
-          titled: {
+          'titled': {
             collapsible: false,
             navigation: [{ key: 'titled/page.md' }],
           } as any,
@@ -426,7 +434,7 @@ describe('$navigationTree', () => {
           '/': {
             navigation: [{ key: 'titled' }],
           } as any,
-          titled: {
+          'titled': {
             collapsible: false,
             navigation: [{ key: 'titled/page.md' }],
           } as any,
@@ -437,7 +445,9 @@ describe('$navigationTree', () => {
     })
 
     const titled = $navigationTree.get().getBranchByKey('titled') as TreeItem
-    const page = $navigationTree.get().getBranchByKey('titled/page.md') as TreeLeaf
+    const page = $navigationTree
+      .get()
+      .getBranchByKey('titled/page.md') as TreeLeaf
 
     expect(titled.label).toBe('Titled')
     expect(titled.collapsible).toBe(false)

@@ -4,6 +4,7 @@ import colors from 'colors/safe.js'
 
 import { ROOT_DIR } from '../constants.js'
 import { PathHelpers } from '../helpers/path.js'
+import { ModuleHelpers } from '../helpers/module.js'
 
 interface Extension {
   file: string
@@ -27,9 +28,7 @@ export class ExtensionsCache {
           try {
             return [
               extension,
-              PathHelpers.sanitize(
-                new URL(import.meta.resolve(extension)).pathname,
-              ),
+              PathHelpers.sanitize(ModuleHelpers.resolve(extension)),
             ]
           } catch (err) {
             void err
@@ -49,13 +48,11 @@ export class ExtensionsCache {
       Object.keys(extensions).forEach((extension) => {
         try {
           const config = yaml.parse(
-            fs.readFileSync(extensions[extension], 'utf8')?.trim() || '{}',
+            fs.readFileSync(extensions[extension], 'utf8').trim() || '{}',
           )
           if (config.extensions) {
             config.extensions.forEach((ext: string) => {
-              extensions[ext] = PathHelpers.sanitize(
-                new URL(import.meta.resolve(ext)).pathname,
-              )
+              extensions[ext] = PathHelpers.sanitize(ModuleHelpers.resolve(ext))
             })
           }
         } catch (err) {
@@ -66,7 +63,7 @@ export class ExtensionsCache {
     }
 
     extensions['@markee/default'] = PathHelpers.sanitize(
-      new URL(import.meta.resolve('@markee/default')).pathname,
+      ModuleHelpers.resolve('@markee/default'),
     )
 
     this.extensions = extensions
@@ -112,9 +109,7 @@ export class ExtensionsCache {
         try {
           const filePath = PathHelpers.concat(
             PathHelpers.sanitize(
-              PathHelpers.dirname(
-                new URL(import.meta.resolve(candidate[0])).pathname,
-              ),
+              PathHelpers.dirname(ModuleHelpers.resolve(candidate[0])),
             ),
             file,
           )
@@ -139,9 +134,7 @@ export class ExtensionsCache {
 
     const extensions = ExtensionsCache.loadExtensionsContent()
     const buildFolders = Object.values(extensions).map((ext) => {
-      const root = PathHelpers.sanitize(
-        PathHelpers.dirname(new URL(import.meta.resolve(ext.file)).pathname),
-      )
+      const root = PathHelpers.sanitize(PathHelpers.dirname(ext.file))
       return PathHelpers.concat(root, '_assets/_build')
     })
     buildFolders.unshift(PathHelpers.concat(ROOT_DIR, '_assets/_build'))

@@ -55,7 +55,8 @@ describe('code-fences listener', () => {
       document.getElementById('plain'),
     )
     expect(
-      document.querySelector<HTMLButtonElement>('.copy-to-clipboard-button')?.title,
+      document.querySelector<HTMLButtonElement>('.copy-to-clipboard-button')
+        ?.title,
     ).toBe('Copy to clipboard')
     expect(codeFenceState.observed).toHaveBeenCalledWith(document.body, {
       childList: true,

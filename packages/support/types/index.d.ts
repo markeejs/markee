@@ -68,7 +68,7 @@ declare global {
     }
   }
 
-  interface PagesFile {
+  interface SectionFile {
     link?: string
     alias?: string[]
     meta?: Frontmatter

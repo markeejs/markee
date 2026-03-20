@@ -334,8 +334,6 @@ export class MarkeeSelect extends HTMLElement {
 
   #open() {
     if (this.disabled) return
-    /* v8 ignore next -- all public callers guard against re-entering #open */
-    if (this.#isOpen) return
     this.#isOpen = true
 
     this.#adoptDirectChildOptions()

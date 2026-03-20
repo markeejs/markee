@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { $siblings } from '../utils/siblings'
-import { MarkeeNextArticle, MarkeePreviousArticle } from './markee-sibling-articles'
+import {
+  MarkeeNextArticle,
+  MarkeePreviousArticle,
+} from './markee-sibling-articles'
 
 beforeEach(() => {
   vi.restoreAllMocks()
@@ -19,9 +22,9 @@ describe('markee-sibling-articles', () => {
 
     await element.updateComplete
 
-    expect(element.querySelector('markee-article')?.getAttribute('data-article')).toBe(
-      'docs/next.md',
-    )
+    expect(
+      element.querySelector('markee-article')?.getAttribute('data-article'),
+    ).toBe('docs/next.md')
   })
 
   it('renders the previous article with a custom article element', async () => {
@@ -31,9 +34,9 @@ describe('markee-sibling-articles', () => {
 
     await element.updateComplete
 
-    expect(element.querySelector('test-article-card')?.getAttribute('data-article')).toBe(
-      'docs/previous.md',
-    )
+    expect(
+      element.querySelector('test-article-card')?.getAttribute('data-article'),
+    ).toBe('docs/previous.md')
   })
 
   it('falls back to an empty article key when a sibling is missing', async () => {
@@ -49,9 +52,11 @@ describe('markee-sibling-articles', () => {
     await next.updateComplete
     await previous.updateComplete
 
-    expect(next.querySelector('markee-article')?.getAttribute('data-article')).toBe('')
-    expect(previous.querySelector('markee-article')?.getAttribute('data-article')).toBe(
-      '',
-    )
+    expect(
+      next.querySelector('markee-article')?.getAttribute('data-article'),
+    ).toBe('')
+    expect(
+      previous.querySelector('markee-article')?.getAttribute('data-article'),
+    ).toBe('')
   })
 })

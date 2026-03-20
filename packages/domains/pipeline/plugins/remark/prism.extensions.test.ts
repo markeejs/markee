@@ -105,8 +105,9 @@ describe('prism.extensions', () => {
     document.body.dataset.colorScheme = 'light'
     module.prism.lightTheme = 'oneDark'
     await flush()
-    expect((document.getElementById('prism-theme') as HTMLStyleElement).innerHTML)
-      .toContain('.dark-theme{}')
+    expect(
+      (document.getElementById('prism-theme') as HTMLStyleElement).innerHTML,
+    ).toContain('.dark-theme{}')
     expect(document.querySelectorAll('#prism-theme')).toHaveLength(1)
 
     module.prism.darkTheme = 'oneLight'
@@ -150,8 +151,9 @@ describe('prism.extensions', () => {
     document.body.dataset.colorScheme = 'light'
     module.prism.darkTheme = 'oneDark'
     await flush()
-    expect((document.getElementById('prism-theme') as HTMLStyleElement).innerHTML)
-      .toContain('.light-theme{}')
+    expect(
+      (document.getElementById('prism-theme') as HTMLStyleElement).innerHTML,
+    ).toContain('.light-theme{}')
 
     Object.defineProperty(module.prism, 'darkTheme', {
       configurable: true,
@@ -161,8 +163,9 @@ describe('prism.extensions', () => {
     document.body.dataset.colorScheme = 'dark'
     module.prism.lightTheme = 'oneLight'
     await flush()
-    expect((document.getElementById('prism-theme') as HTMLStyleElement).innerHTML)
-      .toContain('.dark-theme{}')
+    expect(
+      (document.getElementById('prism-theme') as HTMLStyleElement).innerHTML,
+    ).toContain('.dark-theme{}')
   })
 
   it('uses system dark preference for auto mode and dispatches the language-loaded event', async () => {
@@ -172,8 +175,9 @@ describe('prism.extensions', () => {
 
     const module = await importPrismExtensions()
     await flush()
-    expect((document.getElementById('prism-theme') as HTMLStyleElement).innerHTML)
-      .toContain('.dark-theme{}')
+    expect(
+      (document.getElementById('prism-theme') as HTMLStyleElement).innerHTML,
+    ).toContain('.dark-theme{}')
 
     await module.prism.loadLanguage('tsx')
 

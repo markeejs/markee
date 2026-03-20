@@ -110,9 +110,9 @@ describe('remarkPrism', () => {
     expect(tree.children[0].data).toEqual({
       hProperties: {
         'data-existing': 'yes',
-        className: ['alpha'],
-        prism: JSON.stringify({
-          class: 'language-typescript',
+        'className': ['alpha'],
+        'prism': JSON.stringify({
+          'class': 'language-typescript',
           'data-prismjs-copy': '',
           'data-prismjs-copy-success': '',
           'data-prismjs-copy-error': '',
@@ -124,7 +124,7 @@ describe('remarkPrism', () => {
     expect(tree.children[1].data).toEqual({
       hProperties: {
         prism: JSON.stringify({
-          class: 'language-python line-numbers',
+          'class': 'language-python line-numbers',
           'data-prismjs-copy': '',
           'data-prismjs-copy-success': '',
           'data-prismjs-copy-error': '',
@@ -136,7 +136,7 @@ describe('remarkPrism', () => {
     expect(tree.children[2].data).toEqual({
       hProperties: {
         prism: JSON.stringify({
-          class: 'language-javascript line-numbers',
+          'class': 'language-javascript line-numbers',
           'data-prismjs-copy': '',
           'data-prismjs-copy-success': '',
           'data-prismjs-copy-error': '',
@@ -148,7 +148,7 @@ describe('remarkPrism', () => {
     expect(tree.children[3].data).toEqual({
       hProperties: {
         prism: JSON.stringify({
-          class: 'language-undefined',
+          'class': 'language-undefined',
           'data-prismjs-copy': '',
           'data-prismjs-copy-success': '',
           'data-prismjs-copy-error': '',

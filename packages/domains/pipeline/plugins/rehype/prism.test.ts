@@ -17,7 +17,7 @@ describe('rehypePrism', () => {
               tagName: 'code',
               properties: {
                 prism: JSON.stringify({
-                  class: 'language-typescript',
+                  'class': 'language-typescript',
                   'data-start': '3',
                 }),
                 title: 'example.ts',
@@ -34,7 +34,7 @@ describe('rehypePrism', () => {
 
     const pre = tree.children[0]
     expect(pre.properties).toEqual({
-      class: 'language-typescript',
+      'class': 'language-typescript',
       'data-start': '3',
     })
     expect(pre.children[0]).toEqual({

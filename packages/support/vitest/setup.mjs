@@ -32,10 +32,10 @@ export function installMarkeeVitestSetup(options = {}) {
     const registry = customElements
     if (!registry.__markeeVitestProtected) {
       const define = registry.define.bind(registry)
-      registry.define = ((name, constructor, config) => {
+      registry.define = (name, constructor, config) => {
         if (registry.get(name)) return
         define(name, constructor, config)
-      })
+      }
       registry.__markeeVitestProtected = true
     }
   }

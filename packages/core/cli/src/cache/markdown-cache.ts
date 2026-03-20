@@ -187,7 +187,7 @@ class MarkdownFileCache {
     })
   }
 
-  async getBrokenLinks(folders: Record<string, PagesFile>) {
+  async getBrokenLinks(folders: Record<string, SectionFile>) {
     await this.getFrontMatter()
     await this.sanitize()
 
@@ -238,9 +238,9 @@ export class MarkdownCache {
   }
   static async loadMetadata(
     files: Record<string, MarkdownFile>,
-    folders: Record<string, PagesFile>,
+    folders: Record<string, SectionFile>,
   ) {
-    const assetsPages: PagesFile = {
+    const assetsPages: SectionFile = {
       indexable: false,
       navigation: [],
     }
@@ -266,7 +266,7 @@ export class MarkdownCache {
   }
   static async getAllBrokenLinks(
     files: Record<string, MarkdownFile>,
-    folders: Record<string, PagesFile>,
+    folders: Record<string, SectionFile>,
   ) {
     const brokenLinks = await Promise.all(
       Object.keys(files).map((file) => this.reportBrokenLinks(file, folders)),
@@ -275,7 +275,7 @@ export class MarkdownCache {
   }
   static async reportBrokenLinks(
     key: string,
-    folders: Record<string, PagesFile>,
+    folders: Record<string, SectionFile>,
   ) {
     return MarkdownCompute.reportBrokenLinks(
       key,

@@ -20,11 +20,12 @@ describe('parseAttributes', () => {
       className: ['beta', 'gamma'],
     }
 
-    expect(parseAttributes('class="alpha beta" data-tags=[one,two]', destination))
-      .toEqual({
-        title: 'hello',
-        'data-tags': ['one', 'two'],
-        className: ['beta', 'gamma', 'alpha'],
-      })
+    expect(
+      parseAttributes('class="alpha beta" data-tags=[one,two]', destination),
+    ).toEqual({
+      'title': 'hello',
+      'data-tags': ['one', 'two'],
+      'className': ['beta', 'gamma', 'alpha'],
+    })
   })
 })

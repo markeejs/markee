@@ -19,7 +19,7 @@ function saveVersion(key: string, version: string) {
 }
 
 function getVersionName(
-  folders: Record<string, PagesFile>,
+  folders: Record<string, SectionFile>,
   files: Record<string, MarkdownFile>,
   file: string,
 ) {

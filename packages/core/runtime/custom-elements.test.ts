@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
 const customElementsState = vi.hoisted(() => ({
-  withStores: vi.fn((BaseClass: typeof HTMLElement) => class extends BaseClass {}),
+  withStores: vi.fn(
+    (BaseClass: typeof HTMLElement) => class extends BaseClass {},
+  ),
 }))
 
 vi.mock('@nanostores/lit', () => ({
@@ -32,7 +34,9 @@ describe('custom-elements', () => {
 
     EnhancedElement.tag(tagName)
 
-    const element = new EnhancedElement() as InstanceType<typeof EnhancedElement>
+    const element = new EnhancedElement() as InstanceType<
+      typeof EnhancedElement
+    >
 
     expect(customElements.get(tagName)).toBe(EnhancedElement)
     expect(element.getAttribute('aria-role')).toBe('dialog')
@@ -42,7 +46,14 @@ describe('custom-elements', () => {
   it('delegates to withStores when stores are provided and leaves aria-role unset otherwise', () => {
     class TestElement extends MarkeeElement {}
 
-    const stores = [{ get() {}, subscribe() { return () => {} } }] as any
+    const stores = [
+      {
+        get() {},
+        subscribe() {
+          return () => {}
+        },
+      },
+    ] as any
     const EnhancedElement = TestElement.with({ stores })
     const tagName = createTagName('stores')
 

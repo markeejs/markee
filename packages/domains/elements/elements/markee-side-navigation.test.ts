@@ -105,12 +105,12 @@ beforeEach(() => {
   vi.spyOn(state.$currentLoader, 'subscribe').mockImplementation(() => () => {})
   vi.spyOn(highlightUtils, 'highlight').mockImplementation(() => {})
   vi.spyOn(scrollareaUtils, 'scrollToRef').mockImplementation(() => {})
-  vi
-    .spyOn(globalThis, 'requestAnimationFrame')
-    .mockImplementation(((callback: FrameRequestCallback) => {
-      callback(0)
-      return 1
-    }) as typeof requestAnimationFrame)
+  vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation(((
+    callback: FrameRequestCallback,
+  ) => {
+    callback(0)
+    return 1
+  }) as typeof requestAnimationFrame)
 })
 
 describe('MarkeeNavigationItem', () => {
@@ -134,20 +134,24 @@ describe('MarkeeNavigationItem', () => {
     expect(link.dataset.expandable).toBe('true')
     expect(link.dataset.expanded).toBe('false')
     expect(element.querySelector('[data-outdated]')).not.toBeNull()
-    expect(element.querySelector('markee-hovercard a')?.getAttribute('href')).toBe(
-      '/latest/advanced',
-    )
+    expect(
+      element.querySelector('markee-hovercard a')?.getAttribute('href'),
+    ).toBe('/latest/advanced')
     expect(collapse?.hasAttribute('hidden')).toBe(true)
     expect(element.querySelectorAll('markee-navigation-item')).toHaveLength(2)
 
-    icon.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+    icon.dispatchEvent(
+      new MouseEvent('click', { bubbles: true, cancelable: true }),
+    )
     await element.updateComplete
 
     expect(element.expanded).toBe(true)
     expect(link.dataset.expanded).toBe('true')
 
     link.addEventListener('click', (event) => event.preventDefault())
-    link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+    link.dispatchEvent(
+      new MouseEvent('click', { bubbles: true, cancelable: true }),
+    )
     await element.updateComplete
 
     expect(element.expanded).toBe(true)
@@ -158,7 +162,14 @@ describe('MarkeeNavigationItem', () => {
       key: 'docs/group',
       label: 'Group',
       hidden: false,
-      items: [{ key: 'docs/group/page.md', label: 'Page', link: '/page', hidden: false }],
+      items: [
+        {
+          key: 'docs/group/page.md',
+          label: 'Page',
+          link: '/page',
+          hidden: false,
+        },
+      ],
     }
 
     const element = new MarkeeNavigationItem()
@@ -175,7 +186,9 @@ describe('MarkeeNavigationItem', () => {
     expect(label.dataset.expandable).toBe('false')
     expect(label.dataset.selected).toBe('true')
 
-    label.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+    label.dispatchEvent(
+      new MouseEvent('click', { bubbles: true, cancelable: true }),
+    )
     await element.updateComplete
 
     expect(element.expanded).toBe(true)
@@ -277,7 +290,9 @@ describe('MarkeeSideNavigation', () => {
       '[data-markable]',
     ) as HTMLElement & { content: string }
     const items = [
-      ...element.querySelectorAll<MarkeeNavigationItem>('markee-navigation-item'),
+      ...element.querySelectorAll<MarkeeNavigationItem>(
+        'markee-navigation-item',
+      ),
     ]
 
     expect(element.getAttribute('aria-role')).toBe('navigation')

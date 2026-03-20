@@ -107,7 +107,7 @@ describe('markee-document-suggestion', () => {
         },
       },
       folders: {
-        guides: {
+        'guides': {
           title: 'Guides',
           navigation: [{ key: 'guides/reference', title: 'Reference' }],
         },
@@ -127,7 +127,9 @@ describe('markee-document-suggestion', () => {
 
     const item = element.querySelector('li')
     const breadcrumbLabels = [
-      ...element.querySelectorAll('[data-breadcrumbs] > span:not([data-separator])'),
+      ...element.querySelectorAll(
+        '[data-breadcrumbs] > span:not([data-separator])',
+      ),
     ].map((span) => span.textContent)
     const separators = element.querySelectorAll('[data-separator]')
 

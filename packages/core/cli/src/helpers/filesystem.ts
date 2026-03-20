@@ -10,7 +10,7 @@ import { PathHelpers } from './path.js'
 
 import { BustCache } from '../cache/bust-cache.js'
 import { FileCache } from '../cache/file-cache.js'
-import { PagesCache } from '../cache/pages-cache.js'
+import { SectionCache } from '../cache/section-cache.js'
 import { ConfigCache } from '../cache/config-cache.js'
 import { MarkdownCache } from '../cache/markdown-cache.js'
 import { ExtensionsCache } from '../cache/extensions-cache.js'
@@ -122,7 +122,7 @@ export const FilesystemHelpers = {
           BustCache.clearAll()
           BustCache.clearFile(PathHelpers.concat(ROOT_DIR, filename))
           FileCache.clearFile(filename)
-          PagesCache.clearFile(filename)
+          SectionCache.clearFile(filename)
           MarkdownCache.clearFile(filename)
 
           if (filename.includes('_assets')) {

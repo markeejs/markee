@@ -25,9 +25,7 @@ import {
   tokenize,
   fuzzyWeight,
 } from './internal.js'
-import type {
-  PrefilterIndex,
-} from './internal.js'
+import type { PrefilterIndex } from './internal.js'
 
 /**
  * Minimal requirement for an indexable document.
@@ -408,7 +406,9 @@ export class MarkeeSearchIndexer<TDoc extends FilterableDoc> {
       options.allowEmptyQueryWithFilters ?? false
 
     const parsed = parseQuery(query)
-    const qTokens = parsed.map((t) => normalizeQueryToken(t, this.maxTokenLength))
+    const qTokens = parsed.map((t) =>
+      normalizeQueryToken(t, this.maxTokenLength),
+    )
 
     // Filter-only mode
     if (qTokens.length === 0) {

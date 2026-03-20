@@ -140,10 +140,18 @@ describe('markee-root', () => {
     }
     await root.updateComplete
 
-    expect(root.querySelector('#markee-header')?.textContent).toContain('Header')
-    expect(root.querySelector('#markee-section-top')?.textContent).toContain('Top')
-    expect(root.querySelector('#markee-section-left')?.textContent).toContain('Left')
-    expect(root.querySelector('#markee-section-main')?.textContent).toContain('Main')
+    expect(root.querySelector('#markee-header')?.textContent).toContain(
+      'Header',
+    )
+    expect(root.querySelector('#markee-section-top')?.textContent).toContain(
+      'Top',
+    )
+    expect(root.querySelector('#markee-section-left')?.textContent).toContain(
+      'Left',
+    )
+    expect(root.querySelector('#markee-section-main')?.textContent).toContain(
+      'Main',
+    )
     expect(root.querySelector('markee-draft-warning')).not.toBeNull()
     expect(root.querySelector('#markee-section-right')?.textContent).toContain(
       'Right',
@@ -151,6 +159,8 @@ describe('markee-root', () => {
     expect(root.querySelector('#markee-section-bottom')?.textContent).toContain(
       'Bottom',
     )
-    expect(root.querySelector('#markee-footer')?.textContent).toContain('Footer')
+    expect(root.querySelector('#markee-footer')?.textContent).toContain(
+      'Footer',
+    )
   })
 })
