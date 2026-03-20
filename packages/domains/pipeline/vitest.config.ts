@@ -20,6 +20,7 @@ export default defineConfig(
           'plugins/remark/ins-and-mark.ts',
           'plugins/remark/lightbox.ts',
           'plugins/remark/material-icons.ts',
+          'plugins/remark/nested-html.ts',
           'plugins/remark/prism.extensions.ts',
           'plugins/remark/prism.plugins.ts',
           'plugins/remark/prism.ts',
