@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import type { BaseDoc, GenericSearchIndexerOptions } from './index.js'
-import { MarkeeSearchIndexer } from './index.js'
+import type { BaseDoc, GenericSearchIndexerOptions } from '@markee/search'
+import { MarkeeSearchIndexer } from '@markee/search'
 
 type Doc = BaseDoc & {
   title?: string
@@ -228,7 +228,7 @@ describe('MarkeeSearchIndexer', () => {
       const results = indexer.search('starter', {
         filters: [
           indexer.anyOf('tags', ['guidebook']),
-          (doc) => doc.category === 'Guides',
+          (doc: Doc) => doc.category === 'Guides',
         ],
       })
 

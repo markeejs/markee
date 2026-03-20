@@ -10,7 +10,7 @@ describe('bin', () => {
       return {}
     })
 
-    // @ts-expect-error bin shim is plain JS
+    // @ts-ignore - bin shim is plain JS
     await import('./bin.js')
 
     expect(loaded).toHaveBeenCalledTimes(1)

@@ -224,7 +224,10 @@ describe('SectionCompute', () => {
 
     expect(pages['/docs/versioned']).toMatchObject({
       version: { folder: false },
-      versions: [{ key: '/docs/versioned/v1.md' }, { key: '/docs/versioned/v2.md' }],
+      versions: [
+        { key: '/docs/versioned/v1.md' },
+        { key: '/docs/versioned/v2.md' },
+      ],
     })
   })
 

@@ -305,7 +305,9 @@ describe('MetadataCache', () => {
   it('uses the default header section for header and footer yaml indirections in unscoped extensions', async () => {
     const resolve = vi
       .fn()
-      .mockImplementation((specifier: string) => `/resolved/${specifier}/index.js`)
+      .mockImplementation(
+        (specifier: string) => `/resolved/${specifier}/index.js`,
+      )
     const { MetadataCache } = await importMetadataCache({
       loadExtensions: vi.fn().mockReturnValue({
         default: '/resolved/default/index.js',
@@ -334,8 +336,8 @@ describe('MetadataCache', () => {
       footer: undefined,
       layouts: {},
     })
-    expect(resolve.mock.calls.some(([specifier]) => specifier === 'default')).toBe(
-      true,
-    )
+    expect(
+      resolve.mock.calls.some(([specifier]) => specifier === 'default'),
+    ).toBe(true)
   })
 })

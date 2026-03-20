@@ -185,7 +185,7 @@ describe('BustCache', () => {
     const { BustCache } = await import('./bust-cache.js')
 
     await expect(BustCache.treatFile(nestedEntry)).resolves.toContain(
-      "../parent-leaf.js?x=1%23frag&t=12000",
+      '../parent-leaf.js?x=1%23frag&t=12000',
     )
     await expect(BustCache.treatFile(nestedCss)).resolves.toContain(
       './broken.css?t=14000',
@@ -205,21 +205,13 @@ describe('BustCache', () => {
     const cssUrlSpaced = path.join(root, 'url-spaced.css')
     const ok = path.join(root, 'ok.css')
 
-    await fs.writeFile(
-      cssQuoted,
-      '@import "./quo\\\\\\"ted.css";\n',
-      'utf8',
-    )
+    await fs.writeFile(cssQuoted, '@import "./quo\\\\\\"ted.css";\n', 'utf8')
     await fs.writeFile(
       cssUrlQuoted,
       "@import url('./url\\\\\\'quoted.css');\n",
       'utf8',
     )
-    await fs.writeFile(
-      cssUrlSpaced,
-      '@import url("./ok.css"   );\n',
-      'utf8',
-    )
+    await fs.writeFile(cssUrlSpaced, '@import url("./ok.css"   );\n', 'utf8')
     await fs.writeFile(ok, 'body { color: purple; }\n', 'utf8')
 
     await setMtime(cssQuoted, 17000)

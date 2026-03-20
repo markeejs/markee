@@ -1,7 +1,7 @@
 import { computed, map, onMount } from 'nanostores'
 import { cache } from '../cache.js'
 
-// @ts-ignore
+// @ts-ignore - meta.env is not defined at the project level
 const isTestEnv = !!import.meta.env.VITEST
 
 async function loadMetadataFile(path: string) {

@@ -1,4 +1,4 @@
-// @ts-expect-error - markdown-it exports are weird but this works
+// @ts-ignore - markdown-it exports are weird but this works
 import MarkdownIt, { type StateBlock } from 'markdown-it'
 import parseAttrs from 'attributes-parser'
 
