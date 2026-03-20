@@ -43,14 +43,16 @@ describe('remarkNestedHtml', () => {
   })
 
   it('parses markdown inside html blocks, preserves comments, and skips untouched code nodes', async () => {
-    const html = await render([
-      '<div>',
-      '  <!-- kept comment -->',
-      '  <p>This **works**</p>',
-      '  <code>But **this** stays literal</code>',
-      '  <div><p>And ~~this~~ too</p></div>',
-      '</div>',
-    ].join('\n'))
+    const html = await render(
+      [
+        '<div>',
+        '  <!-- kept comment -->',
+        '  <p>This **works**</p>',
+        '  <code>But **this** stays literal</code>',
+        '  <div><p>And ~~this~~ too</p></div>',
+        '</div>',
+      ].join('\n'),
+    )
 
     expect(html).toContain('<!-- kept comment -->')
     expect(html).toContain('<p>This <strong>works</strong></p>')
@@ -59,30 +61,36 @@ describe('remarkNestedHtml', () => {
   })
 
   it('supports nested fenced code blocks inside html and parses top-level fragment text', async () => {
-    const html = await render([
-      '<div>',
-      '  ```markdown',
-      '  **Nested code blocks work**',
-      '  ```',
-      '</div>',
-      'Tail **text**',
-    ].join('\n'))
+    const html = await render(
+      [
+        '<div>',
+        '  ```markdown',
+        '  **Nested code blocks work**',
+        '  ```',
+        '</div>',
+        'Tail **text**',
+      ].join('\n'),
+    )
 
-    expect(html).toContain('<pre><code class="language-markdown">**Nested code blocks work**')
+    expect(html).toContain(
+      '<pre><code class="language-markdown">**Nested code blocks work**',
+    )
     expect(html).toContain('<p>Tail <strong>text</strong></p>')
   })
 
   it('skips markdown parsing inside pristine roots', async () => {
-    const html = await render([
-      '<p data-pristine>',
-      '  <span>**won\'t** parse</span>',
-      '  <span><i>HTML still works</i></span>',
-      '</p>',
-    ].join('\n'))
+    const html = await render(
+      [
+        '<p data-pristine>',
+        "  <span>**won't** parse</span>",
+        '  <span><i>HTML still works</i></span>',
+        '</p>',
+      ].join('\n'),
+    )
 
     expect(html).toContain('<p data-pristine="">')
-    expect(html).toContain('<span>**won\'t** parse</span>')
-    expect(html).not.toContain('<strong>won\'t</strong>')
+    expect(html).toContain("<span>**won't** parse</span>")
+    expect(html).not.toContain("<strong>won't</strong>")
     expect(html).toContain('<i>HTML still works</i>')
   })
 

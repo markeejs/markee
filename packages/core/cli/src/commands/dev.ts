@@ -7,12 +7,13 @@ import fs from 'fs-extra'
 import { CLIENT_DIR, ROOT_DIR } from '../constants.js'
 
 import { PathHelpers } from '../helpers/path.js'
+import { ModuleHelpers } from '../helpers/module.js'
 import { ServerHelpers } from '../helpers/server.js'
 import { FilesystemHelpers } from '../helpers/filesystem.js'
 
 import { BustCache } from '../cache/bust-cache.js'
 import { HtmlCache } from '../cache/html-cache.js'
-import { PagesCache } from '../cache/pages-cache.js'
+import { SectionCache } from '../cache/section-cache.js'
 import { ConfigCache } from '../cache/config-cache.js'
 import { MetadataCache } from '../cache/metadata-cache.js'
 import { MarkdownCache } from '../cache/markdown-cache.js'
@@ -33,7 +34,7 @@ const defaultMd = () => ({
 export async function commandDev() {
   // Build navigation tree
   let markdownFiles = await MarkdownCache.loadFiles()
-  let pagesFiles = await PagesCache.loadFolders(markdownFiles)
+  let sectionFiles = await SectionCache.loadFolders(markdownFiles)
 
   console.log('Preparing', Object.keys(markdownFiles).length, 'Markdown files')
 
@@ -48,7 +49,7 @@ export async function commandDev() {
     // Rebuild navigation tree with cache-busted files
     hotReloadPromise = Promise.resolve().then(async () => {
       markdownFiles = await MarkdownCache.loadFiles()
-      pagesFiles = await PagesCache.loadFolders(markdownFiles)
+      sectionFiles = await SectionCache.loadFolders(markdownFiles)
 
       const layouts = await MetadataCache.layoutsDetails()
       if (layouts.header) {
@@ -64,7 +65,7 @@ export async function commandDev() {
         })
       })
 
-      await MarkdownCache.loadMetadata(markdownFiles, pagesFiles)
+      await MarkdownCache.loadMetadata(markdownFiles, sectionFiles)
 
       triggerWatchers()
     })
@@ -116,9 +117,7 @@ export async function commandDev() {
     '/_assets/_extension/*',
     async (req, res) =>
       await res.sendFile(
-        PathHelpers.sanitize(
-          new URL(import.meta.resolve((req.params as any)['*'])).pathname,
-        ),
+        PathHelpers.sanitize(ModuleHelpers.resolve((req.params as any)['*'])),
         '/',
       ),
   )
@@ -138,7 +137,7 @@ export async function commandDev() {
     await hotReloadPromise
     return {
       folders: Object.fromEntries(
-        Object.entries(pagesFiles).sort((a, b) =>
+        Object.entries(sectionFiles).sort((a, b) =>
           a[0].localeCompare(b[0], undefined, {
             numeric: true,
             sensitivity: 'base',
@@ -189,9 +188,7 @@ export async function commandDev() {
     if (key.startsWith('/_assets/_extension/')) {
       file = PathHelpers.relative(
         ROOT_DIR,
-        PathHelpers.sanitize(
-          new URL(import.meta.resolve((req.params as any)['*'])).pathname,
-        ),
+        PathHelpers.sanitize(ModuleHelpers.resolve((req.params as any)['*'])),
       ).replaceAll(PathHelpers.win32.sep, PathHelpers.posix.sep)
     }
 
@@ -203,7 +200,7 @@ export async function commandDev() {
         const sanitizePromise = MarkdownCache.get(key)
           .sanitize()
           .then((sanitized) => {
-            MarkdownCache.reportBrokenLinks(key, pagesFiles)
+            MarkdownCache.reportBrokenLinks(key, sectionFiles)
             return sanitized
           })
 
@@ -233,13 +230,13 @@ export async function commandDev() {
         return sanitizePromise
       }
     }
-    if (key?.match(/\.m?js(\?.*)$/)) {
+    if (key?.match(/\.m?js$/)) {
       reply.status(200)
       reply.type('text/javascript')
 
       return await BustCache.treatFile(PathHelpers.concat(ROOT_DIR, file))
     }
-    if (key?.match(/\.css(\?.*)$/)) {
+    if (key?.match(/\.css$/)) {
       reply.status(200)
       reply.type('text/css')
 

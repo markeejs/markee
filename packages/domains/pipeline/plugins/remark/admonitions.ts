@@ -36,10 +36,7 @@ function merge(
   return {
     ...attributesA,
     ...attributesB,
-    className: [
-      ...attributesA.className,
-      ...(attributesB.className ?? []),
-    ],
+    className: [...attributesA.className, ...(attributesB.className ?? [])],
   }
 }
 

@@ -108,7 +108,9 @@ describe('MarkeeSearchFile', () => {
   it('renders nothing when the navigation file or primary result is missing', async () => {
     const missingFile = new MarkeeSearchFile()
     missingFile.file = 'missing.md'
-    missingFile.results = [{ label: 'Intro', anchor: '#intro', content: 'Body' }]
+    missingFile.results = [
+      { label: 'Intro', anchor: '#intro', content: 'Body' },
+    ]
     document.body.append(missingFile)
     await missingFile.updateComplete
 
@@ -154,9 +156,9 @@ describe('MarkeeSearchFile', () => {
     expect(normalizeText(element.querySelector('button')?.textContent)).toBe(
       'Show 2 more results',
     )
-    expect(element.querySelector('markee-collapse')?.hasAttribute('hidden')).toBe(
-      true,
-    )
+    expect(
+      element.querySelector('markee-collapse')?.hasAttribute('hidden'),
+    ).toBe(true)
     expect(markApi.create).toHaveBeenCalled()
 
     element.querySelector('button')?.dispatchEvent(new MouseEvent('click'))
@@ -165,9 +167,9 @@ describe('MarkeeSearchFile', () => {
     expect(normalizeText(element.querySelector('button')?.textContent)).toBe(
       'Hide 2 more results',
     )
-    expect(element.querySelector('markee-collapse')?.hasAttribute('hidden')).toBe(
-      false,
-    )
+    expect(
+      element.querySelector('markee-collapse')?.hasAttribute('hidden'),
+    ).toBe(false)
 
     const extraResult = element.querySelectorAll('[data-result]')[1]
     extraResult?.addEventListener('click', (event) => event.preventDefault())
@@ -287,16 +289,18 @@ describe('MarkeeSearch', () => {
     document.body.append(element)
     await element.updateComplete
 
-    expect(element.querySelector('[data-results]')?.hasAttribute('data-active')).toBe(
+    expect(
+      element.querySelector('[data-results]')?.hasAttribute('data-active'),
+    ).toBe(false)
+    expect(
+      element.querySelector('[data-backdrop]')?.hasAttribute('data-active'),
+    ).toBe(false)
+    expect(element.querySelector('input')?.hasAttribute('data-active')).toBe(
       false,
     )
-    expect(element.querySelector('[data-backdrop]')?.hasAttribute('data-active')).toBe(
-      false,
-    )
-    expect(element.querySelector('input')?.hasAttribute('data-active')).toBe(false)
-    expect(element.querySelector('[data-icon]')?.hasAttribute('data-active')).toBe(
-      false,
-    )
+    expect(
+      element.querySelector('[data-icon]')?.hasAttribute('data-active'),
+    ).toBe(false)
     expect(element.querySelectorAll('markee-search-section')).toHaveLength(0)
   })
 
@@ -332,9 +336,9 @@ describe('MarkeeSearch', () => {
     })
     expect(search.anyOf).toHaveBeenCalled()
     expect(search.allOf).toHaveBeenCalled()
-    expect(element.querySelector('[data-results]')?.hasAttribute('data-active')).toBe(
-      true,
-    )
+    expect(
+      element.querySelector('[data-results]')?.hasAttribute('data-active'),
+    ).toBe(true)
     expect(element.querySelector('markee-search-section')).not.toBeNull()
     expect(
       (element.querySelector('markee-search-section') as MarkeeSearchSection)
@@ -380,7 +384,9 @@ describe('MarkeeSearch', () => {
     await element.updateComplete
 
     const input = element.querySelector('input') as HTMLInputElement
-    const results = element.querySelector('[data-results]') as HTMLDivElement & {
+    const results = element.querySelector(
+      '[data-results]',
+    ) as HTMLDivElement & {
       scrollTo: ReturnType<typeof vi.fn>
     }
     results.scrollTo = vi.fn()
@@ -408,7 +414,9 @@ describe('MarkeeSearch', () => {
 
     const input = element.querySelector('input') as HTMLInputElement
     input.value = 'guide me'
-    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    input.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }),
+    )
 
     expect(runtimeState.router.navigate.open).toHaveBeenCalledWith(
       '/search?q=guide%20me',
@@ -424,10 +432,14 @@ describe('MarkeeSearch', () => {
     const input = element.querySelector('input') as HTMLInputElement
     const blur = vi.spyOn(input, 'blur').mockImplementation(() => {})
 
-    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    input.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }),
+    )
     expect(runtimeState.router.navigate.open).not.toHaveBeenCalled()
 
-    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    input.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
+    )
     await element.updateComplete
 
     expect(element.value).toBe('')
@@ -440,7 +452,9 @@ describe('MarkeeSearch', () => {
     document.body.append(element)
     await element.updateComplete
 
-    element.querySelector('[data-backdrop]')?.dispatchEvent(new MouseEvent('click'))
+    element
+      .querySelector('[data-backdrop]')
+      ?.dispatchEvent(new MouseEvent('click'))
     await element.updateComplete
     expect(element.value).toBe('')
 
@@ -448,7 +462,9 @@ describe('MarkeeSearch', () => {
     await element.updateComplete
     element
       .querySelector('[data-results]')
-      ?.dispatchEvent(new CustomEvent('search-result-selected', { bubbles: true }))
+      ?.dispatchEvent(
+        new CustomEvent('search-result-selected', { bubbles: true }),
+      )
     await element.updateComplete
 
     expect(element.value).toBe('')

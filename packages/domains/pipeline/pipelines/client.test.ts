@@ -101,7 +101,9 @@ describe('clientPipeline', () => {
   })
 
   it('prepends a title only when one is missing from the html', () => {
-    expect(ensureTitle('<p>Hello</p>', 'Title')).toBe('<h2>Title</h2>\n<p>Hello</p>')
+    expect(ensureTitle('<p>Hello</p>', 'Title')).toBe(
+      '<h2>Title</h2>\n<p>Hello</p>',
+    )
     expect(ensureTitle('<h2>Existing</h2><p>Hello</p>', 'Title')).toBe(
       '<h2>Existing</h2><p>Hello</p>',
     )
@@ -185,7 +187,11 @@ describe('clientPipeline', () => {
       files: {},
     })
 
-    const html = await clientPipeline('```ts\nconsole.log(1)\n```', 'Code', '/missing')
+    const html = await clientPipeline(
+      '```ts\nconsole.log(1)\n```',
+      'Code',
+      '/missing',
+    )
 
     expect(capturedFrontMatter).toEqual({})
     expect(html).toContain('<h2>Code</h2>')
@@ -198,7 +204,9 @@ describe('clientPipeline', () => {
     })
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-    await expect(clientPipeline('Hello world', 'Welcome', '/doc')).resolves.toBe('')
+    await expect(
+      clientPipeline('Hello world', 'Welcome', '/doc'),
+    ).resolves.toBe('')
     expect(logSpy).toHaveBeenCalled()
   })
 })

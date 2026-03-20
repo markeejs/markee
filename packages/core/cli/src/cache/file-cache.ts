@@ -2,6 +2,7 @@ import fs from 'fs-extra'
 
 import { ROOT_DIR } from '../constants.js'
 import { PathHelpers } from '../helpers/path.js'
+import { ModuleHelpers } from '../helpers/module.js'
 
 const fileCache = new Map<string, string>()
 
@@ -17,7 +18,7 @@ export class FileCache {
     let path = file
     if (path.startsWith('/_assets/_extension/')) {
       const extensionPath = path.slice('/_assets/_extension/'.length)
-      path = new URL(import.meta.resolve(extensionPath)).pathname
+      path = ModuleHelpers.resolve(extensionPath)
     } else {
       path = PathHelpers.concat(ROOT_DIR, path)
     }

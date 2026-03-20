@@ -6,7 +6,7 @@ import { MARKEE_PREFIX, ROOT_DIR } from '../constants.js'
 import { PathHelpers } from '../helpers/path.js'
 
 import { HtmlCache } from '../cache/html-cache.js'
-import { PagesCache } from '../cache/pages-cache.js'
+import { SectionCache } from '../cache/section-cache.js'
 import { ConfigCache } from '../cache/config-cache.js'
 import { MarkdownCache } from '../cache/markdown-cache.js'
 import { type Layouts, MetadataCache } from '../cache/metadata-cache.js'
@@ -83,7 +83,7 @@ export async function commandBuild() {
   const assetsListPromise = MetadataCache.assets()
 
   time('Loading navigation structure')
-  const folders = await PagesCache.loadFolders(files)
+  const folders = await SectionCache.loadFolders(files)
   timeEnd('Loading navigation structure')
 
   time('Loading Markdown content')

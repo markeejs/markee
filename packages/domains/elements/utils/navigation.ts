@@ -64,8 +64,8 @@ export function getFileFromLink(path: string) {
 }
 
 export function getVersionedFolderFileLink(
-  currentVersion: TreeItem | PagesFile,
-  targetVersion: TreeItem | PagesFile,
+  currentVersion: TreeItem | SectionFile,
+  targetVersion: TreeItem | SectionFile,
   link: string,
 ) {
   return link.replace(currentVersion.link!, targetVersion.link!)

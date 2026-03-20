@@ -35,7 +35,9 @@ describe('index', () => {
 
     expect(module.extend.search).toEqual({})
     expect(module.extend.navigation).toEqual({})
-    expect(module.extend.markdownPipeline).toBe(runtimeIndexState.markdownPipeline)
+    expect(module.extend.markdownPipeline).toBe(
+      runtimeIndexState.markdownPipeline,
+    )
     expect(module.extend.prism).toBe(runtimeIndexState.prism)
     expect(module.state).toBe(runtimeIndexState.state)
     expect(module.MarkeeElement).toBeDefined()

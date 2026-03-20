@@ -58,8 +58,6 @@ function parseBracketLabelSameLine(
   openBracket: number,
   lineEnd: number,
 ) {
-  if (src.charCodeAt(openBracket) !== 0x5b) return null // '['
-
   let i = openBracket + 1
   let depth = 1
 
@@ -93,8 +91,6 @@ function parseBracketLabelSameLine(
 }
 
 function parseAttrsSameLine(src: string, openBrace: number, lineEnd: number) {
-  if (src.charCodeAt(openBrace) !== 0x7b) return null // '{'
-
   let i = openBrace
   let depth = 0
   let quote: 0 | 0x22 | 0x27 = 0

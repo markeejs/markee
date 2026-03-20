@@ -15,7 +15,7 @@ import { PathHelpers } from '../helpers/path.js'
  */
 export async function writeSplitBuilds(
   files: Record<string, MarkdownFile>,
-  folders: Record<string, PagesFile>,
+  folders: Record<string, SectionFile>,
   search: Record<string, { [anchor: string]: { l: string; c: string[] } }>,
 ) {
   if (!config.build.splits) return
@@ -67,7 +67,7 @@ export async function writeSplitBuilds(
 
   for (const split of splits) {
     const splitFiles: Record<string, MarkdownFile> = {}
-    const splitFolders: Record<string, PagesFile> = {}
+    const splitFolders: Record<string, SectionFile> = {}
     const splitSearch: Record<
       string,
       { [anchor: string]: { l: string; c: string[] } }

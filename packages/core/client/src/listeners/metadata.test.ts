@@ -103,10 +103,7 @@ describe('metadata listener', () => {
     ])
     expect(document.title).toBe('Site - Intro')
 
-    metadataState.combineCallback?.([
-      {},
-      { frontMatter: { title: 'Intro' } },
-    ])
+    metadataState.combineCallback?.([{}, { frontMatter: { title: 'Intro' } }])
     expect(document.title).toBe('Site - Intro')
   })
 

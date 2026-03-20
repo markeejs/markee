@@ -4,14 +4,19 @@ import rehypeParse from 'rehype-parse'
 import rehypeStringify from 'rehype-stringify'
 
 vi.mock('unist-util-visit', async () => {
-  const actual = await vi.importActual<typeof import('unist-util-visit')>(
-    'unist-util-visit',
-  )
+  const actual =
+    await vi.importActual<typeof import('unist-util-visit')>('unist-util-visit')
 
   return {
     ...actual,
-    visit(tree: unknown, test: unknown, visitor: (...args: unknown[]) => unknown) {
-      if ((tree as { __triggerUndefinedArgs?: boolean }).__triggerUndefinedArgs) {
+    visit(
+      tree: unknown,
+      test: unknown,
+      visitor: (...args: unknown[]) => unknown,
+    ) {
+      if (
+        (tree as { __triggerUndefinedArgs?: boolean }).__triggerUndefinedArgs
+      ) {
         visitor({
           type: 'element',
           tagName: 'div',

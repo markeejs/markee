@@ -55,9 +55,7 @@ abstract class BaseMtimeCacheBuster {
       if (!this.isRelativeSpecifier(im.spec)) continue
 
       const importedAbs = this.resolveRelativeImportAbs(fileAbs, im.spec)
-      const effectiveMs = importedAbs
-        ? this.mtimeCacheMs.get(importedAbs)
-        : undefined
+      const effectiveMs = this.mtimeCacheMs.get(importedAbs)
       if (effectiveMs === undefined) continue
 
       const rewrittenSpec = this.withTParam(im.spec, effectiveMs)
@@ -94,8 +92,6 @@ abstract class BaseMtimeCacheBuster {
       if (!this.isRelativeSpecifier(im.spec)) continue
 
       const importedAbs = this.resolveRelativeImportAbs(fileAbs, im.spec)
-      if (!importedAbs) continue
-
       const childEffective = await this.visit(importedAbs)
       if (childEffective > effective) effective = childEffective
     }
@@ -127,8 +123,7 @@ abstract class BaseMtimeCacheBuster {
   protected resolveRelativeImportAbs(
     fromFileAbs: string,
     spec: string,
-  ): string | null {
-    if (!this.isRelativeSpecifier(spec)) return null
+  ): string {
     const stripped = this.stripQueryAndHash(spec)
     return path.resolve(path.dirname(fromFileAbs), stripped)
   }
@@ -157,7 +152,7 @@ abstract class BaseMtimeCacheBuster {
     params.set('t', tValue)
     const newQuery = params.toString()
 
-    return newQuery ? `${base}?${newQuery}` : base
+    return `${base}?${newQuery}`
   }
 
   protected abstract findImportSpecifiers(code: string): ImportMatch[]
@@ -239,8 +234,8 @@ class CssImportMtimeCacheBuster extends BaseMtimeCacheBuster {
             const rawEnd = i
 
             const raw = code.slice(rawStart, rawEnd)
-            const leadingWs = raw.match(/^\s*/)?.[0].length ?? 0
-            const trailingWs = raw.match(/\s*$/)?.[0].length ?? 0
+            const leadingWs = (raw.match(/^\s*/)!)[0].length
+            const trailingWs = (raw.match(/\s*$/)!)[0].length
 
             const specStart = rawStart + leadingWs
             const specEnd = rawEnd - trailingWs

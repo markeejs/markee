@@ -1,10 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { state } from '@markee/runtime'
-import {
-  MarkeeVersionDropdown,
-  MarkeeVersionWarning,
-} from './markee-version'
+import { MarkeeVersionDropdown, MarkeeVersionWarning } from './markee-version'
 
 const runtimeState = {
   navigation: {
@@ -91,7 +88,7 @@ function createVersionedState({
         }
       : {},
     folders: {
-      docs: {
+      'docs': {
         version: { folder: true },
         versions: parent.versions,
       },
@@ -137,9 +134,9 @@ describe('markee-version-dropdown', () => {
     expect(options[0]?.getAttribute('value')).toBe('docs/v2')
     expect(options[0]?.textContent?.trim()).toBe('2.x (Latest)')
     expect(options[1]?.textContent?.trim()).toBe('Version 1')
-    expect(sessionStorage.getItem(`marbles::versioned-content::${parent.key}`)).toBe(
-      'docs/v1',
-    )
+    expect(
+      sessionStorage.getItem(`marbles::versioned-content::${parent.key}`),
+    ).toBe('docs/v1')
     expect(reload).toHaveBeenCalledOnce()
 
     const second = new MarkeeVersionDropdown()
@@ -151,7 +148,9 @@ describe('markee-version-dropdown', () => {
 
   it('omits the latest suffix when the title label is empty and navigates on selectable changes', async () => {
     const { dropdown } = createVersionedState({ latestLabel: '' })
-    runtimeState.navigation.files['docs/v2'].frontMatter = { title: 'Latest docs' }
+    runtimeState.navigation.files['docs/v2'].frontMatter = {
+      title: 'Latest docs',
+    }
     document.body.append(dropdown)
 
     await dropdown.updateComplete
@@ -166,7 +165,9 @@ describe('markee-version-dropdown', () => {
     select.value = 'docs/v2'
     select.dispatchEvent(new Event('change'))
 
-    expect(runtimeState.router.navigate.open).toHaveBeenCalledWith('/docs/v2/guide')
+    expect(runtimeState.router.navigate.open).toHaveBeenCalledWith(
+      '/docs/v2/guide',
+    )
   })
 
   it('does not navigate when a selected version is disabled', async () => {
@@ -202,7 +203,10 @@ describe('markee-version-warning', () => {
         reload: vi.fn(),
       },
     }
-    runtimeState.currentFile = { key: 'docs/v1/guide.md', link: '/docs/v1/guide' }
+    runtimeState.currentFile = {
+      key: 'docs/v1/guide.md',
+      link: '/docs/v1/guide',
+    }
     document.body.append(latest)
     await latest.updateComplete
 
@@ -221,12 +225,15 @@ describe('markee-version-warning', () => {
       },
       files: {},
       folders: {
-        docs: { versions: [{ key: 'docs/v2' }, { key: 'docs/v1' }] },
+        'docs': { versions: [{ key: 'docs/v2' }, { key: 'docs/v1' }] },
         'docs/v1': { link: '/docs/v1' },
         'docs/v2': {},
       },
     }
-    runtimeState.currentFile = { key: 'docs/v1/guide.md', link: '/docs/v1/guide' }
+    runtimeState.currentFile = {
+      key: 'docs/v1/guide.md',
+      link: '/docs/v1/guide',
+    }
 
     const missingDestination = new MarkeeVersionWarning()
     document.body.append(missingDestination)
@@ -254,7 +261,7 @@ describe('markee-version-warning', () => {
         },
       },
       folders: {
-        docs: {
+        'docs': {
           title: 'Docs',
           version: { folder: false },
           versions: [{ key: 'docs/v2' }, { key: 'docs/v1' }],
@@ -264,16 +271,23 @@ describe('markee-version-warning', () => {
         },
       },
     }
-    runtimeState.currentFile = { key: 'docs/v1/guide.md', link: '/docs/v1/guide' }
+    runtimeState.currentFile = {
+      key: 'docs/v1/guide.md',
+      link: '/docs/v1/guide',
+    }
 
     const element = new MarkeeVersionWarning()
     document.body.append(element)
 
     await element.updateComplete
 
-    expect(element.textContent).toContain('You are currently viewing this document in version')
+    expect(element.textContent).toContain(
+      'You are currently viewing this document in version',
+    )
     expect(element.textContent).toContain('Version 1')
-    expect(element.querySelector('a')?.getAttribute('href')).toBe('/docs/v2/guide')
+    expect(element.querySelector('a')?.getAttribute('href')).toBe(
+      '/docs/v2/guide',
+    )
     expect(element.textContent).toContain('2.x')
   })
 
@@ -291,7 +305,7 @@ describe('markee-version-warning', () => {
       },
       files: {},
       folders: {
-        docs: {
+        'docs': {
           title: 'Docs',
           version: { folder: true },
           versions: [{ key: 'docs/v2' }, { key: 'docs/v1' }],
@@ -306,7 +320,10 @@ describe('markee-version-warning', () => {
         },
       },
     }
-    runtimeState.currentFile = { key: 'docs/v1/guide.md', link: '/docs/v1/guide' }
+    runtimeState.currentFile = {
+      key: 'docs/v1/guide.md',
+      link: '/docs/v1/guide',
+    }
 
     const element = new MarkeeVersionWarning()
     element.titleLabel = 'Outdated'
@@ -314,11 +331,15 @@ describe('markee-version-warning', () => {
 
     await element.updateComplete
 
-    expect(element.querySelector('.mk-admonition-title')?.textContent?.trim()).toBe(
-      'Outdated',
+    expect(
+      element.querySelector('.mk-admonition-title')?.textContent?.trim(),
+    ).toBe('Outdated')
+    expect(element.textContent).toContain(
+      'This file does not exist anymore on the latest version.',
     )
-    expect(element.textContent).toContain('This file does not exist anymore on the latest version.')
-    expect(element.querySelector('a')?.getAttribute('href')).toBe('/docs/latest')
+    expect(element.querySelector('a')?.getAttribute('href')).toBe(
+      '/docs/latest',
+    )
     expect(element.textContent).toContain('Version 2')
   })
 })

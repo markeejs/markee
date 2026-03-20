@@ -70,15 +70,12 @@ export function handleRouterNavigationClick(event: MouseEvent) {
   }
 }
 
-export function installRouterNavigationListener() {
+export function installRouterNavigationListener(skip?: boolean) {
+  if (skip) return
   document.addEventListener(
     'click',
     handleRouterNavigationClick as EventListener,
   )
 }
 
-/* v8 ignore start */
-if (!isTestEnv) {
-  installRouterNavigationListener()
-}
-/* v8 ignore stop */
+installRouterNavigationListener(isTestEnv)

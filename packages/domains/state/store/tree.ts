@@ -24,9 +24,7 @@ function savedVersion(key: string) {
   return sessionStorage.getItem('markee::versioned-content::' + key)
 }
 
-function findFirstLink(root: TreeItem | TreeLeaf | null) {
-  /* v8 ignore next */
-  if (!root) return
+function findFirstLink(root: TreeItem | TreeLeaf) {
   if (root.link) return root.link
   if ('items' in root && root.items?.length)
     return root.items.find(findFirstLink)?.link
@@ -38,7 +36,6 @@ function computeVersionedContent(
   folder: boolean,
   forceTitle?: string,
 ) {
-  /* v8 ignore next */
   const currentFile = savedVersion(tree.key) ?? $currentFile.get()?.key
 
   if (folder) {
@@ -79,9 +76,9 @@ function computeLeaf(
 
 function computeTree(
   key: string,
-  root: PagesFile,
+  root: SectionFile,
   title: string | undefined,
-  folders: Record<string, PagesFile>,
+  folders: Record<string, SectionFile>,
   files: Record<string, MarkdownFile>,
 ): TreeItem | null {
   if (!root || !folders[key]) {
@@ -195,7 +192,7 @@ export const $navigationTree = computed(
   ({ data }) => {
     const { files, folders } = data || {
       files: {} as Record<string, MarkdownFile>,
-      folders: {} as Record<string, PagesFile>,
+      folders: {} as Record<string, SectionFile>,
     }
     treeCache.clear()
 

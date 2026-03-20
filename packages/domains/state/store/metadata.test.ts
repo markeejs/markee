@@ -14,7 +14,6 @@ import {
   $navigationLoader,
   $searchLoader,
   installMetadataAutoRefresh,
-  queueMetadataRefresh,
   revalidateMetadata,
   scheduleMetadataRevalidation,
 } from './metadata.js'
@@ -117,7 +116,7 @@ describe('metadata stores', () => {
       if (url === '/_markee/search.json') {
         return Promise.resolve({
           'guide.md': { intro: { l: 'Intro', c: ['Alpha'] } },
-          _splits: ['fr'],
+          '_splits': ['fr'],
         })
       }
 
@@ -149,7 +148,11 @@ describe('metadata stores', () => {
     expect($layoutsLoader.get().loading).toBe(false)
     expect(consoleError).toHaveBeenCalledWith(error)
 
-    $configLoader.set({ loading: false, data: { siteName: 'Docs' } as any, error: null })
+    $configLoader.set({
+      loading: false,
+      data: { siteName: 'Docs' } as any,
+      error: null,
+    })
     $navigationLoader.set({
       loading: false,
       data: { files: {}, folders: {}, assets: {} },
@@ -203,7 +206,6 @@ describe('metadata stores', () => {
     vi.spyOn($layoutsLoader, 'refresh').mockResolvedValue(undefined)
     const tempStore = map({ value: true })
 
-    queueMetadataRefresh(refresh)
     installMetadataAutoRefresh(tempStore, refresh)
     tempStore.listen(() => {})
     scheduleMetadataRevalidation()

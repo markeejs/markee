@@ -7,8 +7,16 @@ describe('remarkAccessibleHeadings', () => {
     const tree = {
       type: 'root',
       children: [
-        { type: 'heading', depth: 1, children: [{ type: 'text', value: 'One' }] },
-        { type: 'heading', depth: 6, children: [{ type: 'text', value: 'Six' }] },
+        {
+          type: 'heading',
+          depth: 1,
+          children: [{ type: 'text', value: 'One' }],
+        },
+        {
+          type: 'heading',
+          depth: 6,
+          children: [{ type: 'text', value: 'Six' }],
+        },
       ],
     } as const
 

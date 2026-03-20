@@ -125,7 +125,9 @@ describe('rehypeTableMerge', () => {
                           type: 'element',
                           tagName: 'em',
                           properties: {},
-                          children: [{ type: 'text', value: 'Still plain content' }],
+                          children: [
+                            { type: 'text', value: 'Still plain content' },
+                          ],
                         },
                       ],
                     },

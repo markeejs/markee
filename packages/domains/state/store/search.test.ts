@@ -83,10 +83,9 @@ describe('$search', () => {
     const search = $search.get()
     const results = search('alpha')
 
-    expect(results.map((result: (typeof results)[number]) => result.file)).toEqual([
-      'guide.md',
-      'other.md',
-    ])
+    expect(
+      results.map((result: (typeof results)[number]) => result.file),
+    ).toEqual(['guide.md', 'other.md'])
     expect(results[0]?.results).toEqual([
       { label: 'Intro', anchor: 'intro', content: 'html:Alpha beta' },
       { label: 'API', anchor: 'api', content: 'html:Alpha gamma' },

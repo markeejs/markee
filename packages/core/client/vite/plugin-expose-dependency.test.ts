@@ -26,16 +26,16 @@ describe('pluginExposeDependency', () => {
 
     expect(plugin.name).toBe('expose-pkg-exports-for-importmap')
     expect(plugin.apply).toBe('build')
-    expect(resolveId('virtual:importmap-export:lit/index.js', undefined, {} as any)).toBe(
-      '\0virtual:importmap-export:lit/index.js',
-    )
+    expect(
+      resolveId('virtual:importmap-export:lit/index.js', undefined, {} as any),
+    ).toBe('\0virtual:importmap-export:lit/index.js')
     expect(resolveId('other', undefined, {} as any)).toBeNull()
     expect(load('\0virtual:importmap-export:lit/index.js', {} as any)).toBe(
       'export * from "lit";\n',
     )
-    expect(load('\0virtual:importmap-export:lit/decorators.js', {} as any)).toBe(
-      'export * from "lit/decorators.js";\n',
-    )
+    expect(
+      load('\0virtual:importmap-export:lit/decorators.js', {} as any),
+    ).toBe('export * from "lit/decorators.js";\n')
     expect(load('\0virtual:importmap-export:missing', {} as any)).toBeNull()
     expect(emitFile).toHaveBeenCalledWith({
       type: 'chunk',
@@ -66,19 +66,36 @@ describe('pluginExposeDependency', () => {
 
     buildStart.call({ emitFile } as any, {} as any)
 
-    expect(load('\0virtual:importmap-export:./test-fixtures/expose-fixture/index.js', {} as any)).toBe(
-      'export * from "./test-fixtures/expose-fixture";\n',
-    )
-    expect(load('\0virtual:importmap-export:./test-fixtures/expose-fixture/feature.js', {} as any)).toBe(
-      'export * from "./test-fixtures/expose-fixture/feature.js";\n',
-    )
-    expect(load('\0virtual:importmap-export:./test-fixtures/expose-fixture/fallback.js', {} as any)).toBe(
-      'export * from "./test-fixtures/expose-fixture/fallback.js";\n',
-    )
-    expect(load('\0virtual:importmap-export:./test-fixtures/expose-fixture/nested/alpha.js', {} as any)).toBe(
-      'export * from "./test-fixtures/expose-fixture/nested/alpha.js";\n',
-    )
-    expect(load('\0virtual:importmap-export:./test-fixtures/expose-fixture/nested/deep/beta.mjs', {} as any)).toBe(
+    expect(
+      load(
+        '\0virtual:importmap-export:./test-fixtures/expose-fixture/index.js',
+        {} as any,
+      ),
+    ).toBe('export * from "./test-fixtures/expose-fixture";\n')
+    expect(
+      load(
+        '\0virtual:importmap-export:./test-fixtures/expose-fixture/feature.js',
+        {} as any,
+      ),
+    ).toBe('export * from "./test-fixtures/expose-fixture/feature.js";\n')
+    expect(
+      load(
+        '\0virtual:importmap-export:./test-fixtures/expose-fixture/fallback.js',
+        {} as any,
+      ),
+    ).toBe('export * from "./test-fixtures/expose-fixture/fallback.js";\n')
+    expect(
+      load(
+        '\0virtual:importmap-export:./test-fixtures/expose-fixture/nested/alpha.js',
+        {} as any,
+      ),
+    ).toBe('export * from "./test-fixtures/expose-fixture/nested/alpha.js";\n')
+    expect(
+      load(
+        '\0virtual:importmap-export:./test-fixtures/expose-fixture/nested/deep/beta.mjs',
+        {} as any,
+      ),
+    ).toBe(
       'export * from "./test-fixtures/expose-fixture/nested/deep/beta.mjs";\n',
     )
 
@@ -121,8 +138,8 @@ describe('pluginExposeDependency', () => {
       ),
     ).toBe(false)
     expect(
-      emitFile.mock.calls.some(
-        ([entry]) => String(entry.name).includes('/missing/'),
+      emitFile.mock.calls.some(([entry]) =>
+        String(entry.name).includes('/missing/'),
       ),
     ).toBe(false)
   })

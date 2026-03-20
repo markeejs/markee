@@ -125,6 +125,9 @@ importers:
       '@markee/tsconfig':
         specifier: 0.1.0
         version: link:../../support/tsconfig
+      '@markee/vitest':
+        specifier: 0.1.0
+        version: link:../../support/vitest
       '@types/command-line-args':
         specifier: ^5.2.3
         version: 5.2.3
@@ -146,6 +149,12 @@ importers:
       '@types/rss':
         specifier: ^0.0.32
         version: 0.0.32
+      '@vitest/coverage-v8':
+        specifier: ^3.2.4
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/core/client:
     devDependencies:
@@ -194,6 +203,8 @@ importers:
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
+
+  packages/core/client/vite/test-fixtures/expose-fixture: {}
 
   packages/core/runtime:
     dependencies:

@@ -66,35 +66,31 @@ function inferTitle(pathname: string) {
 }
 
 function applyFieldInheritance(
-  navigation: Record<string, PagesFile>,
-  config: PagesFile,
+  navigation: Record<string, SectionFile>,
+  config: SectionFile,
 ) {
-  if (!config) return
-
   if ('hide' in config && !('hidden' in config)) {
     config.hidden = !!config.hide
   }
 
-  ;[...(config.navigation ?? []), ...(config.excluded ?? [])].forEach(
-    (entry) => {
-      if (navigation[entry.key]) {
-        if (config.hidden) {
-          navigation[entry.key].hidden = true
-        }
-
-        if (config.draft) {
-          navigation[entry.key].draft = true
-        }
-
-        navigation[entry.key].indexable ??= config.indexable
-
-        applyFieldInheritance(navigation, navigation[entry.key])
+  ;[...config.navigation!, ...(config.excluded ?? [])].forEach((entry) => {
+    if (navigation[entry.key]) {
+      if (config.hidden) {
+        navigation[entry.key].hidden = true
       }
-    },
-  )
+
+      if (config.draft) {
+        navigation[entry.key].draft = true
+      }
+
+      navigation[entry.key].indexable ??= config.indexable
+
+      applyFieldInheritance(navigation, navigation[entry.key])
+    }
+  })
 }
 
-function sanitizePagesFile(entry: {
+function sanitizeSectionFile(entry: {
   title?: string
   nav?: Navigation
   navigation?: Navigation
@@ -240,18 +236,13 @@ function resolveNavigationEntries(
 function extractExplicitFilesAndFoldersSet(
   filesSet: Set<string>,
   foldersSet: Set<string>,
-  navigation: CleanNavigation,
+  navigation?: CleanNavigation,
 ) {
+  if (!navigation) return
   navigation.forEach((entry) => {
     if ('key' in entry) {
       filesSet.delete(entry.key)
       foldersSet.delete(entry.key)
-    }
-    if ('folder' in entry) {
-      foldersSet.delete(entry.folder)
-    }
-    if ('navigation' in entry) {
-      extractExplicitFilesAndFoldersSet(filesSet, foldersSet, entry.navigation)
     }
   })
 }
@@ -317,7 +308,7 @@ function applyPatternOrigin(
 }
 
 function extractNestedSections(
-  config: Record<
+  sectionFiles: Record<
     string,
     { title?: string; navigation?: Navigation | CleanNavigation }
   >,
@@ -328,10 +319,10 @@ function extractNestedSections(
     if ('section' in entry) {
       const { section, navigation, ...rest } = entry
       const folder = PathHelpers.concat(key, section)
-      config[folder] = { ...rest }
+      sectionFiles[folder] = { ...rest }
       if (navigation) {
-        config[folder].navigation = extractNestedSections(
-          config,
+        sectionFiles[folder].navigation = extractNestedSections(
+          sectionFiles,
           navigation,
           folder,
         )
@@ -443,7 +434,7 @@ function resolveRestEntries(
 
 function trackExcludedFilesAndFolders(
   files: Record<string, MarkdownFile>,
-  pages: Record<string, PagesFile>,
+  pages: Record<string, SectionFile>,
   remainingFiles: Set<string>,
   remainingFolders: Set<string>,
 ) {
@@ -466,7 +457,7 @@ function trackExcludedFilesAndFolders(
   })
 }
 
-function resolveVersionedContent(pages: Record<string, PagesFile>) {
+function resolveVersionedContent(pages: Record<string, SectionFile>) {
   Object.values(pages).forEach((page) => {
     if (VERSIONING_INFO in page && page[VERSIONING_INFO]) {
       page.version = { ...page.version, ...page[VERSIONING_INFO] }
@@ -478,7 +469,7 @@ function resolveVersionedContent(pages: Record<string, PagesFile>) {
   })
 }
 
-export const PagesCompute = {
+export const SectionCompute = {
   /**
    * Function for reading .pages across the project and resolving
    * the navigation structure
@@ -492,7 +483,7 @@ export const PagesCompute = {
       ConfigCache.getRoot(source.root),
     )
 
-    let pagesFiles: Record<
+    let sectionFiles: Record<
       string,
       {
         link?: string
@@ -528,35 +519,35 @@ export const PagesCompute = {
           () => null,
         )
 
-        pagesFiles[folder] = sanitizePagesFile({
+        sectionFiles[folder] = sanitizeSectionFile({
           ...loadYamlContent(dataFile),
         })
-        pagesFiles[folder].link = getLink(folder, config.sources)
-        if (pagesFiles[folder].navigation) {
-          pagesFiles[folder].navigation = simplifyNavigationStructure(
-            pagesFiles[folder].navigation as Navigation,
-            pagesFiles[folder].order || 'asc',
+        sectionFiles[folder].link = getLink(folder, config.sources)
+        if (sectionFiles[folder].navigation) {
+          sectionFiles[folder].navigation = simplifyNavigationStructure(
+            sectionFiles[folder].navigation as Navigation,
+            sectionFiles[folder].order || 'asc',
           )
-          pagesFiles[folder].navigation = resolveNavigationEntries(
+          sectionFiles[folder].navigation = resolveNavigationEntries(
             folder,
-            pagesFiles[folder].navigation as CleanNavigation,
+            sectionFiles[folder].navigation as CleanNavigation,
             folders,
           )
         } else {
-          pagesFiles[folder].navigation =
+          sectionFiles[folder].navigation =
             folder === '/'
               ? sourceRoots.map((key) => ({ key: `/${key}` }))
               : [
                   {
                     rest: true,
                     for: '',
-                    order: pagesFiles[folder].order || 'asc',
+                    order: sectionFiles[folder].order || 'asc',
                   },
                 ]
         }
 
-        if (!pagesFiles[folder].title) {
-          pagesFiles[folder].inferredTitle = inferTitle(folder)
+        if (!sectionFiles[folder].title) {
+          sectionFiles[folder].inferredTitle = inferTitle(folder)
         }
 
         if (versionFile !== null) {
@@ -565,8 +556,8 @@ export const PagesCompute = {
             mode?: 'folder' | 'file'
           }>(versionFile)
           version.folder = version.mode === 'folder'
-          pagesFiles[folder][VERSIONING_INFO] = version
-          pagesFiles[folder].navigation = version.folder
+          sectionFiles[folder][VERSIONING_INFO] = version
+          sectionFiles[folder].navigation = version.folder
             ? ([
                 { pattern: 'regex=^(?!.*\\.md$).*', for: '', order: 'asc' },
               ] as CleanNavigation)
@@ -578,34 +569,34 @@ export const PagesCompute = {
     )
 
     // Move all nested folders into standalone 'folders' entries
-    Object.keys(pagesFiles).map((folder) => {
-      if (pagesFiles[folder].navigation) {
-        pagesFiles[folder].navigation = extractNestedFolders(
-          pagesFiles,
-          pagesFiles[folder].navigation as CleanNavigation,
+    Object.keys(sectionFiles).map((folder) => {
+      if (sectionFiles[folder].navigation) {
+        sectionFiles[folder].navigation = extractNestedFolders(
+          sectionFiles,
+          sectionFiles[folder].navigation as CleanNavigation,
         )
       }
     })
 
-    // Need to sort the pagesFiles after it's populated, as Promise.all
+    // Need to sort the sectionFiles after it's populated, as Promise.all
     // will populate it out of order
-    pagesFiles = Object.fromEntries(
-      Object.keys(pagesFiles)
+    sectionFiles = Object.fromEntries(
+      Object.keys(sectionFiles)
         .sort(FilesystemHelpers.sortFiles)
-        .map((k) => [k, pagesFiles[k]]),
+        .map((k) => [k, sectionFiles[k]]),
     )
 
     // Move all sections into standalone 'folders' entries
-    Object.keys(pagesFiles).map((folder) => {
-      if (pagesFiles[folder].navigation) {
+    Object.keys(sectionFiles).map((folder) => {
+      if (sectionFiles[folder].navigation) {
         // Make sure rest/patterns in sections stay relative to the parent directory
-        pagesFiles[folder].navigation = applyPatternOrigin(
+        sectionFiles[folder].navigation = applyPatternOrigin(
           folder,
-          pagesFiles[folder].navigation as CleanNavigation,
+          sectionFiles[folder].navigation as CleanNavigation,
         )
-        pagesFiles[folder].navigation = extractNestedSections(
-          pagesFiles,
-          pagesFiles[folder].navigation as CleanNavigation,
+        sectionFiles[folder].navigation = extractNestedSections(
+          sectionFiles,
+          sectionFiles[folder].navigation as CleanNavigation,
           folder,
         )
       }
@@ -615,19 +606,19 @@ export const PagesCompute = {
     const remainingFiles = new Set(files)
     const remainingFolders = new Set(folders)
 
-    Object.keys(pagesFiles).forEach((folder) => {
+    Object.keys(sectionFiles).forEach((folder) => {
       extractExplicitFilesAndFoldersSet(
         remainingFiles,
         remainingFolders,
-        pagesFiles[folder].navigation as CleanNavigation,
+        sectionFiles[folder].navigation as CleanNavigation,
       )
     })
 
     // Resolve all patterns first
-    Object.keys(pagesFiles).map((folder) => {
-      if (pagesFiles[folder].navigation) {
-        pagesFiles[folder].navigation = resolvePatterns(
-          pagesFiles[folder].navigation as CleanNavigation,
+    Object.keys(sectionFiles).map((folder) => {
+      if (sectionFiles[folder].navigation) {
+        sectionFiles[folder].navigation = resolvePatterns(
+          sectionFiles[folder].navigation as CleanNavigation,
           remainingFiles,
           remainingFolders,
         )
@@ -635,10 +626,10 @@ export const PagesCompute = {
     })
 
     // Then resolve rest patterns
-    Object.keys(pagesFiles).map((folder) => {
-      if (pagesFiles[folder].navigation) {
-        pagesFiles[folder].navigation = resolveRestEntries(
-          pagesFiles[folder].navigation as CleanNavigation,
+    Object.keys(sectionFiles).map((folder) => {
+      if (sectionFiles[folder].navigation) {
+        sectionFiles[folder].navigation = resolveRestEntries(
+          sectionFiles[folder].navigation as CleanNavigation,
           remainingFiles,
           remainingFolders,
         )
@@ -648,18 +639,18 @@ export const PagesCompute = {
     // Add all remaining files and folders to their parent's "excluded" list
     trackExcludedFilesAndFolders(
       markdownFiles,
-      pagesFiles as Record<string, PagesFile>,
+      sectionFiles as Record<string, SectionFile>,
       remainingFiles,
       remainingFolders,
     )
 
     // Resolve versioned content
-    resolveVersionedContent(pagesFiles as Record<string, PagesFile>)
+    resolveVersionedContent(sectionFiles as Record<string, SectionFile>)
 
     // Apply `hidden: true` and `draft: true` recursively to all descendants
     // Apply `indexable` value to descendants if they don't have one
-    applyFieldInheritance(pagesFiles as any, pagesFiles['/'] as any)
+    applyFieldInheritance(sectionFiles as any, sectionFiles['/'] as any)
 
-    return pagesFiles as Record<string, PagesFile>
+    return sectionFiles as Record<string, SectionFile>
   },
 }

@@ -154,11 +154,10 @@ class DeprecatedAdmonitions {
   }
 
   static extractInfo(line: string) {
-    const candidates =
-      line
-        .match(this.infoRe)
-        ?.filter((p) => !!p)
-        .map((value) => value.trim()) ?? []
+    const candidates = line
+      .match(this.infoRe)!
+      .filter((p) => !!p)
+      .map((value) => value.trim())
     let title = candidates.find((c) => c.startsWith('"') || c.startsWith("'"))
     const args = candidates.find((e) => e.startsWith('{'))
     const kind = candidates.find((e) => e !== title && e !== args)
@@ -272,7 +271,7 @@ ${tag}
 
         return `${this.extractPreceding(section)}
 ${tag}${kind}${this.sanitizeArgs(args)}
-${title ?? ''}
+${title}
 ${content}
 ${tag}
 `
@@ -296,8 +295,9 @@ class DeprecatedFrontMatter {
     ) {
       idx += 1
     }
-    const classify = lines.slice(0, idx).map((line) => {
-      if (!line.trim()) return 'empty'
+    type LineKind = 'frontmatter' | 'normal' | 'empty'
+
+    const classify: LineKind[] = lines.slice(0, idx).map((line) => {
       if (line.trim().match(/^[0-9a-zA-Z_]+?:/)) return 'frontmatter'
       return 'normal'
     })

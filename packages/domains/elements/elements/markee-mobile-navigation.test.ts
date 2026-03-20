@@ -220,7 +220,9 @@ describe('MarkeeMobileNavigationToc', () => {
     expect(element.querySelector('a')?.getAttribute('href')).toBe('#intro')
     expect(element.querySelector('a')?.textContent?.trim()).toBe('Intro')
     expect(element.querySelector('ul')).not.toBeNull()
-    expect(element.querySelectorAll('markee-mobile-navigation-toc')).toHaveLength(1)
+    expect(
+      element.querySelectorAll('markee-mobile-navigation-toc'),
+    ).toHaveLength(1)
   })
 
   it('renders a leaf entry without nested markup', async () => {
@@ -269,7 +271,11 @@ describe('MarkeeMobileNavigationItem', () => {
     }
 
     expect(element.querySelector('a')?.getAttribute('href')).toBe('/docs/guide')
-    expect(button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))).toBe(false)
+    expect(
+      button.dispatchEvent(
+        new MouseEvent('click', { bubbles: true, cancelable: true }),
+      ),
+    ).toBe(false)
     expect(onOpenChildren).toHaveBeenCalledOnce()
     expect(onParentClick).not.toHaveBeenCalled()
   })
@@ -338,14 +344,18 @@ describe('MarkeeMobileNavigation', () => {
     await element.updateComplete
 
     const drawer = getDrawer(element)
-    const listItems = [...element.querySelectorAll<HTMLLIElement>('nav > ul > li')]
+    const listItems = [
+      ...element.querySelectorAll<HTMLLIElement>('nav > ul > li'),
+    ]
 
     expect(element.shownPath).toBe(start.key)
     expect(element.opened).toBe(false)
     expect(drawer.side).toBe('right')
     expect(drawer.open).toBe(false)
     expect(element.querySelector('header span')?.textContent).toBe('Guide')
-    expect(element.querySelectorAll('markee-mobile-navigation-item')).toHaveLength(2)
+    expect(
+      element.querySelectorAll('markee-mobile-navigation-item'),
+    ).toHaveLength(2)
     expect(listItems).toHaveLength(2)
     expect(listItems[0]?.dataset.selected).toBe('true')
     expect(listItems[1]?.dataset.selected).toBe('false')
@@ -454,7 +464,9 @@ describe('MarkeeMobileNavigation', () => {
       throw new Error('toc entry not found')
     }
 
-    expect(element.querySelectorAll('markee-mobile-navigation-item')).toHaveLength(0)
+    expect(
+      element.querySelectorAll('markee-mobile-navigation-item'),
+    ).toHaveLength(0)
     expect(element.querySelector('header span')?.textContent).toBe('Start')
 
     tocEntry.dispatchEvent(new MouseEvent('click', { bubbles: true }))
@@ -487,7 +499,9 @@ describe('MarkeeMobileNavigation', () => {
     await element.updateComplete
 
     expect(element.querySelector('header span')?.textContent).toBe('API')
-    expect(element.querySelectorAll('markee-mobile-navigation-toc')).toHaveLength(1)
+    expect(
+      element.querySelectorAll('markee-mobile-navigation-toc'),
+    ).toHaveLength(1)
   })
 
   it('keeps index-backed sections with child items in navigation mode', async () => {
@@ -514,8 +528,12 @@ describe('MarkeeMobileNavigation', () => {
     await element.updateComplete
 
     expect(element.querySelector('header span')?.textContent).toBe('SDK')
-    expect(element.querySelectorAll('markee-mobile-navigation-toc')).toHaveLength(0)
-    expect(element.querySelectorAll('markee-mobile-navigation-item')).toHaveLength(1)
+    expect(
+      element.querySelectorAll('markee-mobile-navigation-toc'),
+    ).toHaveLength(0)
+    expect(
+      element.querySelectorAll('markee-mobile-navigation-item'),
+    ).toHaveLength(1)
   })
 
   it('keeps the current path when back navigation has no parent target', async () => {

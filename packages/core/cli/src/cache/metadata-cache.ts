@@ -5,6 +5,7 @@ import { globby } from 'globby'
 import { ROOT_DIR } from '../constants.js'
 
 import { PathHelpers } from '../helpers/path.js'
+import { ModuleHelpers } from '../helpers/module.js'
 
 import { ConfigCache } from './config-cache.js'
 import { MarkdownCache } from './markdown-cache.js'
@@ -38,7 +39,7 @@ async function readConfig(file: string) {
     const extension =
       _extension[0][0] === '@' ? _extension.join('/') : _extension[0]
     const resolved = PathHelpers.dirname(
-      PathHelpers.sanitize(new URL(import.meta.resolve(extension)).pathname),
+      PathHelpers.sanitize(ModuleHelpers.resolve(extension)),
     )
     return yaml.parse(
       await fs.readFile(

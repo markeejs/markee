@@ -62,13 +62,18 @@ describe('hot-reload listener', () => {
     })
     ;(globalThis as any).EventSource = FakeEventSource
     vi.spyOn(Date, 'now').mockImplementation(() => hotReloadState.now)
-    vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((callback) => {
-      hotReloadState.raf = callback
-      return 1
-    })
-    vi.spyOn(globalThis, 'fetch').mockImplementation(async () => ({
-      json: async () => hotReloadState.fetchQueue.shift() ?? [],
-    }) as Response)
+    vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation(
+      (callback) => {
+        hotReloadState.raf = callback
+        return 1
+      },
+    )
+    vi.spyOn(globalThis, 'fetch').mockImplementation(
+      async () =>
+        ({
+          json: async () => hotReloadState.fetchQueue.shift() ?? [],
+        }) as Response,
+    )
   })
 
   it('manages the event source lifecycle, revalidates on file changes, reconnects on errors, and closes when hidden', async () => {
@@ -119,9 +124,7 @@ describe('hot-reload listener', () => {
         { key: '/assets/app.css', kind: 'style', html: '' },
         { key: 'meta-1', kind: 'meta', html: '<meta data-test="changed">' },
       ],
-      [
-        
-      ],
+      [],
     )
 
     const module = await import('./hot-reload.js')
@@ -130,17 +133,26 @@ describe('hot-reload listener', () => {
 
     let headPromises = (window as any)[Symbol.for('markee::head-promises')]
     headPromises['/assets/module.js']()
-    ;(document.querySelector('[data-key="/assets/legacy.cjs"]') as HTMLScriptElement)
-      .onload?.(new Event('load'))
-    ;(document.querySelector('[data-key="/assets/app.css"]') as HTMLLinkElement).onload?.(
-      new Event('load'),
-    )
+    ;(
+      document.querySelector(
+        '[data-key="/assets/legacy.cjs"]',
+      ) as HTMLScriptElement
+    ).onload?.(new Event('load'))
+    ;(
+      document.querySelector('[data-key="/assets/app.css"]') as HTMLLinkElement
+    ).onload?.(new Event('load'))
     await vi.advanceTimersByTimeAsync(2000)
     await loadHeadPromise
 
-    expect(document.head.querySelector('[data-key="/assets/module.js"]')).not.toBeNull()
-    expect(document.head.querySelector('[data-key="/assets/legacy.cjs"]')).not.toBeNull()
-    expect(document.head.querySelector('[data-key="/assets/app.css"]')).not.toBeNull()
+    expect(
+      document.head.querySelector('[data-key="/assets/module.js"]'),
+    ).not.toBeNull()
+    expect(
+      document.head.querySelector('[data-key="/assets/legacy.cjs"]'),
+    ).not.toBeNull()
+    expect(
+      document.head.querySelector('[data-key="/assets/app.css"]'),
+    ).not.toBeNull()
     expect(document.head.querySelector('[data-test="initial"]')).not.toBeNull()
 
     hotReloadState.hidden = false
@@ -150,18 +162,23 @@ describe('hot-reload listener', () => {
 
     headPromises = (window as any)[Symbol.for('markee::head-promises')]
     headPromises['/assets/module.js']()
-    ;(document.querySelector('[data-key="/assets/app.css"]') as HTMLLinkElement).onload?.(
-      new Event('load'),
-    )
+    ;(
+      document.querySelector('[data-key="/assets/app.css"]') as HTMLLinkElement
+    ).onload?.(new Event('load'))
     await vi.advanceTimersByTimeAsync(2000)
     await flush()
 
     expect(reload).toHaveBeenCalledTimes(1)
     expect(
-      (document.querySelector('[data-key="/assets/module.js"]') as HTMLScriptElement)
-        .innerHTML,
+      (
+        document.querySelector(
+          '[data-key="/assets/module.js"]',
+        ) as HTMLScriptElement
+      ).innerHTML,
     ).toContain('?ts=2000')
-    expect(document.head.querySelector('[data-key="/assets/legacy.cjs"]')).toBeNull()
+    expect(
+      document.head.querySelector('[data-key="/assets/legacy.cjs"]'),
+    ).toBeNull()
 
     hotReloadState.hidden = true
     document.dispatchEvent(new Event('visibilitychange'))

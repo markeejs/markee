@@ -26,9 +26,9 @@ describe('markee-no-files', () => {
   it('renders the onboarding content and requests yaml syntax highlighting after update', async () => {
     await import('./no-files.js')
 
-    const element = document.createElement(
-      'markee-no-files',
-    ) as HTMLElement & { updateComplete?: Promise<unknown> }
+    const element = document.createElement('markee-no-files') as HTMLElement & {
+      updateComplete?: Promise<unknown>
+    }
     document.body.append(element)
     await element.updateComplete
 

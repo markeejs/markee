@@ -321,16 +321,16 @@ describe('search internals', () => {
       expect(defaultBucketLen('none')).toBe(2)
 
       expect(
-        passesAllFilters(
-          { id: 'a', title: 'ok' },
-          [(doc) => doc.id === 'a', (doc) => doc.title === 'ok'],
-        ),
+        passesAllFilters({ id: 'a', title: 'ok' }, [
+          (doc) => doc.id === 'a',
+          (doc) => doc.title === 'ok',
+        ]),
       ).toBe(true)
       expect(
-        passesAllFilters(
-          { id: 'a', title: 'ok' },
-          [(doc) => doc.id === 'a', () => false],
-        ),
+        passesAllFilters({ id: 'a', title: 'ok' }, [
+          (doc) => doc.id === 'a',
+          () => false,
+        ]),
       ).toBe(false)
 
       expect(intersectSets(new Set(['a', 'b']), new Set(['b', 'c']))).toEqual(
@@ -373,9 +373,7 @@ describe('search internals', () => {
     })
 
     it('normalizes query tokens into terms or phrases', () => {
-      expect(
-        normalizeQueryToken({ kind: 'term', raw: 'Café' }, 20),
-      ).toEqual({
+      expect(normalizeQueryToken({ kind: 'term', raw: 'Café' }, 20)).toEqual({
         kind: 'term',
         raw: 'Café',
         needle: 'cafe',
@@ -413,9 +411,12 @@ describe('search internals', () => {
 
   describe('normalization helpers', () => {
     it('folds text, tokenizes, normalizes values, and reads string fields', () => {
-      expect(foldText("Café ’Tick`")).toBe("cafe 'tick'")
+      expect(foldText('Café ’Tick`')).toBe("cafe 'tick'")
       expect(normalizeText('École')).toBe('ecole')
-      expect(tokenize('alpha beta superlongtoken', 5)).toEqual(['alpha', 'beta'])
+      expect(tokenize('alpha beta superlongtoken', 5)).toEqual([
+        'alpha',
+        'beta',
+      ])
       expect(tokenize('', 5)).toEqual([])
 
       expect(normalizeValue('  Café  ', 'fold')).toBe('cafe')
@@ -423,9 +424,9 @@ describe('search internals', () => {
       expect(normalizeValue('  Café  ', 'none')).toBe('  Café  ')
       expect(normalizeValue(undefined as never, 'none')).toBe('')
 
-      expect(normalizeNeedleArray(['  Café  ', 'cafe', '   '], 'fold')).toEqual([
-        'cafe',
-      ])
+      expect(normalizeNeedleArray(['  Café  ', 'cafe', '   '], 'fold')).toEqual(
+        ['cafe'],
+      )
       expect(normalizeNeedleArray(undefined as never, 'fold')).toEqual([])
 
       const equals = makeMatcher()
@@ -446,9 +447,9 @@ describe('search internals', () => {
       }
 
       expect(readStringField(doc, 'title', 'fold')).toEqual(['cafe'])
-      expect(readStringField({ id: 'b', title: '   ' }, 'title', 'trim')).toEqual(
-        [],
-      )
+      expect(
+        readStringField({ id: 'b', title: '   ' }, 'title', 'trim'),
+      ).toEqual([])
       expect(readStringField(doc, 'tags', 'trim')).toEqual(['Guides', 'Intro'])
       expect(readStringField(doc, 'misc', 'fold')).toEqual([])
     })
@@ -462,7 +463,12 @@ describe('search internals', () => {
       expect(minOrderedSpan([])).toBe(Infinity)
       expect(minOrderedSpan([[0], [1], [2]])).toBe(2)
       expect(minOrderedSpan([[5], [2]])).toBe(Infinity)
-      expect(minOrderedSpan([[0, 4], [3, 6]])).toBe(2)
+      expect(
+        minOrderedSpan([
+          [0, 4],
+          [3, 6],
+        ]),
+      ).toBe(2)
 
       expect(firstGreaterThan([1, 3, 5], 3)).toBe(5)
       expect(firstGreaterThan([1, 3, 5], 5)).toBeNull()

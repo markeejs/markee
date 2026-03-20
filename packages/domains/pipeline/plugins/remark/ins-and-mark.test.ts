@@ -50,7 +50,10 @@ describe('remarkInsAndMark', () => {
       { name: 'mark', character: 'equalsTo' },
     ])
     expect(data).toEqual({
-      micromarkExtensions: ['ins-plusSign-micromark', 'mark-equalsTo-micromark'],
+      micromarkExtensions: [
+        'ins-plusSign-micromark',
+        'mark-equalsTo-micromark',
+      ],
       fromMarkdownExtensions: ['ins-from', 'mark-from'],
       toMarkdownExtensions: ['ins-to', 'mark-to'],
     })

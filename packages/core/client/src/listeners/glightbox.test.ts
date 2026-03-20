@@ -59,7 +59,9 @@ describe('glightbox listener', () => {
     const event = new MouseEvent('click', { bubbles: true, cancelable: true })
     const stopImmediatePropagation = vi.spyOn(event, 'stopImmediatePropagation')
     const preventDefault = vi.spyOn(event, 'preventDefault')
-    document.querySelectorAll<HTMLAnchorElement>('a.glightbox')[1].dispatchEvent(event)
+    document
+      .querySelectorAll<HTMLAnchorElement>('a.glightbox')[1]
+      .dispatchEvent(event)
 
     expect(stopImmediatePropagation).toHaveBeenCalledTimes(1)
     expect(preventDefault).toHaveBeenCalledTimes(1)

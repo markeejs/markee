@@ -33,9 +33,9 @@ describe('rehypeTasklist', () => {
     const transform = rehypeTasklist() as any
     transform(tree)
 
-    expect(
-      tree.children[0].children[0].children[0].properties.disabled,
-    ).toBe(false)
+    expect(tree.children[0].children[0].children[0].properties.disabled).toBe(
+      false,
+    )
   })
 
   it('leaves non-task inputs unchanged', () => {

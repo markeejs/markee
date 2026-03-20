@@ -65,9 +65,9 @@ describe('anchors listener', () => {
       '/docs/latest/guide',
     )
 
-    expect(document.getElementById('root-version')?.getAttribute('data-file')).toBe(
-      '/docs/v3',
-    )
+    expect(
+      document.getElementById('root-version')?.getAttribute('data-file'),
+    ).toBe('/docs/v3')
     expect(document.getElementById('root-version')?.getAttribute('href')).toBe(
       '/docs/latest',
     )
@@ -90,7 +90,10 @@ describe('anchors listener', () => {
       'https://example.test/docs/file.md',
     )
     expect(error).toHaveBeenCalledWith('Found broken link:', '/missing.md')
-    expect(error).toHaveBeenCalledWith('Found broken link:', '/unknown/latest.md')
+    expect(error).toHaveBeenCalledWith(
+      'Found broken link:',
+      '/unknown/latest.md',
+    )
     expect(document.getElementById('broken')?.getAttribute('href')).toBe('/')
   })
 })

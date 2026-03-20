@@ -195,11 +195,11 @@ async function writeConfig({
   title,
   sources,
 }: {
-  title?: string
+  title: string
   sources: InitSource[]
 }) {
   const config = {
-    ...(title?.trim() ? { title: title.trim() } : {}),
+    title: title.trim(),
     ...(sources.length
       ? {
           sources: sources.map((source) => ({
@@ -306,7 +306,7 @@ export async function commandInit() {
 
     state.title ??= 'Markee Site'
     await upsertPackageJson(state.title)
-    await writeConfig(state)
+    await writeConfig(state as { title: string; sources: InitSource[] })
     console.log('Generated package.json and markee.yaml')
     console.log(
       `Run ${colors.bold(getInstallCommand())} to install dependencies, then ${colors.bold('markee start')} to start the development server.`,

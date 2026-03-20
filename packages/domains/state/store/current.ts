@@ -25,8 +25,7 @@ export const $current = atom<{
 export const $currentFile = computed(
   [$router, $navigationLoader],
   (router, navigationStore) => {
-    /* v8 ignore next */
-    const path = router?.path || '/'
+    const path = router!.path
     const navigation = navigationStore?.data || { folders: {}, files: {} }
     const file = Object.entries(navigation.files).find(
       ([, info]) =>

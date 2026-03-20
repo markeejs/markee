@@ -147,8 +147,8 @@ export class MarkeeNavigationItem extends MarkeeElement {
   }
 
   willUpdate(changedProperties: Map<string, unknown>) {
-    const hasRelevantChanges = ['item', 'defaults', 'selected'].some((property) =>
-      changedProperties.has(property),
+    const hasRelevantChanges = ['item', 'defaults', 'selected'].some(
+      (property) => changedProperties.has(property),
     )
 
     if (this.#expandedInitialized || !hasRelevantChanges) {

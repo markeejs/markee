@@ -9,7 +9,12 @@ describe('remarkAbbreviations', () => {
       children: [
         {
           type: 'paragraph',
-          children: [{ type: 'text', value: '*[API]: Application Programming Interface' }],
+          children: [
+            {
+              type: 'text',
+              value: '*[API]: Application Programming Interface',
+            },
+          ],
         },
         {
           type: 'paragraph',
@@ -86,7 +91,8 @@ describe('remarkAbbreviations', () => {
           children: [
             {
               type: 'text',
-              value: '*[API]: Application Programming Interface\nnot a definition',
+              value:
+                '*[API]: Application Programming Interface\nnot a definition',
             },
           ],
         },

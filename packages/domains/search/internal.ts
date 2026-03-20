@@ -261,7 +261,10 @@ export function normalizeText(text: string): string {
 }
 
 /** Tokenize normalized text into alphanumeric word tokens. */
-export function tokenize(normalizedText: string, maxTokenLength: number): string[] {
+export function tokenize(
+  normalizedText: string,
+  maxTokenLength: number,
+): string[] {
   const out: string[] = []
   const re = /[\p{L}\p{N}]+/gu
   let m: RegExpExecArray | null
@@ -280,7 +283,10 @@ export function normalizeValue(v: string, mode: NormalizeMode): string {
   return foldText(s).trim()
 }
 
-export function normalizeNeedleArray(arr: string[], mode: NormalizeMode): string[] {
+export function normalizeNeedleArray(
+  arr: string[],
+  mode: NormalizeMode,
+): string[] {
   const out: string[] = []
   for (const x of arr ?? []) {
     const v = normalizeValue(x, mode)

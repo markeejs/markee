@@ -140,7 +140,10 @@ describe('remarkAdmonitions', () => {
         }),
         containerDirective('faq', {
           children: [
-            directiveLabel([text('Custom '), { type: 'emphasis', children: [text('Title')] }]),
+            directiveLabel([
+              text('Custom '),
+              { type: 'emphasis', children: [text('Title')] },
+            ]),
             paragraph([text('Answer')]),
           ],
         }),
@@ -233,10 +236,7 @@ describe('remarkAdmonitions', () => {
           open: true,
         },
       },
-      children: [
-        { data: { hName: 'summary' } },
-        { data: { hName: 'div' } },
-      ],
+      children: [{ data: { hName: 'summary' } }, { data: { hName: 'div' } }],
     })
     expect(tree.children[1]).toMatchObject({
       data: {
@@ -335,11 +335,17 @@ describe('remarkAdmonitions', () => {
         containerDirective('tab', {
           attributes: { kind: 'info', linked: '' },
           position: { start: { offset: 111 } },
-          children: [directiveLabel([text('First & second')]), paragraph([text('Panel 1')])],
+          children: [
+            directiveLabel([text('First & second')]),
+            paragraph([text('Panel 1')]),
+          ],
         }),
         containerDirective('tab', {
           attributes: { kind: 'info' },
-          children: [directiveLabel([text('Second tab')]), paragraph([text('Panel 2')])],
+          children: [
+            directiveLabel([text('Second tab')]),
+            paragraph([text('Panel 2')]),
+          ],
         }),
         paragraph([text('Stop grouping')]),
       ],
@@ -361,7 +367,11 @@ describe('remarkAdmonitions', () => {
       data: {
         hName: 'div',
         hProperties: {
-          className: ['mk-admonition-title', 'mk-admonition-tabs', 'mk-tabbed-tabs'],
+          className: [
+            'mk-admonition-title',
+            'mk-admonition-tabs',
+            'mk-tabbed-tabs',
+          ],
         },
       },
     })
@@ -369,7 +379,7 @@ describe('remarkAdmonitions', () => {
       data: {
         hName: 'input',
         hProperties: {
-          checked: true,
+          'checked': true,
           'data-tab': 'First%20&%20second',
         },
       },
@@ -387,7 +397,7 @@ describe('remarkAdmonitions', () => {
       data: {
         hName: 'input',
         hProperties: {
-          checked: true,
+          'checked': true,
           'data-tab': 'First%20&%20second',
         },
       },
@@ -424,10 +434,16 @@ describe('remarkAdmonitions', () => {
         containerDirective('tab', {
           attributes: { unlinked: '' },
           position: { start: { offset: 7 } },
-          children: [directiveLabel([text('One')]), paragraph([text('Panel one')])],
+          children: [
+            directiveLabel([text('One')]),
+            paragraph([text('Panel one')]),
+          ],
         }),
         containerDirective('tab', {
-          children: [directiveLabel([text('Two')]), paragraph([text('Panel two')])],
+          children: [
+            directiveLabel([text('Two')]),
+            paragraph([text('Panel two')]),
+          ],
         }),
       ],
     }
@@ -548,12 +564,18 @@ describe('remarkAdmonitions', () => {
         {
           type: 'containerDirective',
           name: 'tab',
-          children: [directiveLabel([text('Fallback')]), paragraph([text('Panel one')])],
+          children: [
+            directiveLabel([text('Fallback')]),
+            paragraph([text('Panel one')]),
+          ],
         },
         {
           type: 'containerDirective',
           name: 'tab',
-          children: [directiveLabel([text('Second')]), paragraph([text('Panel two')])],
+          children: [
+            directiveLabel([text('Second')]),
+            paragraph([text('Panel two')]),
+          ],
         },
       ],
     }
@@ -570,8 +592,8 @@ describe('remarkAdmonitions', () => {
     expect(grouped.children[0].children[0]).toMatchObject({
       data: {
         hProperties: {
-          id: 'label-tab-0-0',
-          name: 'label-tab-0',
+          'id': 'label-tab-0-0',
+          'name': 'label-tab-0',
           'data-tab': 'Fallback',
         },
       },
@@ -579,8 +601,8 @@ describe('remarkAdmonitions', () => {
     expect(grouped.children[1]).toMatchObject({
       data: {
         hProperties: {
-          id: 'tab-0-0',
-          name: 'tab-0',
+          'id': 'tab-0-0',
+          'name': 'tab-0',
           'data-tab': 'Fallback',
         },
       },

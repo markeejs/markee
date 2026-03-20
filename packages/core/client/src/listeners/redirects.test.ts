@@ -1,13 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const redirectsState = vi.hoisted(() => ({
-  compute: undefined as undefined | ((router: any, config: any) => string | undefined),
+  compute: undefined as
+    | undefined
+    | ((router: any, config: any) => string | undefined),
   subscribe: undefined as undefined | ((redirect?: string) => void),
   replace: vi.fn(),
 }))
 
 vi.mock('nanostores', () => ({
-  computed(_: unknown, compute: (router: any, config: any) => string | undefined) {
+  computed(
+    _: unknown,
+    compute: (router: any, config: any) => string | undefined,
+  ) {
     redirectsState.compute = compute
     return {
       subscribe(callback: (redirect?: string) => void) {

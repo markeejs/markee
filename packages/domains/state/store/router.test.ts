@@ -33,10 +33,7 @@ function setNavigation() {
   })
 }
 
-function createClickEvent(
-  link: Element,
-  init: Partial<MouseEventInit> = {},
-) {
+function createClickEvent(link: Element, init: Partial<MouseEventInit> = {}) {
   const event = new MouseEvent('click', {
     bubbles: true,
     cancelable: true,

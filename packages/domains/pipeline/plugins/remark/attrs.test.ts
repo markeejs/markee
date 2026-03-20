@@ -35,7 +35,7 @@ describe('remarkAttrs', () => {
           data: {
             hName: 'span',
             hProperties: {
-              className: ['badge'],
+              'className': ['badge'],
               'data-id': '1',
             },
           },
@@ -181,7 +181,10 @@ describe('remarkAttrs', () => {
       this: string,
       matcher: any,
     ) {
-      if (this.toString() === ' tail]{class="callout"}' && matcher instanceof RegExp) {
+      if (
+        this.toString() === ' tail]{class="callout"}' &&
+        matcher instanceof RegExp
+      ) {
         counts.suffix += 1
         if (counts.suffix === 3) {
           return [']{class="callout"}'] as unknown as RegExpMatchArray
@@ -321,7 +324,9 @@ describe('remarkAttrs', () => {
       children: [
         {
           type: 'paragraph',
-          children: [{ type: 'text', value: 'Hello\n{id="hero" class="lead"}' }],
+          children: [
+            { type: 'text', value: 'Hello\n{id="hero" class="lead"}' },
+          ],
         },
       ],
     }

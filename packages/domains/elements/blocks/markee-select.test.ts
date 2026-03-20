@@ -14,7 +14,11 @@ vi.spyOn(floatingUi, 'autoUpdate').mockImplementation(
   () => floatingSpies.autoUpdateCleanup,
 )
 vi.spyOn(floatingUi, 'computePosition').mockImplementation(
-  async (...[_reference, floating, options]: Parameters<typeof floatingUi.computePosition>) => {
+  async (
+    ...[_reference, floating, options]: Parameters<
+      typeof floatingUi.computePosition
+    >
+  ) => {
     const sizeMiddleware = (options?.middleware as any[] | undefined)?.find(
       (middleware: any) => typeof middleware?.apply === 'function',
     )
@@ -33,7 +37,7 @@ vi.spyOn(floatingUi, 'computePosition').mockImplementation(
     } as Awaited<ReturnType<typeof floatingUi.computePosition>>
   },
 )
-vi.spyOn(floatingUi, 'flip').mockImplementation(() => ({ name: 'flip' } as any))
+vi.spyOn(floatingUi, 'flip').mockImplementation(() => ({ name: 'flip' }) as any)
 vi.spyOn(floatingUi, 'offset').mockImplementation(
   (value: Parameters<typeof floatingUi.offset>[0]) =>
     ({ name: 'offset', value }) as any,
@@ -42,7 +46,9 @@ vi.spyOn(floatingUi, 'shift').mockImplementation(
   (options: Parameters<typeof floatingUi.shift>[0]) =>
     ({ name: 'shift', options }) as any,
 )
-vi.spyOn(floatingUi, 'size').mockImplementation((options: unknown) => options as any)
+vi.spyOn(floatingUi, 'size').mockImplementation(
+  (options: unknown) => options as any,
+)
 
 function renderSelect(markup: string) {
   document.body.innerHTML = markup

@@ -9,7 +9,9 @@ describe('remarkSimpleIcons', () => {
       children: [
         {
           type: 'paragraph',
-          children: [{ type: 'text', value: 'Use :simple-github: and :simple-npm:.' }],
+          children: [
+            { type: 'text', value: 'Use :simple-github: and :simple-npm:.' },
+          ],
         },
       ],
     }

@@ -126,19 +126,8 @@ const Helpers = {
     c === CH_UNDERSCORE ||
     c === CH_COLON,
 
-  lowerAscii: (c: number) => (c <= CH_Z ? c + 32 : c),
-
-  startsWithAsciiCI: (src: string, at: number, s: string) => {
-    if (at + s.length > src.length) return false
-    for (let i = 0; i < s.length; i++) {
-      if (
-        Helpers.lowerAscii(src.charCodeAt(at + i)) !==
-        Helpers.lowerAscii(s.charCodeAt(i))
-      )
-        return false
-    }
-    return true
-  },
+  startsWithAsciiCI: (src: string, at: number, s: string) =>
+    src.slice(at, at + s.length).toLowerCase() === s.toLowerCase(),
 
   findTagEnd: (src: string, from: number) => {
     let q = 0
@@ -182,13 +171,8 @@ const Helpers = {
     return src.slice(start, i).toLowerCase()
   },
 
-  isNameBoundary: (src: string, i: number) => {
-    if (i >= src.length) return true
-    const c = src.charCodeAt(i)
-    return (
-      c === CH_GT || c === 47 || c === 32 || c === 9 || c === 10 || c === 13
-    )
-  },
+  isNameBoundary: (src: string, i: number) =>
+    '>/ \t\n\r'.includes(src[i] ?? '>'),
 
   buildLineStarts: (src: string) => {
     const starts = [0]
@@ -238,9 +222,13 @@ const Helpers = {
   },
 
   trimWs: (src: string, a: number, b: number) => {
-    while (a < b && Helpers.isWs(src.charCodeAt(a))) a++
-    while (b > a && Helpers.isWs(src.charCodeAt(b - 1))) b--
-    return { a, b }
+    const slice = src.slice(a, b)
+    const trimmedStart = slice.trimStart()
+    const trimmed = trimmedStart.trimEnd()
+    return {
+      a: a + (slice.length - trimmedStart.length),
+      b: a + (slice.length - (trimmedStart.length - trimmed.length)),
+    }
   },
 
   scanLabelEndOnLine: (src: string, lb: number, lineEnd: number) => {
@@ -261,12 +249,7 @@ const Helpers = {
   },
 
   matchNameCI: (src: string, start: number, end: number, name: string) => {
-    if (end - start !== name.length) return false
-    for (let i = 0; i < name.length; i++) {
-      if (Helpers.lowerAscii(src.charCodeAt(start + i)) !== name.charCodeAt(i))
-        return false
-    }
-    return true
+    return src.slice(start, end).toLowerCase() === name
   },
   pushIfSingleLine: (
     lineStarts: number[],
@@ -275,7 +258,6 @@ const Helpers = {
     start: number,
     end: number,
   ) => {
-    if (end <= start) return
     const a = Helpers.indexToLineCol(lineStarts, start)
     const b = Helpers.indexToLineCol(lineStarts, end)
     if (a.line !== b.line) return
@@ -285,13 +267,6 @@ const Helpers = {
   lineStartIndex(s: string, i: number): number {
     const j = s.lastIndexOf('\n', i - 1)
     return j === -1 ? 0 : j + 1
-  },
-
-  prevNonWsSameLine(s: string, i: number): number {
-    let j = i - 1
-    const ls = Helpers.lineStartIndex(s, i)
-    while (j >= ls && Helpers.isWs(s.charCodeAt(j))) j--
-    return j
   },
 
   isOnlyWsSinceLineStart(s: string, i: number): boolean {
@@ -309,11 +284,10 @@ const Helpers = {
     const ls = Helpers.lineStartIndex(s, i)
     if (ls === 0) return s.slice(i, i + 3) as "'''" | '"""'
 
-    const p = Helpers.prevNonWsSameLine(s, ls)
-    if (p < 0) return s.slice(i, i + 3) as "'''" | '"""'
-
-    const ch = s.charCodeAt(p)
-    if (ch === 0x3a /* : */) return s.slice(i, i + 3) as "'''" | '"""'
+    const last = s.slice(0, ls).trimEnd().at(-1)
+    if (!last || last === ':') {
+      return s.slice(i, i + 3) as "'''" | '"""'
+    }
 
     return null
   },
@@ -394,7 +368,6 @@ const Ranges = {
       // attribute values
       {
         let p = lt + 1
-
         while (p < tagEnd && Helpers.isSpTab(src.charCodeAt(p))) p++
 
         if (p < tagEnd) {
@@ -432,7 +405,6 @@ const Ranges = {
 
           p++
           while (p < tagEnd && Helpers.isWs(src.charCodeAt(p))) p++
-          if (p >= tagEnd) break
 
           const v0 = src.charCodeAt(p)
           if (v0 === CH_DQUOTE || v0 === CH_SQUOTE) {
@@ -444,11 +416,8 @@ const Ranges = {
             if (p < tagEnd && src.charCodeAt(p) === quote) p++
           } else {
             const valStart = p
-            while (p < tagEnd) {
-              const c2 = src.charCodeAt(p)
-              if (Helpers.isWs(c2) || c2 === CH_GT || c2 === CH_SLASH) break
-              p++
-            }
+            const stop = src.slice(p, tagEnd).search(/[>\s/]/)
+            p = stop < 0 ? tagEnd : p + stop
             out.push({ start: valStart, end: p })
           }
         }
@@ -610,29 +579,16 @@ const Ranges = {
     const lo = Math.min(min, max)
     const hi = Math.max(min, max)
 
-    const normalized: Range[] = []
-    for (const r of ranges) {
-      let s = Math.min(r.start, r.end)
-      let e = Math.max(r.start, r.end)
-      if (e <= lo || s >= hi) continue
-      s = Math.max(s, lo)
-      e = Math.min(e, hi)
-      if (s < e) normalized.push({ start: s, end: e })
-    }
-
-    normalized.sort((a, b) => a.start - b.start || a.end - b.end)
-
-    const merged: Range[] = []
-    for (const r of normalized) {
-      const last = merged[merged.length - 1]
-      if (!last || r.start > last.end)
-        merged.push({ start: r.start, end: r.end })
-      else if (r.end > last.end) last.end = r.end
-    }
-
     const out: Range[] = []
     let cursor = lo
-    for (const r of merged) {
+    const normalized = ranges
+      .map((range) => ({
+        start: Math.max(lo, Math.min(range.start, range.end)),
+        end: Math.min(hi, Math.max(range.start, range.end)),
+      }))
+      .sort((a, b) => a.start - b.start)
+
+    for (const r of normalized) {
       if (cursor < r.start) out.push({ start: cursor, end: r.start })
       cursor = Math.max(cursor, r.end)
     }
@@ -699,11 +655,7 @@ const Detection = {
     return -1
   },
 
-  parseLinkDestination: (
-    src: string,
-    i: number,
-    stopAtCloseParen: boolean,
-  ): UrlParse | null => {
+  parseLinkDestination: (src: string, i: number): UrlParse | null => {
     if (i >= src.length) return null
 
     if (src.charCodeAt(i) === CH_LT) {
@@ -733,9 +685,8 @@ const Detection = {
 
       if (ch === CH_LPAREN) depth++
       else if (ch === CH_RPAREN) {
-        if (stopAtCloseParen && depth === 0) break
+        if (depth === 0) break
         depth--
-        if (depth < 0) return null
       }
     }
 
@@ -747,7 +698,7 @@ const Detection = {
     let i = parenPos + 1
     i = Helpers.skipSep(src, i)
 
-    const dest = Detection.parseLinkDestination(src, i, true)
+    const dest = Detection.parseLinkDestination(src, i)
     if (!dest) return null
     i = dest.i
 
@@ -792,7 +743,6 @@ const Detection = {
     let i = a
     while (i < b) {
       while (i < b && Helpers.isWs(src.charCodeAt(i))) i++
-      if (i >= b) break
 
       const urlStart = i
       while (i < b) {
@@ -827,7 +777,6 @@ const Detection = {
 
     const urlStart = i
     while (i < src.length && !Helpers.isWs(src.charCodeAt(i))) i++
-    if (i === urlStart) return null
     return { urlStart, urlEnd: i }
   },
 }
@@ -969,7 +918,6 @@ export function findHtmlAttrUrls(src: string): HtmlAttrUrlSpan[] {
       }
     }
 
-    while (p < tagEnd && Helpers.isSpTab(src.charCodeAt(p))) p++
     while (
       p < tagEnd &&
       !Helpers.isWs(src.charCodeAt(p)) &&
@@ -1079,7 +1027,6 @@ export function findReferenceDefinitionUrls(src: string): RefDefUrlSpan[] {
 
     const a = Helpers.indexToLineCol(lineStarts, dest.urlStart)
     const b = Helpers.indexToLineCol(lineStarts, dest.urlEnd)
-    if (a.line !== b.line) continue
 
     out.push({ line: a.line, colStart: a.col, colEnd: b.col })
   }
