@@ -30,14 +30,14 @@ function extractText(value: Content): string[] {
  * @returns - merged set
  */
 function merge(
-  attributesA: Record<string, any>,
+  attributesA: Record<string, any> & { className: any[] },
   attributesB: Record<string, any>,
 ) {
   return {
     ...attributesA,
     ...attributesB,
     className: [
-      ...(attributesA.className ?? []),
+      ...attributesA.className,
       ...(attributesB.className ?? []),
     ],
   }
@@ -305,8 +305,9 @@ export function remarkAdmonitions(this: Processor): Transformer<Root, Root> {
       }
 
       const admonition = computeAdmonition(titleInfo, children, linked)
-      const hast = h('div', node.attributes ?? {})
-      admonition.data.hProperties = (hast.properties ?? {}) as any
+      admonition.data.hProperties = node.attributes
+        ? (h('div', node.attributes).properties as any)
+        : {}
 
       if (index !== undefined && parent) {
         parent.children.splice(index, 1, {
@@ -392,10 +393,9 @@ export function remarkAdmonitions(this: Processor): Transformer<Root, Root> {
         }
 
         const admonition = computeAdmonition(titleInfo, children, linked)
-        const hast = h('div', node.attributes ?? {})
         admonition.data.hProperties = merge(
           admonition.data.hProperties,
-          hast.properties ?? {},
+          node.attributes ? (h('div', node.attributes).properties as any) : {},
         )
 
         if (index !== undefined && parent) {
