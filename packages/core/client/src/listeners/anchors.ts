@@ -22,7 +22,7 @@ const observer = new MutationObserver(() => {
     if (link.getAttribute('version') === 'latest') {
       const root = findVersionRoot(key, folders)
       if (root?.version?.folder) {
-        const versions = root.versions ?? []
+        const versions = root.versions!
         const targetVersion = versions.find(({ key: k }) => key.startsWith(k))
         const latestVersion = versions[0]
         key = key.replace(targetVersion!.key, latestVersion.key)

@@ -1,7 +1,9 @@
 import type { Plugin } from 'vite'
 import fs from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { createRequire } from 'node:module'
+
+const require = createRequire(import.meta.url)
 
 type ExportTarget =
   | string
@@ -56,22 +58,23 @@ function listFilesRecursive(dir: string): string[] {
 }
 
 function resolvePackageRoot(pkg: string): string {
-  const resolved = import.meta.resolve(pkg)
-  const p = resolved.startsWith('file:') ? fileURLToPath(resolved) : resolved
-  return path.dirname(p)
+  return path.dirname(require.resolve(pkg))
 }
 
 function resolvePackageJson(dir: string) {
-  while (dir !== '/') {
+  while (true) {
     try {
       const pkgJsonPath = path.resolve(dir, 'package.json')
       return JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8')) as any
     } catch (err) {
       void err
-      dir = dir.split('/').slice(0, -1).join('/')
+      const parent = path.dirname(dir)
+      if (parent === dir) {
+        throw new Error(`Could not resolve package.json from ${dir}`)
+      }
+      dir = parent
     }
   }
-  return ''
 }
 
 function exposePkgExportsForImportMap(pkgName: string): Plugin {

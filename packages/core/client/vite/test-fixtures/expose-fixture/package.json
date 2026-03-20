@@ -1,0 +1,26 @@
+{
+  "name": "markee-expose-fixture",
+  "type": "module",
+  "main": "./main.js",
+  "exports": {
+    ".": {
+      "browser": "./browser.js",
+      "default": "./default.js"
+    },
+    "./feature.js": [
+      {
+        "custom": "./custom.js"
+      },
+      "./feature.js"
+    ],
+    "./fallback.js": {
+      "custom": "./fallback.js"
+    },
+    "./package.json": "./package.json",
+    "./plain/*": "./browser.js",
+    "./nested/*": "./generated/*.js",
+    "./missing/*": "./missing/*.js",
+    "./empty-object.js": {},
+    "./skipped.js": []
+  }
+}

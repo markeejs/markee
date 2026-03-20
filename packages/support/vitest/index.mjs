@@ -43,11 +43,18 @@ export function createMarkeeVitestConfig(options = {}) {
         provider: 'v8',
         reporter: ['text', 'html', 'lcov'],
         reportsDirectory: './dist/coverage',
-        exclude: ['**/*.test.ts', 'vitest.config.ts', 'vitest.setup.ts'],
         thresholds: {
           100: true,
         },
         ...coverage,
+        exclude: [
+          ...(coverage?.exclude ?? []),
+          '**/*.test.ts',
+          'vite.config.ts',
+          'vitest.config.ts',
+          'vitest.setup.ts',
+          'dist/**',
+        ],
       },
     },
   }

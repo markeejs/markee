@@ -1,4 +1,6 @@
-await import('redefine-custom-elements')
+import { loadRedefineCustomElements } from './load-redefine-custom-elements.js'
+
+await loadRedefineCustomElements()
 
 const _define = customElements.define.bind(customElements)
 customElements.define = (name, constructor) => {

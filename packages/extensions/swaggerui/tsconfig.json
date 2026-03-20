@@ -1,4 +1,5 @@
 {
   "extends": "@markee/tsconfig/bundler.json",
-  "include": ["src"]
+  "include": ["*.ts", "**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }

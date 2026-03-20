@@ -1,4 +1,5 @@
 {
   "extends": "@markee/tsconfig/node.json",
-  "include": ["src"]
+  "include": ["*.ts", "**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }
