@@ -2,7 +2,6 @@ import fs from 'fs-extra'
 
 import { ROOT_DIR } from '../constants.js'
 import { PathHelpers } from '../helpers/path.js'
-import { DeprecationCompute } from '../compute/deprecation.js'
 
 const fileCache = new Map<string, string>()
 

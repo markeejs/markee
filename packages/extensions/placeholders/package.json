@@ -12,6 +12,7 @@
     "lint:tsc": "tsc --noEmit"
   },
   "devDependencies": {
+    "@markee/tsconfig": "0.1.0",
     "@markee/vite": "0.1.0",
     "vite": "^8.0.0"
   }

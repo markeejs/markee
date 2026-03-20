@@ -13,5 +13,8 @@
     "@markee/types": "0.1.0",
     "@nanostores/lit": "^0.2.3",
     "lit": "^3.3.2"
+  },
+  "devDependencies": {
+    "@markee/tsconfig": "0.1.0"
   }
 }

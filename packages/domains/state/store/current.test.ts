@@ -4,28 +4,26 @@ vi.mock('../cache.js', () => ({
   cache: vi.fn(),
 }))
 
-import { cache } from '../cache'
+import { cache } from '../cache.js'
 import {
   $current,
   $currentFile,
   $currentLoader,
   $lock,
   preload,
-} from './current'
-import {
-  $configLoader,
-  $layoutsLoader,
-  $navigationLoader,
-} from './metadata'
-import { $router } from './router'
-
-const cacheMock = vi.mocked(cache)
+} from './current.js'
+import { $configLoader, $layoutsLoader, $navigationLoader } from './metadata.js'
+import { $router } from './router.js'
 
 function flush() {
   return new Promise((resolve) => setTimeout(resolve, 0))
 }
 
-function markdownFile(link: string, layout = 'docs', extra: Partial<MarkdownFile> = {}) {
+function markdownFile(
+  link: string,
+  layout = 'docs',
+  extra: Partial<MarkdownFile> = {},
+) {
   return {
     link,
     layout,
@@ -40,7 +38,7 @@ function markdownFile(link: string, layout = 'docs', extra: Partial<MarkdownFile
 }
 
 beforeEach(() => {
-  cacheMock.mockReset()
+  vi.mocked(cache).mockReset()
   $lock.set(true)
   $current.set({})
   $currentLoader.set(null)
@@ -80,7 +78,6 @@ describe('$currentFile', () => {
     $router.open('/docs/guide')
     expect($currentFile.get()?.key).toBe('guide.md')
   })
-
 })
 
 describe('preload', () => {
@@ -113,9 +110,8 @@ describe('preload', () => {
       },
       error: null,
     })
-    cacheMock.mockImplementation(
-      ((url: string) => Promise.resolve(url.toUpperCase())) as any,
-    )
+    vi.mocked(cache).mockImplementation(((url: string) =>
+      Promise.resolve(url.toUpperCase())) as any)
 
     await expect(preload('docs/guide.md')).resolves.toEqual({
       key: 'docs/guide.md',
@@ -131,7 +127,7 @@ describe('preload', () => {
     })
   })
 
-  it('uses the opposite html-vs-markdown branches for layout slots', async () => {
+  it('uses the correct file type for layout slots based on extensions', async () => {
     $navigationLoader.set({
       loading: false,
       data: {
@@ -160,19 +156,18 @@ describe('preload', () => {
       },
       error: null,
     })
-    cacheMock.mockImplementation(
-      ((url: string) => Promise.resolve(url.toUpperCase())) as any,
-    )
+    vi.mocked(cache).mockImplementation(((url: string) =>
+      Promise.resolve(url.toUpperCase())) as any)
 
-    const file = await preload('docs/guide.md')
+    await preload('docs/guide.md')
 
-    expect(file.header).toBe('HEADER.MD')
-    expect(file.footer).toBe('FOOTER.HTML')
-    expect(file.top).toBe('TOP.MD')
-    expect(file.bottom).toBe('BOTTOM.HTML')
-    expect(file.left).toBe('LEFT.MD')
-    expect(file.right).toBe('RIGHT.HTML')
-    expect(file.main).toBe('MAIN.HTML')
+    expect(cache).toHaveBeenCalledWith('header.md', 'markdown-layout')
+    expect(cache).toHaveBeenCalledWith('footer.html', 'html')
+    expect(cache).toHaveBeenCalledWith('top.md', 'markdown-layout')
+    expect(cache).toHaveBeenCalledWith('bottom.html', 'html')
+    expect(cache).toHaveBeenCalledWith('left.md', 'markdown-layout')
+    expect(cache).toHaveBeenCalledWith('right.html', 'html')
+    expect(cache).toHaveBeenCalledWith('main.html', 'html')
   })
 
   it('falls back to empty layout metadata when no layout store data exists', async () => {
@@ -192,9 +187,8 @@ describe('preload', () => {
       data: null,
       error: null,
     })
-    cacheMock.mockImplementation(
-      ((url: string) => Promise.resolve(url.toUpperCase())) as any,
-    )
+    vi.mocked(cache).mockImplementation(((url: string) =>
+      Promise.resolve(url.toUpperCase())) as any)
 
     await expect(preload('docs/guide.md')).resolves.toMatchObject({
       header: null,
@@ -281,15 +275,14 @@ describe('reload side effects', () => {
       data: { layouts: { docs: {} } },
       error: null,
     })
-    cacheMock.mockImplementation(
-      ((url: string) => Promise.resolve(`loaded:${url}`)) as any,
-    )
+    vi.mocked(cache).mockImplementation(((url: string) =>
+      Promise.resolve(`loaded:${url}`)) as any)
 
     $router.open('/docs/guide')
     $lock.set(false)
     await flush()
 
-    expect(cacheMock).toHaveBeenCalledWith('guide.md', 'markdown')
+    expect(cache).toHaveBeenCalledWith('guide.md', 'markdown')
     expect($currentLoader.get()).toEqual({
       key: 'guide.md',
       layout: 'docs',
@@ -322,15 +315,14 @@ describe('reload side effects', () => {
       data: { layouts: { docs: {} } },
       error: null,
     })
-    cacheMock.mockImplementation(
-      ((url: string) => Promise.resolve(`loaded:${url}`)) as any,
-    )
+    vi.mocked(cache).mockImplementation(((url: string) =>
+      Promise.resolve(`loaded:${url}`)) as any)
 
     $router.open('/docs/guide')
     $lock.set(false)
     await flush()
 
-    expect(cacheMock).toHaveBeenCalledWith('/prefix/guide.md', 'markdown')
+    expect(cache).toHaveBeenCalledWith('/prefix/guide.md', 'markdown')
     $lock.set(true)
   })
 
@@ -356,16 +348,14 @@ describe('reload side effects', () => {
       data: { layouts: { docs: {} } },
       error: null,
     })
-    cacheMock.mockImplementation(
-      ((url: string, type: string) =>
-        Promise.resolve(type === 'markdown' ? null : `loaded:${url}`)) as any,
-    )
+    vi.mocked(cache).mockImplementation(((url: string, type: string) =>
+      Promise.resolve(type === 'markdown' ? null : `loaded:${url}`)) as any)
 
     $router.open('/docs/guide')
     $lock.set(false)
     await flush()
 
-    expect(cacheMock).toHaveBeenCalledWith('/prefix/guide.md', 'markdown')
+    expect(cache).toHaveBeenCalledWith('/prefix/guide.md', 'markdown')
     expect($currentLoader.get()?.content).toBe('')
     $lock.set(true)
   })

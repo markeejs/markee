@@ -5,7 +5,7 @@ vi.mock('../cache.js', () => ({
   cache: vi.fn(),
 }))
 
-import { cache } from '../cache'
+import { cache } from '../cache.js'
 import {
   $configLoader,
   $layoutsLoader,
@@ -17,7 +17,7 @@ import {
   queueMetadataRefresh,
   revalidateMetadata,
   scheduleMetadataRevalidation,
-} from './metadata'
+} from './metadata.js'
 
 const cacheMock = vi.mocked(cache)
 

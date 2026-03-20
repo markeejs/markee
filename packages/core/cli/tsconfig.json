@@ -1,15 +1,4 @@
 {
-  "compilerOptions": {
-    "strict": true,
-    "skipLibCheck": true,
-    "target": "ESNext",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "lib": ["ES2023", "DOM"],
-    "outDir": "dist",
-    "types": ["node", "@markee/types"]
-  },
+  "extends": "@markee/tsconfig/node.json",
   "include": ["src"]
 }

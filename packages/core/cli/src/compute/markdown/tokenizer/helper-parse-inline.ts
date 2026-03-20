@@ -269,7 +269,6 @@ const Helpers = {
     return true
   },
   pushIfSingleLine: (
-    src: string,
     lineStarts: number[],
     out: HtmlAttrUrlSpan[],
     attr: HtmlAttrUrlSpan['attr'],
@@ -802,7 +801,7 @@ const Detection = {
         i++
       }
       const urlEnd = i
-      Helpers.pushIfSingleLine(src, lineStarts, out, 'srcset', urlStart, urlEnd)
+      Helpers.pushIfSingleLine(lineStarts, out, 'srcset', urlStart, urlEnd)
 
       while (i < b && src.charCodeAt(i) !== CH_COMMA) i++
       if (i < b && src.charCodeAt(i) === CH_COMMA) i++
@@ -1029,7 +1028,6 @@ export function findHtmlAttrUrls(src: string): HtmlAttrUrlSpan[] {
             Detection.parseSrcsetUrls(src, t.a, t.b, lineStarts, out)
           else
             Helpers.pushIfSingleLine(
-              src,
               lineStarts,
               out,
               isSrc ? 'src' : 'href',

@@ -12,9 +12,8 @@ import { FileCache } from '../cache/file-cache.js'
 import { ConfigCache } from '../cache/config-cache.js'
 import { MarkdownCache } from '../cache/markdown-cache.js'
 
-import { SimpleTokenizer, Token } from './markdown/tokenizer/index.js'
+import { SimpleTokenizer, type Token } from './markdown/tokenizer/index.js'
 import { ExtensionsCache } from '../cache/extensions-cache.js'
-import colors from 'colors/safe.js'
 
 /* Metadata */
 
@@ -1066,7 +1065,7 @@ export const MarkdownCompute = {
 
       const lineIndex = candidateLines.indexOf(line)
       if (lineIndex >= 0) {
-        return colors.blue(
+        return color.blue(
           PathHelpers.concat(ROOT_DIR, file) +
             ':' +
             (lineIndex + 1) +
@@ -1076,40 +1075,40 @@ export const MarkdownCompute = {
             (file !== key ? ' (included)' : ''),
         )
       }
-      return colors.blue(
-        colors.italic(
+      return color.blue(
+        color.italic(
           `Unknown location, most likely an include with rewrite-relative-urls: false`,
         ),
       )
     }
 
     console.log(
-      colors.red('Found broken links in file'),
-      colors.red(colors.bold(key)),
+      color.red('Found broken links in file'),
+      color.red(color.bold(key)),
     )
     await Promise.all(
       links.map(async (link) => {
         console.info(
           '    ' + (await fileLine(link.file, link.line, link.offset)),
         )
-        console.info(colors.blue('    Not found: ' + link.link))
+        console.info(color.blue('    Not found: ' + link.link))
 
         if (link.unqualified) {
           console.info(
             '      ' +
-              colors.yellow(
+              color.yellow(
                 'Links to versioned files need to be tagged with either {version=latest} or {version=fixed}',
               ),
           )
           console.info(
             '      ' +
-              colors.yellow(
+              color.yellow(
                 'Use {version=latest} if you want the build to always resolve to the latest version of the file',
               ),
           )
           console.info(
             '      ' +
-              colors.yellow(
+              color.yellow(
                 'Use {version=fixed} if you want the build to resolve to the specified version',
               ),
           )
@@ -1117,13 +1116,13 @@ export const MarkdownCompute = {
 
         console.info(
           '    ' +
-            colors.gray(link.line.slice(0, link.offset).trim()) +
-            colors.underline(
-              colors.red(
+            color.gray(link.line.slice(0, link.offset).trim()) +
+            color.underline(
+              color.red(
                 link.line.slice(link.offset, link.offset + link.length),
               ),
             ) +
-            colors.gray(link.line.slice(link.offset + link.length).trim()),
+            color.gray(link.line.slice(link.offset + link.length).trim()),
         )
       }),
     )

@@ -5,8 +5,7 @@ export default defineConfig(
   createMarkeeVitestConfig({
     test: {
       coverage: {
-        provider: 'v8',
-        include: ['index.ts', 'cache.ts', 'store/**/*.ts'],
+        include: ['index.ts', 'extensions.ts', 'helpers/**/*.ts', 'pipelines/**/*.ts'],
       },
     },
   }),
