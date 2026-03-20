@@ -1,4 +1,4 @@
-import Fastify, { FastifyReply } from 'fastify'
+import Fastify, { type FastifyReply } from 'fastify'
 import FastifyStatic from '@fastify/static'
 import { FastifySSEPlugin } from 'fastify-sse-v2'
 import cors from '@fastify/cors'

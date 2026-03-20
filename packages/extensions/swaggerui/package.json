@@ -12,6 +12,7 @@
     "lint:tsc": "tsc --noEmit"
   },
   "devDependencies": {
+    "@markee/tsconfig": "0.1.0",
     "@markee/vite": "0.1.0",
     "attributes-parser": "^2.2.3",
     "swagger-ui-dist": "^5.20.1",

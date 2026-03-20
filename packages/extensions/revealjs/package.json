@@ -12,6 +12,7 @@
     "lint:tsc": "tsc --noEmit"
   },
   "devDependencies": {
+    "@markee/tsconfig": "0.1.0",
     "@markee/vite": "0.1.0",
     "@types/reveal.js": "^5.2.2",
     "reveal.js": "^5.2.1",

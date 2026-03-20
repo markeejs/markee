@@ -1,15 +1,4 @@
 {
-  "compilerOptions": {
-    "strict": true,
-    "skipLibCheck": true,
-    "module": "ESNext",
-    "target": "ESNext",
-    "moduleResolution": "bundler",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "lib": ["ES2022", "dom"],
-    "outDir": "dist",
-    "types": ["@markee/types"]
-  },
+  "extends": "@markee/tsconfig/bundler.json",
   "include": ["src"]
 }

@@ -5,15 +5,14 @@ vi.mock('./cache.js', () => ({
   clearCache: vi.fn(),
 }))
 
-// @ts-ignore
-import { state } from './index.ts'
-import { $currentLoader as $rawCurrentLoader, $lock } from './store/current'
+import { state } from '@markee/state'
+import { $currentLoader, $lock } from './store/current.js'
 import {
+  $configLoader,
   $layoutsLoader,
   $navigationLoader,
-  $configLoader,
-} from './store/metadata'
-import { $router } from './store/router'
+} from './store/metadata.js'
+import { $router } from './store/router.js'
 
 function markdownFile(
   link: string,
@@ -35,7 +34,7 @@ function markdownFile(
 
 beforeEach(() => {
   $lock.set(true)
-  $rawCurrentLoader.set(null)
+  $currentLoader.set(null)
   state.$colorScheme.set('auto')
   $configLoader.set({ loading: false, data: {} as any, error: null })
   $layoutsLoader.set({ loading: false, data: { layouts: {} }, error: null })
@@ -145,7 +144,7 @@ describe('state', () => {
       data: { title: 'Docs' },
       error: null,
     })
-    $rawCurrentLoader.set({
+    $currentLoader.set({
       key: 'guide.md',
       layout: 'docs',
       content: '<p>Guide</p>',
@@ -172,7 +171,7 @@ describe('state', () => {
     expect(combined.get()).toEqual(['dark', { title: 'Docs' }])
     expect(computed.get()).toBe('dark:Docs')
 
-    $rawCurrentLoader.set(null)
+    $currentLoader.set(null)
     expect(state.$currentLoader.get()).toEqual({
       loading: true,
       data: null,

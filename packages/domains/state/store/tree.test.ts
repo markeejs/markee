@@ -4,9 +4,9 @@ vi.mock('../cache.js', () => ({
   cache: vi.fn(),
 }))
 
-import { $router } from './router'
-import { $navigationLoader } from './metadata'
-import { $navigationTree } from './tree'
+import { $router } from './router.js'
+import { $navigationLoader } from './metadata.js'
+import { $navigationTree } from './tree.js'
 
 function markdownFile(link: string, title: string) {
   return {
@@ -65,7 +65,7 @@ describe('$navigationTree', () => {
     const guides = tree.getBranchByKey('guides') as TreeItem
     const hidden = tree.getBranchByKey('hidden.md') as TreeLeaf
 
-    expect(tree.items?.map((item) => item.key)).toEqual([
+    expect(tree.items?.map((item: TreeItem | TreeLeaf) => item.key)).toEqual([
       'intro.md',
       'guides',
       'https://example.com',
@@ -78,7 +78,11 @@ describe('$navigationTree', () => {
     expect(tree.getBranchByKey('https://example.com')?.link).toBe(
       'https://example.com',
     )
-    expect(tree.getAncestorsForKey('guides/page.md').map((item) => item.key)).toEqual(
+    expect(
+      tree
+        .getAncestorsForKey('guides/page.md')
+        .map((item: TreeItem | TreeLeaf) => item.key),
+    ).toEqual(
       ['/', 'guides', 'guides/page.md'],
     )
     expect(tree.getBranchByKey('missing')).toBeNull()
@@ -108,7 +112,9 @@ describe('$navigationTree', () => {
     })
 
     const initial = $navigationTree.get()
-    expect(initial.items?.map((item) => item.key)).toEqual(['guides'])
+    expect(initial.items?.map((item: TreeItem | TreeLeaf) => item.key)).toEqual([
+      'guides',
+    ])
     expect(initial.getBranchByKey('empty')).toBeNull()
 
     $navigationLoader.set({

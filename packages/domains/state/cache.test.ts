@@ -1,15 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@markee/pipeline', () => ({
-  clientPipeline: vi.fn(async (content: string, title: string, key: string) =>
-    `html:${content}:${title ?? ''}:${key}`,
+  clientPipeline: vi.fn(
+    async (content: string, title: string, key: string) =>
+      `html:${content}:${title ?? ''}:${key}`,
   ),
 }))
 
 import { clientPipeline } from '@markee/pipeline'
 
-import { autoAppend, cache, clearCache } from './cache'
-import { $configLoader, $navigationLoader } from './store/metadata'
+import { autoAppend, cache, clearCache } from './cache.js'
+import { $configLoader, $navigationLoader } from './store/metadata.js'
 
 beforeEach(() => {
   clearCache()
@@ -92,8 +93,16 @@ describe('cache', () => {
       'html:LAYOUT::/layout.md',
     )
 
-    expect(clientPipeline).toHaveBeenCalledWith('PAGE\nAPPEND', 'Page', '/page.md')
-    expect(clientPipeline).toHaveBeenCalledWith('LAYOUT', undefined, '/layout.md')
+    expect(clientPipeline).toHaveBeenCalledWith(
+      'PAGE\nAPPEND',
+      'Page',
+      '/page.md',
+    )
+    expect(clientPipeline).toHaveBeenCalledWith(
+      'LAYOUT',
+      undefined,
+      '/layout.md',
+    )
   })
 
   it('parses json safely and caches the in-flight promise by url', async () => {

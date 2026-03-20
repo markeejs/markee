@@ -4,13 +4,13 @@ vi.mock('../cache.js', () => ({
   cache: vi.fn(),
 }))
 
-import { $navigationLoader } from './metadata'
+import { $navigationLoader } from './metadata.js'
 import {
   $router,
   compareLink,
   handleRouterNavigationClick,
   installRouterNavigationListener,
-} from './router'
+} from './router.js'
 
 function setNavigation() {
   $navigationLoader.set({

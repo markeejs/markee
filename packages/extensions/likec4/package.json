@@ -14,6 +14,7 @@
   "devDependencies": {
     "@likec4/diagram": "^1.52.0",
     "@likec4/language-services": "^1.52.0",
+    "@markee/tsconfig": "0.1.0",
     "@markee/vite": "0.1.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

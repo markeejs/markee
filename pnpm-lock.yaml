@@ -122,6 +122,9 @@ importers:
         specifier: ^2.8.2
         version: 2.8.2
     devDependencies:
+      '@markee/tsconfig':
+        specifier: 0.1.0
+        version: link:../../support/tsconfig
       '@types/command-line-args':
         specifier: ^5.2.3
         version: 5.2.3
@@ -155,6 +158,9 @@ importers:
       '@markee/state':
         specifier: 0.1.0
         version: link:../../domains/state
+      '@markee/tsconfig':
+        specifier: 0.1.0
+        version: link:../../support/tsconfig
       '@nanostores/lit':
         specifier: ^0.2.3
         version: 0.2.3(lit@3.3.2)(nanostores@1.1.0)
@@ -191,6 +197,10 @@ importers:
       lit:
         specifier: ^3.3.2
         version: 3.3.2
+    devDependencies:
+      '@markee/tsconfig':
+        specifier: 0.1.0
+        version: link:../../support/tsconfig
 
   packages/domains/elements:
     dependencies:
@@ -204,6 +214,9 @@ importers:
       '@floating-ui/dom':
         specifier: ^1.7.4
         version: 1.7.4
+      '@markee/tsconfig':
+        specifier: 0.1.0
+        version: link:../../support/tsconfig
       '@markee/vitest':
         specifier: 0.1.0
         version: link:../../support/vitest
@@ -237,6 +250,12 @@ importers:
       '@fortawesome/fontawesome-free':
         specifier: ^6.7.2
         version: 6.7.2
+      '@markee/tsconfig':
+        specifier: 0.1.0
+        version: link:../../support/tsconfig
+      '@markee/vitest':
+        specifier: 0.1.0
+        version: link:../../support/vitest
       '@mdi/font':
         specifier: ^7.4.47
         version: 7.4.47
@@ -249,12 +268,18 @@ importers:
       '@types/prismjs':
         specifier: ^1.26.5
         version: 1.26.5
+      '@vitest/coverage-v8':
+        specifier: ^3.2.4
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
       glightbox:
         specifier: ^3.3.1
         version: 3.3.1
       hastscript:
         specifier: ^9.0.0
         version: 9.0.1
+      jsdom:
+        specifier: ^29.0.0
+        version: 29.0.0
       mdast-util-from-markdown:
         specifier: ^2.0.2
         version: 2.0.2
@@ -327,8 +352,27 @@ importers:
       unist-util-visit-parents:
         specifier: ^6.0.1
         version: 6.0.2
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
-  packages/domains/search: {}
+  packages/domains/search:
+    devDependencies:
+      '@markee/tsconfig':
+        specifier: 0.1.0
+        version: link:../../support/tsconfig
+      '@markee/vitest':
+        specifier: 0.1.0
+        version: link:../../support/vitest
+      '@vitest/coverage-v8':
+        specifier: ^3.2.4
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
+      jsdom:
+        specifier: ^29.0.0
+        version: 29.0.0
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/domains/state:
     dependencies:
@@ -351,6 +395,9 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0
     devDependencies:
+      '@markee/tsconfig':
+        specifier: 0.1.0
+        version: link:../../support/tsconfig
       '@markee/vitest':
         specifier: 0.1.0
         version: link:../../support/vitest
@@ -366,6 +413,9 @@ importers:
 
   packages/extensions/asciinema:
     devDependencies:
+      '@markee/tsconfig':
+        specifier: 0.1.0
+        version: link:../../support/tsconfig
       '@markee/vite':
         specifier: 0.1.0
         version: link:../../support/vite
@@ -380,6 +430,9 @@ importers:
 
   packages/extensions/diagrams:
     devDependencies:
+      '@markee/tsconfig':
+        specifier: 0.1.0
+        version: link:../../support/tsconfig
       '@markee/vite':
         specifier: 0.1.0
         version: link:../../support/vite
@@ -412,6 +465,9 @@ importers:
       '@likec4/language-services':
         specifier: ^1.52.0
         version: 1.52.0(@modelcontextprotocol/sdk@1.27.1(zod@3.25.76))(hono-rate-limiter@0.4.2(hono@4.12.7))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@markee/tsconfig':
+        specifier: 0.1.0
+        version: link:../../support/tsconfig
       '@markee/vite':
         specifier: 0.1.0
         version: link:../../support/vite
@@ -439,6 +495,9 @@ importers:
 
   packages/extensions/mathjax:
     devDependencies:
+      '@markee/tsconfig':
+        specifier: 0.1.0
+        version: link:../../support/tsconfig
       '@markee/vite':
         specifier: 0.1.0
         version: link:../../support/vite
@@ -454,6 +513,9 @@ importers:
 
   packages/extensions/placeholders:
     devDependencies:
+      '@markee/tsconfig':
+        specifier: 0.1.0
+        version: link:../../support/tsconfig
       '@markee/vite':
         specifier: 0.1.0
         version: link:../../support/vite
@@ -463,6 +525,9 @@ importers:
 
   packages/extensions/revealjs:
     devDependencies:
+      '@markee/tsconfig':
+        specifier: 0.1.0
+        version: link:../../support/tsconfig
       '@markee/vite':
         specifier: 0.1.0
         version: link:../../support/vite
@@ -478,6 +543,9 @@ importers:
 
   packages/extensions/swaggerui:
     devDependencies:
+      '@markee/tsconfig':
+        specifier: 0.1.0
+        version: link:../../support/tsconfig
       '@markee/vite':
         specifier: 0.1.0
         version: link:../../support/vite
@@ -501,6 +569,8 @@ importers:
       '@markee/cli':
         specifier: 0.1.0
         version: link:../../core/cli
+
+  packages/support/tsconfig: {}
 
   packages/support/types: {}
 

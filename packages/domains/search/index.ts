@@ -1,5 +1,34 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
+import {
+  bm25Idf,
+  bm25Score,
+  defaultBucketLen,
+  deriveSetForDescriptor,
+  getTrigrams,
+  intersectAllSets,
+  intersectSets,
+  jaccard,
+  levenshteinBounded,
+  makeMatcher,
+  maxEditDistance,
+  minOrderedSpan,
+  normalizeNeedleArray,
+  normalizeQueryToken,
+  normalizeText,
+  parseQuery,
+  passesAllFilters,
+  prefilterMapKey,
+  proximityFactor,
+  readStringField,
+  resolveBm25,
+  tokenize,
+  fuzzyWeight,
+} from './internal.js'
+import type {
+  PrefilterIndex,
+} from './internal.js'
+
 /**
  * Minimal requirement for an indexable document.
  */
@@ -204,31 +233,8 @@ interface DocTermPosting {
   fields: Map<string, { tf: number; pos?: number[] }>
 }
 
-/** Parsed query token (pre-normalization). */
-type ParsedQueryToken =
-  | { kind: 'term'; raw: string }
-  | { kind: 'phrase'; raw: string }
-
-/** Normalized query token. */
-type NormalizedQueryToken =
-  | { kind: 'term'; raw: string; needle: string; term: string }
-  | { kind: 'phrase'; raw: string; needle: string; terms: string[] }
-
 /** Term candidate for retrieval/scoring. */
 type TermCandidate = { term: string; weight: number }
-
-/** Internal prefilter index built from the constructor. */
-interface PrefilterIndex {
-  key: string
-  normalize: NormalizeMode
-  /** Equality inverted index: value -> docs */
-  eq: Map<string, Set<string>>
-  /** StartsWith acceleration buckets: bucketPrefix -> docs */
-  prefixBuckets: Map<string, Set<string>>
-  /** For verification: docId -> normalized values */
-  valuesByDoc: Map<string, string[]>
-  bucketLen: number
-}
 
 /** Internal representation of a text field entry. */
 interface InternalTextField {
@@ -402,13 +408,7 @@ export class MarkeeSearchIndexer<TDoc extends FilterableDoc> {
       options.allowEmptyQueryWithFilters ?? false
 
     const parsed = parseQuery(query)
-    const qTokens = parsed
-      .map((t) => normalizeQueryToken(t, this.maxTokenLength))
-      .filter((t) =>
-        t.kind === 'term'
-          ? t.term.length > 0 || t.needle.length > 0
-          : t.terms.length > 0 || t.needle.length > 0,
-      )
+    const qTokens = parsed.map((t) => normalizeQueryToken(t, this.maxTokenLength))
 
     // Filter-only mode
     if (qTokens.length === 0) {
@@ -419,11 +419,10 @@ export class MarkeeSearchIndexer<TDoc extends FilterableDoc> {
 
       const out: SearchResult<TDoc>[] = []
       for (const id of ids) {
-        const doc = this.docs.get(id)
-        if (!doc) continue
+        const doc = this.docs.get(id)!
         if (passesAllFilters(doc, filters)) out.push({ id, doc, score: 0 })
       }
-      out.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+      out.sort((a, b) => a.id.localeCompare(b.id))
       return out.slice(0, limit)
     }
 
@@ -460,8 +459,7 @@ export class MarkeeSearchIndexer<TDoc extends FilterableDoc> {
         termCandidatesCache.set(t, cands)
 
         for (const c of cands) {
-          const postings = this.postingsByTerm.get(c.term)
-          if (!postings) continue
+          const postings = this.postingsByTerm.get(c.term)!
           for (const p of postings) candidateDocIds.add(p.docId)
         }
       }
@@ -480,8 +478,7 @@ export class MarkeeSearchIndexer<TDoc extends FilterableDoc> {
 
       const verified = new Set<string>()
       for (const id of allowedCandidates) {
-        const doc = this.docs.get(id)
-        if (!doc) continue
+        const doc = this.docs.get(id)!
         if (passesAllFilters(doc, filters)) verified.add(id)
       }
       allowedCandidates = verified
@@ -494,20 +491,18 @@ export class MarkeeSearchIndexer<TDoc extends FilterableDoc> {
     const positionsCache = new Map<string, Map<string, Map<string, number[]>>>() // docId -> fieldKey -> term -> positions
 
     for (const qt of qTokens) {
-      const terms = qt.kind === 'term' ? (qt.term ? [qt.term] : []) : qt.terms
+      const terms = qt.kind === 'term' ? [qt.term] : qt.terms
       for (const queryTerm of terms) {
-        const candidates =
-          termCandidatesCache.get(queryTerm) ??
-          this.getTermCandidates(queryTerm, fuzzyMaxCandidates)
+        if (!queryTerm) continue
+        const candidates = termCandidatesCache.get(queryTerm)!
 
         for (const cand of candidates) {
           const term = cand.term
           const fuzzyWeightFactor = cand.weight
 
-          const postings = this.postingsByTerm.get(term)
-          if (!postings) continue
+          const postings = this.postingsByTerm.get(term)!
 
-          const df = this.dfByTerm.get(term) ?? postings.length
+          const df = this.dfByTerm.get(term)!
           const idf = bm25Idf(this.N, df)
 
           const isExactCandidate = fuzzyWeightFactor === 1 && term === queryTerm
@@ -531,7 +526,7 @@ export class MarkeeSearchIndexer<TDoc extends FilterableDoc> {
                 this.defaultB,
               )
 
-              const dl = dlByField?.get(fieldId) ?? avgLenHint
+              const dl = dlByField!.get(fieldId)!
               inc +=
                 bm25Score(frec.tf, dl, avgLenHint, idf, k1, b) *
                 field.opts.weight *
@@ -568,12 +563,10 @@ export class MarkeeSearchIndexer<TDoc extends FilterableDoc> {
       }
     }
 
-    if (docScores.size === 0) return []
-
     // 4) Coverage multiplier
     const totalUnique = Math.max(1, uniqueQueryTerms.size)
     for (const [docId, base] of docScores) {
-      const matched = docMatchedTerms.get(docId)?.size ?? 0
+      const matched = docMatchedTerms.get(docId)!.size
       const coverage = matched / totalUnique
       const covMult = preferAllTerms
         ? 0.75 + 0.85 * coverage + (coverage === 1 ? 0.25 : 0)
@@ -595,9 +588,7 @@ export class MarkeeSearchIndexer<TDoc extends FilterableDoc> {
     // 7) Materialize results
     const results: SearchResult<TDoc>[] = []
     for (const [docId, score] of docScores) {
-      if (allowedCandidates && !allowedCandidates.has(docId)) continue
-      const doc = this.docs.get(docId)
-      if (!doc) continue
+      const doc = this.docs.get(docId)!
       results.push({ id: docId, doc, score })
     }
 
@@ -807,7 +798,7 @@ export class MarkeeSearchIndexer<TDoc extends FilterableDoc> {
 
       if (bestSpan === Infinity) continue
 
-      const base = docScores.get(docId) ?? 0
+      const base = docScores.get(docId)!
       const isExact = bestSpan === phraseTerms.length - 1
       const prox = proximityFactor(bestSpan, 18)
       const inc =
@@ -860,7 +851,7 @@ export class MarkeeSearchIndexer<TDoc extends FilterableDoc> {
 
       if (bestSpan === Infinity) continue
 
-      const base = docScores.get(docId) ?? 0
+      const base = docScores.get(docId)!
       const prox = proximityFactor(bestSpan, 28)
       const isExact = bestSpan === orderedTerms.length - 1
       const inc =
@@ -915,9 +906,6 @@ export class MarkeeSearchIndexer<TDoc extends FilterableDoc> {
     }
 
     const qTris = getTrigrams(queryTerm)
-    if (qTris.length === 0) return []
-
-    // Trigram overlap candidate pool
     const hits = new Map<string, number>()
     for (const tri of qTris) {
       const terms = this.termsByTrigram.get(tri)
@@ -939,7 +927,7 @@ export class MarkeeSearchIndexer<TDoc extends FilterableDoc> {
 
     for (const item of top) {
       const t = item.term
-      const tTris = this.trigramsByTerm.get(t) ?? getTrigrams(t)
+      const tTris = this.trigramsByTerm.get(t)!
       const j = jaccard(qSet, tTris)
       if (j < 0.28) continue
 
@@ -952,481 +940,4 @@ export class MarkeeSearchIndexer<TDoc extends FilterableDoc> {
     out.sort((a, b) => b.weight - a.weight)
     return out.slice(0, 8)
   }
-}
-
-/* ---------------------------------------
- * Friendly BM25 resolver (no raw BM25 option exposed)
- * ------------------------------------ */
-
-/**
- * Resolve BM25 parameters for a field using the friendly knobs.
- *
- * @param opts Field options.
- * @param computedAvgLen Average token length computed at indexing time for this field.
- * @param defaultK1 Default BM25 k1.
- * @param defaultB Default BM25 b.
- */
-function resolveBm25(
-  opts: TextFieldOptions,
-  computedAvgLen: number,
-  defaultK1: number,
-  defaultB: number,
-): { k1: number; b: number; avgLenHint: number } {
-  // frequencySaturation -> k1
-  const fs = opts.frequencySaturation ?? 'medium'
-  let k1 =
-    typeof fs === 'number'
-      ? fs
-      : fs === 'low'
-        ? 0.6
-        : fs === 'high'
-          ? 1.8
-          : defaultK1
-
-  // lengthNormalization -> b
-  const ln = opts.lengthNormalization ?? 'normal'
-  let b =
-    typeof ln === 'number'
-      ? ln
-      : ln === 'none'
-        ? 0.0
-        : ln === 'light'
-          ? 0.2
-          : ln === 'strong'
-            ? 0.9
-            : defaultB
-
-  // expectedLength -> avgdl hint
-  let avgLenHint = opts.expectedLength ?? computedAvgLen
-
-  // Safety clamps / fallbacks
-  if (!Number.isFinite(k1) || k1 <= 0) k1 = defaultK1
-  if (!Number.isFinite(b)) b = defaultB
-  if (b < 0) b = 0
-  if (b > 1) b = 1
-  if (!Number.isFinite(avgLenHint) || avgLenHint <= 0)
-    avgLenHint = computedAvgLen
-
-  return { k1, b, avgLenHint }
-}
-
-/* ---------------------------------------
- * Prefilter derivation
- * ------------------------------------ */
-
-function deriveSetForDescriptor(
-  idx: PrefilterIndex,
-  d: PrefilterDescriptor,
-): Set<string> | null {
-  if (d.needles.length === 0) return null
-
-  if (d.mode === 'equals') {
-    const sets: Set<string>[] = []
-    for (const n of d.needles) {
-      const s = idx.eq.get(n)
-      if (!s) {
-        if (d.op === 'allOf') return new Set()
-        continue
-      }
-      sets.push(s)
-    }
-    if (sets.length === 0) return new Set()
-
-    if (d.op === 'anyOf') {
-      const out = new Set<string>()
-      for (const s of sets) for (const id of s) out.add(id)
-      return out
-    }
-
-    return intersectAllSets(sets)
-  }
-
-  if (d.mode === 'startsWith') {
-    const perNeedle: Set<string>[] = []
-
-    for (const n of d.needles) {
-      const b = n.slice(0, Math.min(idx.bucketLen, n.length))
-      const bucketSet = idx.prefixBuckets.get(b)
-      if (!bucketSet) {
-        if (d.op === 'allOf') return new Set()
-        continue
-      }
-
-      // Verify actual startsWith against stored normalized values
-      const verified = new Set<string>()
-      for (const docId of bucketSet) {
-        const vals = idx.valuesByDoc.get(docId) ?? []
-        for (const v of vals) {
-          if (v.startsWith(n)) {
-            verified.add(docId)
-            break
-          }
-        }
-      }
-
-      if (verified.size === 0) {
-        if (d.op === 'allOf') return new Set()
-        continue
-      }
-
-      perNeedle.push(verified)
-    }
-
-    if (perNeedle.length === 0) return new Set()
-
-    if (d.op === 'anyOf') {
-      const out = new Set<string>()
-      for (const s of perNeedle) for (const id of s) out.add(id)
-      return out
-    }
-
-    perNeedle.sort((a, b) => a.size - b.size)
-    let out = perNeedle[0]
-    for (let i = 1; i < perNeedle.length; i++) {
-      out = intersectSets(out, perNeedle[i])
-      if (out.size === 0) break
-    }
-    return out
-  }
-
-  return null
-}
-
-function prefilterMapKey(key: string, normalize: NormalizeMode): string {
-  return `${key}|${normalize}`
-}
-
-function defaultBucketLen(normalize: NormalizeMode): number {
-  // Folded text tends to have broader collisions; use a slightly longer bucket.
-  return normalize === 'fold' ? 3 : 2
-}
-
-/* ---------------------------------------
- * Filters + sets
- * ------------------------------------ */
-
-function passesAllFilters<TDoc>(
-  doc: TDoc,
-  filters: Array<IndexedFilter<TDoc> | ((doc: TDoc) => boolean)>,
-): boolean {
-  for (const f of filters) if (!f(doc)) return false
-  return true
-}
-
-function intersectSets(a: Set<string>, b: Set<string>): Set<string> {
-  if (a.size > b.size) return intersectSets(b, a)
-  const out = new Set<string>()
-  for (const x of a) if (b.has(x)) out.add(x)
-  return out
-}
-
-function intersectAllSets(sets: Set<string>[]): Set<string> {
-  sets.sort((a, b) => a.size - b.size)
-  let out = sets[0]
-  for (let i = 1; i < sets.length; i++) {
-    out = intersectSets(out, sets[i])
-    if (out.size === 0) break
-  }
-  return out
-}
-
-/* ---------------------------------------
- * Query parsing + normalization
- * ------------------------------------ */
-
-/**
- * Parse query into tokens; quoted segments become phrase tokens.
- *
- * - Words between single or double quotes become one phrase token.
- * - Non-quoted sequences are split on whitespace into term tokens.
- */
-function parseQuery(input: string): ParsedQueryToken[] {
-  const s = input.trim()
-  if (!s) return []
-
-  const tokens: ParsedQueryToken[] = []
-  let i = 0
-
-  while (i < s.length) {
-    while (i < s.length && isSpace(s[i])) i++
-    if (i >= s.length) break
-
-    const c = s[i]
-    if (c === '"' || c === "'") {
-      const quote = c
-      i++
-      const start = i
-      while (i < s.length && s[i] !== quote) i++
-      const raw = s.slice(start, i).trim()
-      if (raw.length > 0) tokens.push({ kind: 'phrase', raw })
-      if (i < s.length && s[i] === quote) i++
-      continue
-    }
-
-    const start = i
-    while (i < s.length && !isSpace(s[i]) && s[i] !== '"' && s[i] !== "'") i++
-    const raw = s.slice(start, i)
-    if (raw.length > 0) tokens.push({ kind: 'term', raw })
-  }
-
-  return tokens
-}
-
-function isSpace(ch: string): boolean {
-  return ch === ' ' || ch === '\t' || ch === '\n' || ch === '\r' || ch === '\f'
-}
-
-function normalizeQueryToken(
-  token: ParsedQueryToken,
-  maxTokenLength: number,
-): NormalizedQueryToken {
-  const needle = normalizeText(token.raw).trim()
-
-  if (token.kind === 'term') {
-    const terms = tokenize(normalizeText(token.raw), maxTokenLength)
-    if (terms.length <= 1)
-      return { kind: 'term', raw: token.raw, needle, term: terms[0] ?? '' }
-    return { kind: 'phrase', raw: token.raw, needle, terms }
-  }
-
-  const terms = tokenize(normalizeText(token.raw), maxTokenLength)
-  return { kind: 'phrase', raw: token.raw, needle, terms }
-}
-
-/* ---------------------------------------
- * Normalization + tokenization
- * ------------------------------------ */
-
-/** Diacritics-folded lowercasing. */
-function foldText(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[’`]/g, "'")
-}
-
-/** Normalize text used in the search index (folded). */
-function normalizeText(text: string): string {
-  return foldText(text)
-}
-
-/** Tokenize normalized text into alphanumeric word tokens. */
-function tokenize(normalizedText: string, maxTokenLength: number): string[] {
-  const out: string[] = []
-  const re = /[\p{L}\p{N}]+/gu
-  let m: RegExpExecArray | null
-  while ((m = re.exec(normalizedText))) {
-    const t = m[0]
-    if (!t) continue
-    if (t.length > maxTokenLength) continue
-    out.push(t)
-  }
-  return out
-}
-
-function normalizeValue(v: string, mode: NormalizeMode): string {
-  const s = String(v ?? '')
-  if (mode === 'none') return s
-  if (mode === 'trim') return s.trim()
-  return foldText(s).trim()
-}
-
-function normalizeNeedleArray(arr: string[], mode: NormalizeMode): string[] {
-  const out: string[] = []
-  for (const x of arr ?? []) {
-    const v = normalizeValue(x, mode)
-    if (v) out.push(v)
-  }
-  return Array.from(new Set(out))
-}
-
-function makeMatcher(
-  mode?: StringMatchMode,
-): (value: string, needle: string) => boolean {
-  if (!mode) return (value, needle) => value === needle
-  if (mode === 'startsWith') return (value, needle) => value.startsWith(needle)
-  if (mode === 'endsWith') return (value, needle) => value.endsWith(needle)
-  return (value, needle) => value.includes(needle)
-}
-
-/**
- * Read a field from a document as a normalized string array.
- *
- * If the field is missing or not a string/string[], returns [].
- */
-function readStringField<TDoc extends FilterableDoc>(
-  doc: TDoc,
-  key: keyof TDoc & string,
-  normalize: NormalizeMode,
-): string[] {
-  const raw = doc[key] as unknown
-  if (typeof raw === 'string') {
-    const v = normalizeValue(raw, normalize)
-    return v ? [v] : []
-  }
-  if (Array.isArray(raw)) {
-    const out: string[] = []
-    for (const x of raw) {
-      if (typeof x !== 'string') continue
-      const v = normalizeValue(x, normalize)
-      if (v) out.push(v)
-    }
-    return out
-  }
-  return []
-}
-
-/* ---------------------------------------
- * BM25 + proximity + fuzzy
- * ------------------------------------ */
-
-function bm25Idf(N: number, df: number): number {
-  return Math.log(1 + (N - df + 0.5) / (df + 0.5))
-}
-
-function bm25Score(
-  tf: number,
-  dl: number,
-  avgdl: number,
-  idf: number,
-  k1: number,
-  b: number,
-): number {
-  const denom = tf + k1 * (1 - b + b * (dl / Math.max(1, avgdl)))
-  return idf * ((tf * (k1 + 1)) / denom)
-}
-
-/**
- * Minimum span length when choosing one increasing position from each list.
- * Returns Infinity if no increasing chain exists.
- */
-function minOrderedSpan(posLists: number[][]): number {
-  const first = posLists[0]
-  if (!first || first.length === 0) return Infinity
-
-  let best = Infinity
-  for (let i = 0; i < first.length; i++) {
-    const start = first[i]
-    let last = start
-    let ok = true
-
-    for (let j = 1; j < posLists.length; j++) {
-      const lst = posLists[j]
-      const nxt = firstGreaterThan(lst, last)
-      if (nxt === null) {
-        ok = false
-        break
-      }
-      last = nxt
-    }
-    if (!ok) continue
-
-    const span = last - start
-    if (span < best) best = span
-    if (best === posLists.length - 1) return best
-  }
-  return best
-}
-
-function firstGreaterThan(arr: number[], x: number): number | null {
-  let lo = 0
-  let hi = arr.length - 1
-  let ans = -1
-  while (lo <= hi) {
-    const mid = (lo + hi) >>> 1
-    if (arr[mid] > x) {
-      ans = mid
-      hi = mid - 1
-    } else {
-      lo = mid + 1
-    }
-  }
-  return ans === -1 ? null : arr[ans]
-}
-
-function proximityFactor(span: number, window: number): number {
-  if (span <= 0) return 1
-  if (span >= window) return 0
-  return 1 - span / window
-}
-
-function getTrigrams(s: string): string[] {
-  const x = `^${s}$`
-  const tris: string[] = []
-  for (let i = 0; i + 3 <= x.length; i++) tris.push(x.slice(i, i + 3))
-  return tris
-}
-
-function maxEditDistance(len: number): number {
-  if (len <= 4) return 1
-  if (len <= 7) return 2
-  return 3
-}
-
-function jaccard(qSet: Set<string>, tTris: string[]): number {
-  if (tTris.length === 0) return 0
-  let inter = 0
-  const tSet = new Set(tTris)
-  for (const tri of qSet) if (tSet.has(tri)) inter++
-  const union = qSet.size + tSet.size - inter
-  return union === 0 ? 0 : inter / union
-}
-
-function fuzzyWeight(dist: number, qLen: number, j: number): number {
-  const d = dist / Math.max(1, qLen)
-  const base = 0.55 + 0.45 * j
-  const penalty = Math.min(0.35, d * 0.9)
-  return clamp01(base - penalty)
-}
-
-function clamp01(x: number): number {
-  if (x < 0) return 0
-  if (x > 1) return 1
-  return x
-}
-
-/**
- * Bounded Levenshtein distance with early exit:
- * returns Infinity if distance exceeds maxDist.
- */
-function levenshteinBounded(a: string, b: string, maxDist: number): number {
-  if (a === b) return 0
-  const al = a.length
-  const bl = b.length
-  if (Math.abs(al - bl) > maxDist) return Infinity
-  if (al > bl) return levenshteinBounded(b, a, maxDist)
-
-  const prev = new Uint16Array(bl + 1)
-  const curr = new Uint16Array(bl + 1)
-
-  for (let j = 0; j <= bl; j++) prev[j] = j as unknown as number
-
-  for (let i = 1; i <= al; i++) {
-    curr[0] = i as unknown as number
-    let rowMin = curr[0]
-
-    const ca = a.charCodeAt(i - 1)
-    for (let j = 1; j <= bl; j++) {
-      const cb = b.charCodeAt(j - 1)
-      const cost = ca === cb ? 0 : 1
-
-      const del = (prev[j] + 1) as number
-      const ins = (curr[j - 1] + 1) as number
-      const sub = (prev[j - 1] + cost) as number
-
-      let v = del
-      if (ins < v) v = ins
-      if (sub < v) v = sub
-
-      curr[j] = v as unknown as number
-      if (v < rowMin) rowMin = v
-    }
-
-    if (rowMin > maxDist) return Infinity
-    for (let j = 0; j <= bl; j++) prev[j] = curr[j]
-  }
-
-  const d = prev[bl]
-  return d > maxDist ? Infinity : d
 }

@@ -7,8 +7,8 @@ vi.mock('@markee/pipeline', () => ({
 
 import { searchPipeline } from '@markee/pipeline'
 
-import { $navigationLoader, $searchLoader } from './metadata'
-import { $search } from './search'
+import { $navigationLoader, $searchLoader } from './metadata.js'
+import { $search } from './search.js'
 
 function markdownFile(title: string, tags: string[] = []) {
   return {
@@ -83,7 +83,7 @@ describe('$search', () => {
     const search = $search.get()
     const results = search('alpha')
 
-    expect(results.map((result) => result.file)).toEqual([
+    expect(results.map((result: (typeof results)[number]) => result.file)).toEqual([
       'guide.md',
       'other.md',
     ])
