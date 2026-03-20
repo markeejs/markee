@@ -618,7 +618,8 @@ describe('MarkdownCompute', () => {
       if (file === 'docs/local.txt') return 'local include\n'
       if (file === 'docs/delimited.txt') return 'AAA\nSTART\ninside\nEND\nBBB\n'
       if (file === 'docs/blank.txt') return '\n\n'
-      if (file === '/_assets/_extension/pkg/snippet.txt') return 'extension include\n'
+      if (file === '/_assets/_extension/pkg/snippet.txt')
+        return 'extension include\n'
       throw new Error(`unexpected ${file}`)
     })
     const pathExistsSync = vi.fn((file: string) =>
@@ -636,10 +637,12 @@ describe('MarkdownCompute', () => {
         value === 'pkg/snippet.txt' ? '/resolved/pkg/snippet.txt' : value,
       ),
       pathResolve: vi.fn((from: string, to: string) => {
-        if (from === 'docs' && to === './local.txt') return '/project/docs/local.txt'
+        if (from === 'docs' && to === './local.txt')
+          return '/project/docs/local.txt'
         if (from === 'docs' && to === './delimited.txt')
           return '/project/docs/delimited.txt'
-        if (from === 'docs' && to === './blank.txt') return '/project/docs/blank.txt'
+        if (from === 'docs' && to === './blank.txt')
+          return '/project/docs/blank.txt'
         return path.resolve(from, to)
       }),
     })
@@ -727,9 +730,13 @@ describe('MarkdownCompute', () => {
       [
         {
           type: 'front_matter',
-          meta: ['authors:', '  - John', 'author:', '  - Jane', '  - Jack'].join(
-            '\n',
-          ),
+          meta: [
+            'authors:',
+            '  - John',
+            'author:',
+            '  - Jane',
+            '  - Jack',
+          ].join('\n'),
         },
       ] as any,
       { file: '/docs/page.md', folder: '/docs', splits: [] },
@@ -787,7 +794,9 @@ describe('MarkdownCompute', () => {
     expect(sanitized).toContain('mailto:test@example.com')
     expect(sanitized).toContain('#here')
     expect([...links]).toEqual([])
-    await expect(MarkdownCompute.reportBrokenLinks('/docs/page.md', [])).resolves.toBe(0)
+    await expect(
+      MarkdownCompute.reportBrokenLinks('/docs/page.md', []),
+    ).resolves.toBe(0)
   })
 
   it('rewrites local links with windows-like sanitized paths and handles build-time extension edge cases', async () => {
@@ -896,18 +905,20 @@ describe('MarkdownCompute', () => {
         '\n<!-- markee:origin-indices:[{"start":0,"directory":"/docs","file":"/docs/page.md"}] -->',
       tokens,
       {
-      splits: [{ folder: '/docs', root: '/manual' }],
-      links,
-      linksData,
-      payload,
-      frontMatter: { excerpt: '', plugins: {} },
+        splits: [{ folder: '/docs', root: '/manual' }],
+        links,
+        linksData,
+        payload,
+        frontMatter: { excerpt: '', plugins: {} },
       },
     )
 
     expect(sanitized).toContain('/docs/guide.md')
     expect(sanitized).toContain('/manual/docs/folder/')
-    expect(sanitized).toContain("```none #mk-payload-1 disabled count=2 configFlag='true'")
-    expect(sanitized).toContain("```none #mk-payload-2")
+    expect(sanitized).toContain(
+      "```none #mk-payload-1 disabled count=2 configFlag='true'",
+    )
+    expect(sanitized).toContain('```none #mk-payload-2')
     expect(sanitized).toContain('::callout')
     expect(sanitized).toContain('::callout[Label]{#mk-payload-5 open}')
     expect(sanitized).toContain('```js')

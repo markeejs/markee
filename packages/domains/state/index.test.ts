@@ -86,7 +86,7 @@ describe('state', () => {
             frontMatter: {
               excerpt: '',
               plugins: {
-                // @ts-ignore
+                // @ts-ignore - minimum test shim
                 demo: { from: 'frontmatter' },
               },
             },

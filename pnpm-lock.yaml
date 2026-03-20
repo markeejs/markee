@@ -454,14 +454,36 @@ importers:
       '@markee/vite':
         specifier: 0.1.0
         version: link:../../support/vite
+      '@markee/vitest':
+        specifier: 0.1.0
+        version: link:../../support/vitest
+      '@vitest/coverage-v8':
+        specifier: ^3.2.4
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
       asciinema-player:
         specifier: ^3.15.1
         version: 3.15.1
+      jsdom:
+        specifier: ^29.0.0
+        version: 29.0.0
       vite:
         specifier: ^8.0.0
         version: 8.0.0(@types/node@25.0.3)(esbuild@0.27.2)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
-  packages/extensions/default: {}
+  packages/extensions/default:
+    devDependencies:
+      '@markee/vitest':
+        specifier: 0.1.0
+        version: link:../../support/vitest
+      jsdom:
+        specifier: ^29.0.0
+        version: 29.0.0
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/extensions/diagrams:
     devDependencies:
@@ -471,6 +493,9 @@ importers:
       '@markee/vite':
         specifier: 0.1.0
         version: link:../../support/vite
+      '@markee/vitest':
+        specifier: 0.1.0
+        version: link:../../support/vitest
       '@softwaretechnik/dbml-renderer':
         specifier: ^1.0.31
         version: 1.0.31
@@ -483,14 +508,33 @@ importers:
       d3-selection:
         specifier: ^3.0.0
         version: 3.0.0
+      jsdom:
+        specifier: ^29.0.0
+        version: 29.0.0
       mermaid:
         specifier: ^11.13.0
         version: 11.13.0
       vite:
         specifier: ^8.0.0
         version: 8.0.0(@types/node@25.0.3)(esbuild@0.27.2)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
-  packages/extensions/kroki: {}
+  packages/extensions/kroki:
+    devDependencies:
+      '@markee/vitest':
+        specifier: 0.1.0
+        version: link:../../support/vitest
+      '@vitest/coverage-v8':
+        specifier: ^3.2.4
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
+      jsdom:
+        specifier: ^29.0.0
+        version: 29.0.0
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/extensions/likec4:
     devDependencies:
@@ -506,6 +550,9 @@ importers:
       '@markee/vite':
         specifier: 0.1.0
         version: link:../../support/vite
+      '@markee/vitest':
+        specifier: 0.1.0
+        version: link:../../support/vitest
       '@types/react':
         specifier: ^19.2.14
         version: 19.2.14
@@ -515,6 +562,9 @@ importers:
       attributes-parser:
         specifier: ^2.2.3
         version: 2.2.3
+      jsdom:
+        specifier: ^29.0.0
+        version: 29.0.0
       lodash-es:
         specifier: ^4.17.23
         version: 4.17.23
@@ -527,6 +577,9 @@ importers:
       vite:
         specifier: ^8.0.0
         version: 8.0.0(@types/node@25.0.3)(esbuild@0.27.2)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/extensions/mathjax:
     devDependencies:
@@ -536,6 +589,15 @@ importers:
       '@markee/vite':
         specifier: 0.1.0
         version: link:../../support/vite
+      '@markee/vitest':
+        specifier: 0.1.0
+        version: link:../../support/vitest
+      '@vitest/coverage-v8':
+        specifier: ^3.2.4
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
+      jsdom:
+        specifier: ^29.0.0
+        version: 29.0.0
       rehype-mathjax:
         specifier: ^7.1.0
         version: 7.1.0
@@ -545,6 +607,9 @@ importers:
       vite:
         specifier: ^8.0.0
         version: 8.0.0(@types/node@25.0.3)(esbuild@0.27.2)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/extensions/placeholders:
     devDependencies:
@@ -554,9 +619,18 @@ importers:
       '@markee/vite':
         specifier: 0.1.0
         version: link:../../support/vite
+      '@markee/vitest':
+        specifier: 0.1.0
+        version: link:../../support/vitest
+      jsdom:
+        specifier: ^29.0.0
+        version: 29.0.0
       vite:
         specifier: ^8.0.0
         version: 8.0.0(@types/node@25.0.3)(esbuild@0.27.2)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/extensions/revealjs:
     devDependencies:
@@ -566,15 +640,27 @@ importers:
       '@markee/vite':
         specifier: 0.1.0
         version: link:../../support/vite
+      '@markee/vitest':
+        specifier: 0.1.0
+        version: link:../../support/vitest
       '@types/reveal.js':
         specifier: ^5.2.2
         version: 5.2.2
+      '@vitest/coverage-v8':
+        specifier: ^3.2.4
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
+      jsdom:
+        specifier: ^29.0.0
+        version: 29.0.0
       reveal.js:
         specifier: ^5.2.1
         version: 5.2.1
       vite:
         specifier: ^8.0.0
         version: 8.0.0(@types/node@25.0.3)(esbuild@0.27.2)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/extensions/swaggerui:
     devDependencies:
@@ -584,20 +670,45 @@ importers:
       '@markee/vite':
         specifier: 0.1.0
         version: link:../../support/vite
+      '@markee/vitest':
+        specifier: 0.1.0
+        version: link:../../support/vitest
+      '@vitest/coverage-v8':
+        specifier: ^3.2.4
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
       attributes-parser:
         specifier: ^2.2.3
         version: 2.2.3
+      jsdom:
+        specifier: ^29.0.0
+        version: 29.0.0
       swagger-ui-dist:
         specifier: ^5.20.1
         version: 5.32.0
       vite:
         specifier: ^8.0.0
         version: 8.0.0(@types/node@25.0.3)(esbuild@0.27.2)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
       yaml:
         specifier: ^2.8.2
         version: 2.8.2
 
-  packages/extensions/tooltips: {}
+  packages/extensions/tooltips:
+    devDependencies:
+      '@markee/vitest':
+        specifier: 0.1.0
+        version: link:../../support/vitest
+      '@vitest/coverage-v8':
+        specifier: ^3.2.4
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
+      jsdom:
+        specifier: ^29.0.0
+        version: 29.0.0
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/support/create:
     dependencies:

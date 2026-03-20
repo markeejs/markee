@@ -1,7 +1,7 @@
 import { createRouter } from '@nanostores/router'
 import { $navigation } from './metadata.js'
 
-// @ts-ignore
+// @ts-ignore - meta.env is not defined at the project level
 const isTestEnv = !!import.meta.env.VITEST
 
 export const $router = createRouter(

@@ -9,11 +9,15 @@
   },
   "scripts": {
     "build": "vite build",
-    "lint:tsc": "tsc --noEmit"
+    "lint:tsc": "tsc --noEmit",
+    "test": "vitest run"
   },
   "devDependencies": {
     "@markee/tsconfig": "0.1.0",
     "@markee/vite": "0.1.0",
-    "vite": "^8.0.0"
+    "@markee/vitest": "0.1.0",
+    "jsdom": "^29.0.0",
+    "vite": "^8.0.0",
+    "vitest": "^3.2.4"
   }
 }

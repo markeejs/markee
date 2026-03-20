@@ -234,8 +234,8 @@ class CssImportMtimeCacheBuster extends BaseMtimeCacheBuster {
             const rawEnd = i
 
             const raw = code.slice(rawStart, rawEnd)
-            const leadingWs = (raw.match(/^\s*/)!)[0].length
-            const trailingWs = (raw.match(/\s*$/)!)[0].length
+            const leadingWs = raw.match(/^\s*/)![0].length
+            const trailingWs = raw.match(/\s*$/)![0].length
 
             const specStart = rawStart + leadingWs
             const specEnd = rawEnd - trailingWs
