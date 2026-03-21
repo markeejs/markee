@@ -51,7 +51,7 @@ describe('writeSplitBuilds', () => {
       'Admin Area': 'docs',
       'Blog': '/blog',
     } as any
-    vi.stubEnv('MARBLES_SPLIT_ADMIN_AREA', 'https://admin.example')
+    vi.stubEnv('MARKEE_SPLIT_ADMIN_AREA', 'https://admin.example')
 
     const files = {
       '/docs/guide.md': { link: '/docs/guide' },

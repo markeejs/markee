@@ -1,12 +1,11 @@
-import fs from 'fs-extra'
 import os from 'node:os'
-import { promisify } from 'node:util'
-import { execFile } from 'node:child_process'
 import colors from 'colors/safe.js'
 
 import { ROOT_DIR } from '../constants.js'
 
 import { PathHelpers } from './path.js'
+import { WatchHelpers } from './watch.js'
+import { ProcessHelpers } from './process.js'
 
 import { BustCache } from '../cache/bust-cache.js'
 import { FileCache } from '../cache/file-cache.js'
@@ -16,8 +15,6 @@ import { MarkdownCache } from '../cache/markdown-cache.js'
 import { ExtensionsCache } from '../cache/extensions-cache.js'
 
 const platform = os.platform()
-const execFileAsync = promisify(execFile)
-
 export const FilesystemHelpers = {
   /**
    * Helper for generating an error logger with a multi-part message
@@ -42,23 +39,29 @@ export const FilesystemHelpers = {
       // Use robocopy on Windows
       // /E - copy subdirectories including empty ones
       // The /NFL etc. are to suppress output
-      await execFileAsync('robocopy', [
-        src,
-        dest,
-        '/IS',
-        '/IT',
-        '/E',
-        '/NFL',
-        '/NDL',
-        '/NJH',
-        '/NJS',
-        '/NC',
-        '/NS',
-      ])
+      await ProcessHelpers.execFile(
+        'robocopy',
+        [
+          src,
+          dest,
+          '/IS',
+          '/IT',
+          '/E',
+          '/NFL',
+          '/NDL',
+          '/NJH',
+          '/NJS',
+          '/NC',
+          '/NS',
+        ],
+        {
+          acceptExitCode: (code) => code < 8,
+        },
+      )
     } else {
       // Use mkdir -p and cp -R on Unix
-      await execFileAsync('mkdir', ['-p', dest])
-      await execFileAsync('cp', ['-R', src, dest + PathHelpers.sep])
+      await ProcessHelpers.execFile('mkdir', ['-p', dest])
+      await ProcessHelpers.execFile('cp', ['-R', src, dest + PathHelpers.sep])
     }
   },
 
@@ -142,9 +145,9 @@ export const FilesystemHelpers = {
       }
     }
 
-    const watcher = fs.watch(ROOT_DIR, { recursive: true }, watch('/'))
+    const watcher = WatchHelpers.watchTree(ROOT_DIR, watch('/'))
     const watchers = config.watch?.map((w) =>
-      fs.watch(PathHelpers.concat(ROOT_DIR, w), { recursive: true }, watch(w)),
+      WatchHelpers.watchTree(PathHelpers.concat(ROOT_DIR, w), watch(w)),
     )
 
     return () => {

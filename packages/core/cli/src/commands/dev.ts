@@ -2,8 +2,6 @@ import fs from 'fs-extra'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { streamSSE } from 'hono/streaming'
-import { serve } from '@hono/node-server'
-import { serveStatic } from '@hono/node-server/serve-static'
 
 import { CLIENT_DIR, ROOT_DIR } from '../constants.js'
 
@@ -11,6 +9,11 @@ import { PathHelpers } from '../helpers/path.js'
 import { ModuleHelpers } from '../helpers/module.js'
 import { ServerHelpers } from '../helpers/server.js'
 import { FilesystemHelpers } from '../helpers/filesystem.js'
+import {
+  createStaticMiddleware,
+  sendStaticFile,
+  startHonoServer,
+} from '../helpers/hono.js'
 
 import { BustCache } from '../cache/bust-cache.js'
 import { HtmlCache } from '../cache/html-cache.js'
@@ -52,18 +55,6 @@ function stripPrefix(path: string, prefix: string) {
 
   const stripped = path.slice(prefix.length)
   return stripped || '/'
-}
-
-async function sendStaticFile(
-  c: Parameters<ReturnType<typeof serveStatic>>[0],
-  filePath: string,
-) {
-  const middleware = serveStatic({
-    root: PathHelpers.dirname(filePath),
-    path: PathHelpers.basename(filePath),
-  })
-
-  return (await middleware(c, async () => {})) as Response
 }
 
 export async function createDevApp() {
@@ -242,15 +233,23 @@ export async function createDevApp() {
     }
 
     if (!key.startsWith('/assets/') && key.match(/\.m?js$/)) {
-      return c.body(await BustCache.treatFile(PathHelpers.concat(ROOT_DIR, file)), 200, {
-        'Content-Type': 'text/javascript',
-      })
+      return c.body(
+        await BustCache.treatFile(PathHelpers.concat(ROOT_DIR, file)),
+        200,
+        {
+          'Content-Type': 'text/javascript',
+        },
+      )
     }
 
     if (!key.startsWith('/assets/') && key.match(/\.css$/)) {
-      return c.body(await BustCache.treatFile(PathHelpers.concat(ROOT_DIR, file)), 200, {
-        'Content-Type': 'text/css',
-      })
+      return c.body(
+        await BustCache.treatFile(PathHelpers.concat(ROOT_DIR, file)),
+        200,
+        {
+          'Content-Type': 'text/css',
+        },
+      )
     }
 
     await next()
@@ -262,7 +261,7 @@ export async function createDevApp() {
 
     app.use(
       staticPattern(prefix),
-      serveStatic({
+      createStaticMiddleware({
         root: PathHelpers.resolve(ROOT_DIR, root),
         rewriteRequestPath: (path) => stripPrefix(path, prefix),
       }),
@@ -271,7 +270,7 @@ export async function createDevApp() {
 
   app.use(
     '/assets/*',
-    serveStatic({
+    createStaticMiddleware({
       root: PathHelpers.resolve(CLIENT_DIR, 'assets'),
       rewriteRequestPath: (path) => stripPrefix(path, '/assets'),
     }),
@@ -279,13 +278,16 @@ export async function createDevApp() {
 
   app.use(
     '/_assets/*',
-    serveStatic({
+    createStaticMiddleware({
       root: PathHelpers.resolve(ROOT_DIR, '_assets'),
       rewriteRequestPath: (path) => stripPrefix(path, '/_assets'),
     }),
   )
 
-  app.use('*', serveStatic({ root: PathHelpers.resolve(ROOT_DIR, 'public') }))
+  app.use(
+    '*',
+    createStaticMiddleware({ root: PathHelpers.resolve(ROOT_DIR, 'public') }),
+  )
 
   app.notFound(async (c) => {
     if (c.req.path.startsWith('/_assets')) {
@@ -305,13 +307,14 @@ export async function createDevApp() {
 export async function commandDev() {
   const app = await createDevApp()
 
-  serve({
+  await startHonoServer({
     fetch: app.fetch,
     hostname: config.server.host,
     port: config.server.port,
-  }, () => {
-    console.log('Markdown files tracking enabled')
-    console.log('Start editing and see your changes live in your browser')
-    ServerHelpers.printReadyMessage()
+    onListen: () => {
+      console.log('Markdown files tracking enabled')
+      console.log('Start editing and see your changes live in your browser')
+      ServerHelpers.printReadyMessage()
+    },
   })
 }

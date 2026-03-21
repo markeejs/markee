@@ -208,13 +208,13 @@ a `root` parameter of `/_splits/first-split`. This allows you to deploy
 or preview the complete website as if no splits were used.
 
 But you can also configure the root for each split through environment variables.
-If you provide an environment variable composed of the `MARBLES_SPLIT_` prefix followed
+If you provide an environment variable composed of the `MARKEE_SPLIT_` prefix followed
 by the capitalized name of your split with all special characters
 replaced with `_`, its value will be used as this split's root.
 
 ```bash
-export MARBLES_SPLIT_FIRST_SPLIT=http://localhost:3001
-export MARBLES_SPLIT_SECOND_SPLIT=http://localhost:3002
+export MARKEE_SPLIT_FIRST_SPLIT=http://localhost:3001
+export MARKEE_SPLIT_SECOND_SPLIT=http://localhost:3002
 markee build
 ```
 

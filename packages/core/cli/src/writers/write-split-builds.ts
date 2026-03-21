@@ -83,7 +83,7 @@ export async function writeSplitBuilds(
     )
     const splitSlug = split.toLowerCase().replace(/[^a-z0-9]/g, '-')
     const splitVariable =
-      'MARBLES_SPLIT_' + split.toUpperCase().replace(/[^A-Z0-9]/g, '_')
+      'MARKEE_SPLIT_' + split.toUpperCase().replace(/[^A-Z0-9]/g, '_')
     const splitHost = process.env[splitVariable] ?? '/_splits/' + splitSlug
     splitHosts.push(process.env[splitVariable] || '/_splits/' + splitSlug)
 

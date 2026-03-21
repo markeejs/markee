@@ -94,7 +94,7 @@ describe('ConfigCache', () => {
       extensions: ['@markee/default'],
     } as any
 
-    vi.stubEnv('MARBLES_SPLIT_ADMIN', 'admin-host')
+    vi.stubEnv('MARKEE_SPLIT_ADMIN', 'admin-host')
 
     expect(ConfigCache.filterConfig()).toEqual({
       title: 'Docs',

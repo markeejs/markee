@@ -4,35 +4,34 @@ type WatchCallback = (_: unknown, filename: string | null) => unknown
 
 async function importFilesystem({
   platform = 'darwin',
-  watchImpl,
-  execImpl,
+  watchTreeImpl,
+  execFileImpl,
   loadConfig = vi.fn(),
 }: {
   platform?: string
-  watchImpl?: ReturnType<typeof vi.fn>
-  execImpl?: ReturnType<typeof vi.fn>
+  watchTreeImpl?: ReturnType<typeof vi.fn>
+  execFileImpl?: ReturnType<typeof vi.fn>
   loadConfig?: ReturnType<typeof vi.fn>
 } = {}) {
   vi.resetModules()
 
-  const watch = watchImpl ?? vi.fn()
-  const execFileAsync = execImpl ?? vi.fn()
+  const watchTree = watchTreeImpl ?? vi.fn()
+  const execFile = execFileImpl ?? vi.fn()
   const clearAll = vi.fn()
   const clearFile = vi.fn()
 
-  vi.doMock('fs-extra', () => ({
-    default: {
-      watch,
-    },
-  }))
   vi.doMock('node:os', () => ({
     default: { platform: () => platform },
   }))
-  vi.doMock('node:util', () => ({
-    promisify: () => execFileAsync,
+  vi.doMock('./process.js', () => ({
+    ProcessHelpers: {
+      execFile,
+    },
   }))
-  vi.doMock('node:child_process', () => ({
-    execFile: vi.fn(),
+  vi.doMock('./watch.js', () => ({
+    WatchHelpers: {
+      watchTree,
+    },
   }))
   vi.doMock('../cache/bust-cache.js', () => ({
     BustCache: {
@@ -71,8 +70,8 @@ async function importFilesystem({
 
   return {
     ...module,
-    watch,
-    execFileAsync,
+    watchTree,
+    execFile,
     clearAll,
     clearFile,
     loadConfig,
@@ -111,11 +110,8 @@ describe('FilesystemHelpers', () => {
 
     await unix.FilesystemHelpers.copyDirectory('/src', '/dest')
 
-    expect(unix.execFileAsync).toHaveBeenNthCalledWith(1, 'mkdir', [
-      '-p',
-      '/dest',
-    ])
-    expect(unix.execFileAsync).toHaveBeenNthCalledWith(2, 'cp', [
+    expect(unix.execFile).toHaveBeenNthCalledWith(1, 'mkdir', ['-p', '/dest'])
+    expect(unix.execFile).toHaveBeenNthCalledWith(2, 'cp', [
       '-R',
       '/src',
       '/dest/',
@@ -125,25 +121,36 @@ describe('FilesystemHelpers', () => {
 
     await win.FilesystemHelpers.copyDirectory('C:/src', 'C:/dest')
 
-    expect(win.execFileAsync).toHaveBeenCalledWith('robocopy', [
-      'C:/src',
-      'C:/dest',
-      '/IS',
-      '/IT',
-      '/E',
-      '/NFL',
-      '/NDL',
-      '/NJH',
-      '/NJS',
-      '/NC',
-      '/NS',
-    ])
+    const acceptExitCode = (win.execFile.mock.calls[0] as any)?.[2]
+      ?.acceptExitCode as ((code: number) => boolean) | undefined
+
+    expect(win.execFile).toHaveBeenCalledWith(
+      'robocopy',
+      [
+        'C:/src',
+        'C:/dest',
+        '/IS',
+        '/IT',
+        '/E',
+        '/NFL',
+        '/NDL',
+        '/NJH',
+        '/NJS',
+        '/NC',
+        '/NS',
+      ],
+      {
+        acceptExitCode: expect.any(Function),
+      },
+    )
+    expect(acceptExitCode?.(7)).toBe(true)
+    expect(acceptExitCode?.(8)).toBe(false)
   })
 
   it('watches the project, ignores excluded files, clears caches, reloads config, and debounces reporting', async () => {
     const rootWatcher = { close: vi.fn() }
     const docsWatcher = { close: vi.fn() }
-    const watch = vi
+    const watchTree = vi
       .fn()
       .mockReturnValueOnce(rootWatcher)
       .mockReturnValueOnce(docsWatcher)
@@ -151,11 +158,11 @@ describe('FilesystemHelpers', () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
 
     const { FilesystemHelpers, clearAll, clearFile, loadConfig } =
-      await importFilesystem({ watchImpl: watch, loadConfig: vi.fn() })
+      await importFilesystem({ watchTreeImpl: watchTree, loadConfig: vi.fn() })
 
     const stop = FilesystemHelpers.fileWatcher(handler)
-    const rootCallback = watch.mock.calls[0]?.[2] as WatchCallback
-    const docsCallback = watch.mock.calls[1]?.[2] as WatchCallback
+    const rootCallback = watchTree.mock.calls[0]?.[1] as WatchCallback
+    const docsCallback = watchTree.mock.calls[1]?.[1] as WatchCallback
 
     await rootCallback(null, '.git/index')
     await rootCallback(null, 'node_modules/pkg/index.js')

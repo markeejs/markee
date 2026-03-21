@@ -1,16 +1,19 @@
-import { exec, execSync } from 'child_process'
 import fs from 'fs-extra'
 
 import { ROOT_DIR } from '../constants.js'
 import { PathHelpers } from '../helpers/path.js'
+import { ProcessHelpers } from '../helpers/process.js'
 
 let ROOT_GIT = ROOT_DIR
 try {
-  ROOT_GIT = execSync('git rev-parse --show-toplevel', {
-    stdio: ['pipe', 'pipe', 'ignore'],
-  })
-    .toString('utf-8')
-    .trim()
+  ROOT_GIT = ProcessHelpers.execFileSync(
+    'git',
+    ['rev-parse', '--show-toplevel'],
+    {
+      cwd: ROOT_DIR,
+      stderr: 'ignore',
+    },
+  ).stdout.trim()
 } catch (err) {
   void err
 }
@@ -20,21 +23,18 @@ try {
  * @returns A promise that resolves with the revision dates.
  */
 function getLastRevisionDates() {
-  return new Promise<Record<string, number | null>>((resolve) => {
-    const cmd = `git log --name-only --date=default --pretty=format:'%ad' '*.md'`
-
-    exec(cmd, (error, stdout) => {
-      if (error) {
-        resolve({})
-        return
-      }
-
+  return ProcessHelpers.execFile(
+    'git',
+    ['log', '--name-only', '--date=default', '--pretty=format:%ad', '*.md'],
+    { cwd: ROOT_GIT },
+  )
+    .then(({ stdout }) => {
       const lines = stdout.trim().split('\n')
       const fileDates: Record<string, number | null> = {}
 
       let currentDate = null
       for (const line of lines) {
-        if (line?.endsWith('.md')) {
+        if (line.endsWith('.md')) {
           // Ensure that only the latest date is saved for each file
           if (!fileDates[line]) {
             fileDates[line] = currentDate
@@ -44,9 +44,9 @@ function getLastRevisionDates() {
         }
       }
 
-      resolve(fileDates)
+      return fileDates
     })
-  })
+    .catch<Record<string, number | null>>(() => ({}))
 }
 
 let revisionDatePromise = getLastRevisionDates()

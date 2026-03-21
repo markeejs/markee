@@ -4,9 +4,9 @@
 
 Start from the directory where you want to create your Markee project, then run the create command through your favorite package manager:
 
-:::tab[Yarn]
+:::tab[NPM]
 ```bash
-yarn create markee
+npm create markee
 ```
 :::
 :::tab[PNPM]
@@ -14,9 +14,14 @@ yarn create markee
 pnpm create markee
 ```
 :::
-:::tab[NPM]
+:::tab[Yarn]
 ```bash
-npm create markee
+yarn create markee
+```
+:::
+:::tab[Bun]
+```bash
+bun create markee
 ```
 :::
 
@@ -27,11 +32,10 @@ If you already installed `@markee/cli` manually, you can also run `markee init` 
 
 ## Running Markee
 
-Once dependencies are installed, you can run Markee through the `markee` command:
-
-:::tab[Yarn]
+Once dependencies are installed, you can run Markee through the `markee` command.
+:::tab[NPM]
 ```bash
-yarn markee
+npx markee
 ```
 :::
 :::tab[PNPM]
@@ -39,11 +43,18 @@ yarn markee
 pnpm markee
 ```
 :::
-:::tab[NPM]
+:::tab[Yarn]
 ```bash
-npx markee
+yarn markee
 ```
 :::
+:::tab[Bun]
+```bash
+bunx markee
+```
+:::
+
+Bun is also supported. When launched through Bun, the published CLI will use Bun as its runtime automatically.
 
 This should produce the following output:
 
@@ -100,10 +111,10 @@ serving the output folder. It will also use `http://localhost:8000` by default.
 
 If you prefer not to use the create command, you can initialize a project manually by installing `@markee/cli` first.
 
-:::tab[Yarn]
+:::tab[NPM]
 ```bash
-yarn add @markee/cli
-yarn markee init
+npm add @markee/cli
+npx markee init
 ```
 :::
 :::tab[PNPM]
@@ -112,10 +123,16 @@ pnpm add @markee/cli
 pnpm markee init
 ```
 :::
-:::tab[NPM]
+:::tab[Yarn]
 ```bash
-npm add @markee/cli
-npx markee init
+yarn add @markee/cli
+yarn markee init
+```
+:::
+:::tab[Bun]
+```bash
+bun add -d @markee/cli
+bunx markee init
 ```
 :::
 
