@@ -21,8 +21,7 @@
     "test": "vitest run --coverage"
   },
   "dependencies": {
-    "@fastify/cors": "^11.2.0",
-    "@fastify/static": "^9.0.0",
+    "@hono/node-server": "^1.19.11",
     "@markee/client": "0.1.0",
     "@markee/default": "0.1.0",
     "@markee/runtime": "0.1.0",
@@ -34,8 +33,6 @@
     "deepmerge": "^4.3.1",
     "enquirer": "^2.4.1",
     "es-module-lexer": "^2.0.0",
-    "fastify": "^5.8.2",
-    "fastify-sse-v2": "^4.2.2",
     "fs-extra": "^11.3.4",
     "github-slugger": "^2.0.0",
     "globby": "^16.1.1",
@@ -48,6 +45,7 @@
     "reading-time-estimator": "^2.1.1",
     "rss": "^1.2.2",
     "sitemap": "^9.0.1",
+    "hono": "^4.12.7",
     "yaml": "^2.8.2"
   },
   "devDependencies": {

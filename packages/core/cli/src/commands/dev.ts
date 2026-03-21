@@ -1,8 +1,9 @@
-import Fastify, { type FastifyReply } from 'fastify'
-import FastifyStatic from '@fastify/static'
-import { FastifySSEPlugin } from 'fastify-sse-v2'
-import cors from '@fastify/cors'
 import fs from 'fs-extra'
+import { Hono } from 'hono'
+import { cors } from 'hono/cors'
+import { streamSSE } from 'hono/streaming'
+import { serve } from '@hono/node-server'
+import { serveStatic } from '@hono/node-server/serve-static'
 
 import { CLIENT_DIR, ROOT_DIR } from '../constants.js'
 
@@ -31,22 +32,54 @@ const defaultMd = () => ({
   payload: {},
 })
 
-export async function commandDev() {
-  // Build navigation tree
+function sortEntries<T>(entries: Record<string, T>) {
+  return Object.fromEntries(
+    Object.entries(entries).sort((a, b) =>
+      a[0].localeCompare(b[0], undefined, {
+        numeric: true,
+        sensitivity: 'base',
+      }),
+    ),
+  )
+}
+
+function staticPattern(prefix: string) {
+  return prefix === '/' ? '*' : `${prefix}/*`
+}
+
+function stripPrefix(path: string, prefix: string) {
+  if (prefix === '/') return path
+
+  const stripped = path.slice(prefix.length)
+  return stripped || '/'
+}
+
+async function sendStaticFile(
+  c: Parameters<ReturnType<typeof serveStatic>>[0],
+  filePath: string,
+) {
+  const middleware = serveStatic({
+    root: PathHelpers.dirname(filePath),
+    path: PathHelpers.basename(filePath),
+  })
+
+  return (await middleware(c, async () => {})) as Response
+}
+
+export async function createDevApp() {
   let markdownFiles = await MarkdownCache.loadFiles()
   let sectionFiles = await SectionCache.loadFolders(markdownFiles)
 
   console.log('Preparing', Object.keys(markdownFiles).length, 'Markdown files')
 
   const eventWatchers = new Set<() => void>()
-  const triggerWatchers = () => eventWatchers.forEach((w) => w())
+  const triggerWatchers = () => eventWatchers.forEach((watcher) => watcher())
   FilesystemHelpers.fileWatcher(() => {
     void buildHotReloadPromise()
   })
 
   let hotReloadPromise: Promise<void>
   function buildHotReloadPromise() {
-    // Rebuild navigation tree with cache-busted files
     hotReloadPromise = Promise.resolve().then(async () => {
       markdownFiles = await MarkdownCache.loadFiles()
       sectionFiles = await SectionCache.loadFolders(markdownFiles)
@@ -69,134 +102,107 @@ export async function commandDev() {
 
       triggerWatchers()
     })
+
     return hotReloadPromise
   }
   void buildHotReloadPromise()
 
-  const fastify = Fastify()
+  const app = new Hono()
 
-  fastify.register(cors)
-  fastify.register(FastifySSEPlugin)
+  app.use('*', cors())
 
-  // Serve all files from sources
-  config.sources.forEach((source) => {
-    fastify.register(FastifyStatic, {
-      root: PathHelpers.resolve(ROOT_DIR, ConfigCache.getRoot(source.root)),
-      wildcard: true,
-      decorateReply: false,
-      prefix: PathHelpers.concat('/', ConfigCache.getRoot(source.root)),
+  app.get('/_assets/_extension/*', async (c, next) => {
+    if (c.req.path.endsWith('.md')) {
+      await next()
+      return
+    }
+
+    const extensionPath = c.req.path.slice('/_assets/_extension/'.length)
+
+    return sendStaticFile(
+      c,
+      PathHelpers.sanitize(ModuleHelpers.resolve(extensionPath)),
+    )
+  })
+
+  app.get('/_markee/sse', (c) =>
+    streamSSE(c, async (stream) => {
+      const watcher = () =>
+        void stream.writeSSE({ event: 'fileChange', data: '{}' })
+      eventWatchers.add(watcher)
+
+      try {
+        await new Promise<void>((resolve) => {
+          if (c.req.raw.signal.aborted) {
+            resolve()
+            return
+          }
+
+          c.req.raw.signal.addEventListener(
+            'abort',
+            resolve as unknown as EventListener,
+            {
+              once: true,
+            },
+          )
+        })
+      } finally {
+        eventWatchers.delete(watcher)
+      }
+    }),
+  )
+
+  app.get('/_markee/config.json', async (c) =>
+    c.json({
+      ...ConfigCache.filterConfig(),
+      development: true,
+    }),
+  )
+
+  app.get('/_markee/navigation.json', async (c) => {
+    await hotReloadPromise
+
+    return c.json({
+      folders: sortEntries(sectionFiles),
+      files: sortEntries(markdownFiles),
+      assets: await MetadataCache.assets(),
     })
   })
 
-  // Serve all files in the @markee/client
-  fastify.register(FastifyStatic, {
-    root: PathHelpers.resolve(CLIENT_DIR, 'assets'),
-    wildcard: true,
-    decorateReply: false,
-    prefix: '/assets',
-  })
-
-  // Serve all files from /_assets
-  fastify.register(FastifyStatic, {
-    root: PathHelpers.resolve(ROOT_DIR, '_assets'),
-    wildcard: true,
-    decorateReply: false,
-    prefix: '/_assets',
-  })
-
-  // Serve all files from /public
-  fastify.register(FastifyStatic, {
-    root: PathHelpers.resolve(ROOT_DIR, 'public'),
-    wildcard: true,
-    decorateReply: true,
-    prefix: '/',
-  })
-
-  // Serve extensions on /_assets/_extension
-  fastify.get(
-    '/_assets/_extension/*',
-    async (req, res) =>
-      await res.sendFile(
-        PathHelpers.sanitize(ModuleHelpers.resolve((req.params as any)['*'])),
-        '/',
-      ),
-  )
-
-  fastify.get('/_markee/sse', (req, res) => {
-    const watcher = () => res.sse({ event: 'fileChange', data: '{}' })
-    eventWatchers.add(watcher)
-    req.socket.on('close', () => eventWatchers.delete(watcher))
-  })
-
-  fastify.get('/_markee/config.json', async () => ({
-    ...ConfigCache.filterConfig(),
-    development: true,
-  }))
-
-  fastify.get('/_markee/navigation.json', async () => {
+  app.get('/_markee/layouts.json', async (c) => {
     await hotReloadPromise
-    return {
-      folders: Object.fromEntries(
-        Object.entries(sectionFiles).sort((a, b) =>
-          a[0].localeCompare(b[0], undefined, {
-            numeric: true,
-            sensitivity: 'base',
-          }),
-        ),
-      ),
-      files: Object.fromEntries(
-        Object.entries(markdownFiles).sort((a, b) =>
-          a[0].localeCompare(b[0], undefined, {
-            numeric: true,
-            sensitivity: 'base',
-          }),
-        ),
-      ),
-      assets: await MetadataCache.assets(),
-    }
+    return c.json(await MetadataCache.layoutsDetails())
   })
 
-  fastify.get('/_markee/layouts.json', async () => {
+  app.get('/_markee/search.json', async (c) => {
     await hotReloadPromise
-    return MetadataCache.layoutsDetails()
+    return c.json(await MetadataCache.searchIndex(markdownFiles))
   })
 
-  fastify.get('/_markee/search.json', async () => {
-    await hotReloadPromise
-    return MetadataCache.searchIndex(markdownFiles)
-  })
+  app.get('/_markee/head.json', async (c) => c.json(await HtmlCache.head()))
 
-  fastify.get('/_markee/head.json', async () => {
-    return HtmlCache.head()
-  })
-
-  async function sendIndexFile(reply: FastifyReply) {
-    reply.type('text/html')
+  async function sendIndexFile() {
     return (await HtmlCache.index(false)).replace(
       '</head>',
       "<script>window[Symbol.for('markee::development')] = true</script></head>",
     )
   }
 
-  // Catch MD files to resolve inclusions
-  // Catch JS and CSS files to cache-bust imports
-  fastify.addHook('onSend', async (req, reply, payload) => {
-    if (reply.sent) return payload
-
-    let [file] = decodeURIComponent(req.url).split('?')
+  app.get('*', async (c, next) => {
+    let [file] = decodeURIComponent(c.req.path).split('?')
     const key = file
+
     if (key.startsWith('/_assets/_extension/')) {
+      const extensionPath = key.slice('/_assets/_extension/'.length)
+
       file = PathHelpers.relative(
         ROOT_DIR,
-        PathHelpers.sanitize(ModuleHelpers.resolve((req.params as any)['*'])),
+        PathHelpers.sanitize(ModuleHelpers.resolve(extensionPath)),
       ).replaceAll(PathHelpers.win32.sep, PathHelpers.posix.sep)
     }
 
-    if (key?.endsWith('.md')) {
+    if (key.endsWith('.md')) {
       if (await fs.pathExists(PathHelpers.concat(ROOT_DIR, file))) {
-        reply.status(200)
-        reply.type('text/markdown')
-
         const sanitizePromise = MarkdownCache.get(key)
           .sanitize()
           .then((sanitized) => {
@@ -212,7 +218,7 @@ export async function commandDev() {
           let preloadingSent = false
 
           if (MarkdownCache.get(key).stale.sanitized) {
-            return await Promise.race([
+            const payload = await Promise.race([
               wait(200).then(() => {
                 preloadingSent = true
                 return '::markee-preloading'
@@ -224,47 +230,88 @@ export async function commandDev() {
                 return sanitized
               }),
             ])
+
+            return c.body(payload, 200, { 'Content-Type': 'text/markdown' })
           }
         }
 
-        return sanitizePromise
+        return c.body(await sanitizePromise, 200, {
+          'Content-Type': 'text/markdown',
+        })
       }
     }
-    if (key?.match(/\.m?js$/)) {
-      reply.status(200)
-      reply.type('text/javascript')
 
-      return await BustCache.treatFile(PathHelpers.concat(ROOT_DIR, file))
-    }
-    if (key?.match(/\.css$/)) {
-      reply.status(200)
-      reply.type('text/css')
-
-      return await BustCache.treatFile(PathHelpers.concat(ROOT_DIR, file))
+    if (!key.startsWith('/assets/') && key.match(/\.m?js$/)) {
+      return c.body(await BustCache.treatFile(PathHelpers.concat(ROOT_DIR, file)), 200, {
+        'Content-Type': 'text/javascript',
+      })
     }
 
-    return payload
+    if (!key.startsWith('/assets/') && key.match(/\.css$/)) {
+      return c.body(await BustCache.treatFile(PathHelpers.concat(ROOT_DIR, file)), 200, {
+        'Content-Type': 'text/css',
+      })
+    }
+
+    await next()
   })
 
-  fastify.setNotFoundHandler(async (req, reply) => {
-    if (req.url.startsWith('/_assets')) {
-      const filePath = await ExtensionsCache.getExtensionFile(req.url)
+  config.sources.forEach((source) => {
+    const root = ConfigCache.getRoot(source.root)
+    const prefix = PathHelpers.concat('/', root)
+
+    app.use(
+      staticPattern(prefix),
+      serveStatic({
+        root: PathHelpers.resolve(ROOT_DIR, root),
+        rewriteRequestPath: (path) => stripPrefix(path, prefix),
+      }),
+    )
+  })
+
+  app.use(
+    '/assets/*',
+    serveStatic({
+      root: PathHelpers.resolve(CLIENT_DIR, 'assets'),
+      rewriteRequestPath: (path) => stripPrefix(path, '/assets'),
+    }),
+  )
+
+  app.use(
+    '/_assets/*',
+    serveStatic({
+      root: PathHelpers.resolve(ROOT_DIR, '_assets'),
+      rewriteRequestPath: (path) => stripPrefix(path, '/_assets'),
+    }),
+  )
+
+  app.use('*', serveStatic({ root: PathHelpers.resolve(ROOT_DIR, 'public') }))
+
+  app.notFound(async (c) => {
+    if (c.req.path.startsWith('/_assets')) {
+      const filePath = await ExtensionsCache.getExtensionFile(c.req.path)
 
       if (filePath) {
-        return reply.sendFile(filePath, '/')
+        return sendStaticFile(c, filePath)
       }
     }
 
-    return sendIndexFile(reply)
+    return c.html(await sendIndexFile())
   })
 
-  await fastify.listen({
-    host: config.server.host,
+  return app
+}
+
+export async function commandDev() {
+  const app = await createDevApp()
+
+  serve({
+    fetch: app.fetch,
+    hostname: config.server.host,
     port: config.server.port,
+  }, () => {
+    console.log('Markdown files tracking enabled')
+    console.log('Start editing and see your changes live in your browser')
+    ServerHelpers.printReadyMessage()
   })
-
-  console.log('Markdown files tracking enabled')
-  console.log('Start editing and see your changes live in your browser')
-
-  ServerHelpers.printReadyMessage()
 }

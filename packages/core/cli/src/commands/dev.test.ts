@@ -1,46 +1,12 @@
+import os from 'node:os'
+import { mkdtemp, mkdir, writeFile } from 'node:fs/promises'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-type FastifyApp = {
-  registers: Array<[unknown, unknown]>
-  routes: Map<string, any>
-  hooks: Record<string, any>
-  notFoundHandler?: any
-  register: ReturnType<typeof vi.fn>
-  get: ReturnType<typeof vi.fn>
-  addHook: ReturnType<typeof vi.fn>
-  setNotFoundHandler: ReturnType<typeof vi.fn>
-  listen: ReturnType<typeof vi.fn>
-}
-
-function createFastifyApp(): FastifyApp {
-  const app = {
-    registers: [] as Array<[unknown, unknown]>,
-    routes: new Map<string, any>(),
-    hooks: {} as Record<string, any>,
-    notFoundHandler: undefined as any,
-    register: vi.fn((plugin: unknown, options?: unknown) => {
-      app.registers.push([plugin, options])
-      return app
-    }),
-    get: vi.fn((route: string, handler: any) => {
-      app.routes.set(route, handler)
-      return app
-    }),
-    addHook: vi.fn((name: string, handler: any) => {
-      app.hooks[name] = handler
-      return app
-    }),
-    setNotFoundHandler: vi.fn((handler: any) => {
-      app.notFoundHandler = handler
-      return app
-    }),
-    listen: vi.fn().mockResolvedValue(undefined),
-  }
-
-  return app
-}
+type MockedFn = ReturnType<typeof vi.fn>
 
 async function importCommandDev({
+  rootDir,
+  clientDir,
   pathExists = vi.fn(),
   hasBuildTimeExtensions = vi.fn(() => false),
   getExtensionFile = vi.fn(),
@@ -56,37 +22,39 @@ async function importCommandDev({
   index = vi.fn(),
   treatFile = vi.fn(),
 }: {
-  pathExists?: ReturnType<typeof vi.fn>
-  hasBuildTimeExtensions?: ReturnType<typeof vi.fn>
-  getExtensionFile?: ReturnType<typeof vi.fn>
-  loadFiles?: ReturnType<typeof vi.fn>
-  loadFolders?: ReturnType<typeof vi.fn>
-  loadMetadata?: ReturnType<typeof vi.fn>
-  reportBrokenLinks?: ReturnType<typeof vi.fn>
-  markdownGet?: ReturnType<typeof vi.fn>
-  layoutsDetails?: ReturnType<typeof vi.fn>
-  assets?: ReturnType<typeof vi.fn>
-  searchIndex?: ReturnType<typeof vi.fn>
-  head?: ReturnType<typeof vi.fn>
-  index?: ReturnType<typeof vi.fn>
-  treatFile?: ReturnType<typeof vi.fn>
-} = {}) {
+  rootDir: string
+  clientDir: string
+  pathExists?: MockedFn
+  hasBuildTimeExtensions?: MockedFn
+  getExtensionFile?: MockedFn
+  loadFiles?: MockedFn
+  loadFolders?: MockedFn
+  loadMetadata?: MockedFn
+  reportBrokenLinks?: MockedFn
+  markdownGet?: MockedFn
+  layoutsDetails?: MockedFn
+  assets?: MockedFn
+  searchIndex?: MockedFn
+  head?: MockedFn
+  index?: MockedFn
+  treatFile?: MockedFn
+}) {
   vi.resetModules()
 
-  const app = createFastifyApp()
   let watcher: (() => void) | undefined
+  const serve = vi.fn()
+  const printReadyMessage = vi.fn()
+  const streamWriteSSE = vi.fn(async () => undefined)
+  const streamSSE = vi.fn((c: any, cb: (stream: any) => Promise<void>) => {
+    void cb({ writeSSE: streamWriteSSE, close: vi.fn() })
+    return c.text('sse')
+  })
 
-  vi.doMock('fastify', () => ({
-    default: vi.fn(() => app),
+  vi.doMock('@hono/node-server', () => ({
+    serve,
   }))
-  vi.doMock('@fastify/static', () => ({
-    default: { name: 'static' },
-  }))
-  vi.doMock('fastify-sse-v2', () => ({
-    FastifySSEPlugin: { name: 'sse' },
-  }))
-  vi.doMock('@fastify/cors', () => ({
-    default: { name: 'cors' },
+  vi.doMock('hono/streaming', () => ({
+    streamSSE,
   }))
   vi.doMock('fs-extra', () => ({
     default: {
@@ -94,17 +62,17 @@ async function importCommandDev({
     },
   }))
   vi.doMock('../constants.js', () => ({
-    ROOT_DIR: '/project',
-    CLIENT_DIR: '/client',
+    ROOT_DIR: rootDir,
+    CLIENT_DIR: clientDir,
   }))
   vi.doMock('../helpers/module.js', () => ({
     ModuleHelpers: {
-      resolve: vi.fn((specifier: string) => `/resolved/${specifier}`),
+      resolve: vi.fn((specifier: string) => `${rootDir}/external/${specifier}`),
     },
   }))
   vi.doMock('../helpers/server.js', () => ({
     ServerHelpers: {
-      printReadyMessage: vi.fn(),
+      printReadyMessage,
     },
   }))
   vi.doMock('../helpers/filesystem.js', () => ({
@@ -159,13 +127,15 @@ async function importCommandDev({
   }))
 
   const module = await import('./dev.js')
-  const { ServerHelpers } = await import('../helpers/server.js')
 
   return {
     ...module,
-    app,
     watcher: () => watcher?.(),
     mocks: {
+      serve,
+      printReadyMessage,
+      streamSSE,
+      streamWriteSSE,
       pathExists,
       hasBuildTimeExtensions,
       getExtensionFile,
@@ -180,9 +150,6 @@ async function importCommandDev({
       head,
       index,
       treatFile,
-      printReadyMessage: ServerHelpers.printReadyMessage as ReturnType<
-        typeof vi.fn
-      >,
     },
   }
 }
@@ -191,7 +158,7 @@ describe('commandDev', () => {
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {})
     global.config = {
-      sources: [{ root: 'docs' }, { root: 'blog' }],
+      sources: [{ root: 'docs' }],
       server: { host: '127.0.0.1', port: 8000 },
     } as any
   })
@@ -200,7 +167,25 @@ describe('commandDev', () => {
     vi.useRealTimers()
   })
 
-  it('registers the dev server routes, serves navigation/config/head data, and handles assets and source files', async () => {
+  it('builds a Hono dev app with live data routes, transformed files, and static fallbacks', async () => {
+    const rootDir = await mkdtemp(`${os.tmpdir()}/markee-dev-`)
+    const clientDir = await mkdtemp(`${os.tmpdir()}/markee-client-`)
+
+    await mkdir(`${rootDir}/docs`, { recursive: true })
+    await mkdir(`${rootDir}/blog`, { recursive: true })
+    await mkdir(`${rootDir}/_assets`, { recursive: true })
+    await mkdir(`${rootDir}/public`, { recursive: true })
+    await mkdir(`${rootDir}/external/pkg`, { recursive: true })
+    await mkdir(`${clientDir}/assets`, { recursive: true })
+
+    await writeFile(`${rootDir}/docs/static.txt`, 'docs-static')
+    await writeFile(`${rootDir}/docs/index.html`, 'docs-index')
+    await writeFile(`${rootDir}/public/logo.txt`, 'public-static')
+    await writeFile(`${rootDir}/_assets/local.txt`, 'asset-static')
+    await writeFile(`${rootDir}/external/pkg/file.js`, 'extension-file')
+    await writeFile(`${rootDir}/extension-logo.svg`, '<svg></svg>')
+    await writeFile(`${clientDir}/assets/dev.js`, 'client-static')
+
     const loadFiles = vi
       .fn()
       .mockResolvedValueOnce({
@@ -254,227 +239,213 @@ describe('commandDev', () => {
       '/docs/2': { navigation: [] },
       '/docs': { navigation: [] },
     })
-    const loadMetadata = vi.fn().mockResolvedValue(undefined)
-    const layoutsDetails = vi.fn().mockResolvedValue({
-      header: '/_assets/header.md',
-      footer: '/_assets/footer.md',
-      layouts: {
-        docs: {
-          main: '/_assets/layout.md',
-        },
-      },
-    })
     const markdownGet = vi.fn((key: string) => ({
       sanitize: vi.fn().mockResolvedValue(`sanitized:${key}`),
       promise: { sanitized: undefined },
       stale: { sanitized: false },
     }))
-    const { commandDev, app, watcher, mocks } = await importCommandDev({
+
+    const { createDevApp, watcher, mocks } = await importCommandDev({
+      rootDir,
+      clientDir,
       pathExists: vi.fn().mockResolvedValue(true),
       loadFiles,
       loadFolders,
-      loadMetadata,
+      loadMetadata: vi.fn().mockResolvedValue(undefined),
       reportBrokenLinks: vi.fn(),
       markdownGet,
-      layoutsDetails,
+      layoutsDetails: vi.fn().mockResolvedValue({
+        header: '/_assets/header.md',
+        footer: '/_assets/footer.md',
+        layouts: {
+          docs: {
+            main: '/_assets/layout.md',
+          },
+        },
+      }),
       assets: vi.fn().mockResolvedValue({ '/asset': '/asset' }),
       searchIndex: vi.fn().mockResolvedValue({ '/docs/page.md': {} }),
       head: vi.fn().mockResolvedValue([{ html: '<meta />' }]),
       index: vi.fn().mockResolvedValue('<html><head></head></html>'),
       treatFile: vi.fn(async (file: string) => `busted:${file}`),
       getExtensionFile: vi.fn(async (file: string) =>
-        file === '/_assets/logo.svg' ? '/extension/logo.svg' : undefined,
+        file === '/_assets/logo.svg' ? `${rootDir}/extension-logo.svg` : undefined,
       ),
     })
 
-    await commandDev()
+    const app = await createDevApp()
 
-    expect(app.register).toHaveBeenCalledTimes(7)
-    expect(app.listen).toHaveBeenCalledWith({
-      host: '127.0.0.1',
-      port: 8000,
-    })
-    expect(mocks.printReadyMessage).toHaveBeenCalledTimes(1)
+    const sse = await app.request('http://localhost/_markee/sse')
+    expect(sse.status).toBe(200)
 
-    const extensionReply = { sendFile: vi.fn().mockResolvedValue('sent') }
-    await expect(
-      app.routes.get('/_assets/_extension/*')?.(
-        { params: { '*': 'pkg/file.js' } },
-        extensionReply,
-      ),
-    ).resolves.toBe('sent')
-    expect(extensionReply.sendFile).toHaveBeenCalledWith(
-      '/resolved/pkg/file.js',
-      '/',
-    )
-
-    const closeHandlers: Array<() => void> = []
-    const sseReply = { sse: vi.fn() }
-    app.routes.get('/_markee/sse')?.(
-      {
-        socket: {
-          on: vi.fn((_event: string, cb: () => void) => closeHandlers.push(cb)),
-        },
-      },
-      sseReply,
-    )
     watcher()
-    await app.routes.get('/_markee/navigation.json')?.()
-    expect(sseReply.sse).toHaveBeenCalledWith({
+    await app.request('http://localhost/_markee/navigation.json')
+    expect(mocks.streamWriteSSE).toHaveBeenCalledWith({
       event: 'fileChange',
       data: '{}',
     })
-    closeHandlers[0]?.()
 
-    await expect(app.routes.get('/_markee/config.json')?.()).resolves.toEqual({
+    const configResponse = await app.request('http://localhost/_markee/config.json')
+    expect(await configResponse.json()).toEqual({
       title: 'Docs',
       development: true,
     })
-    const navigation = await app.routes.get('/_markee/navigation.json')?.()
-    expect(Object.keys(navigation.folders)).toEqual([
-      '/docs',
-      '/docs/2',
-      '/docs/10',
-    ])
-    expect(Object.keys(navigation.files)).toEqual([
-      '/_assets/footer.md',
-      '/_assets/header.md',
-      '/_assets/layout.md',
-      '/docs/2.md',
-      '/docs/10.md',
-      '/docs/page.md',
-    ])
-    expect(navigation.assets).toEqual({ '/asset': '/asset' })
-    await expect(app.routes.get('/_markee/layouts.json')?.()).resolves.toEqual({
+
+    const navigationResponse = await app.request(
+      'http://localhost/_markee/navigation.json',
+    )
+    expect(await navigationResponse.json()).toEqual({
+      folders: {
+        '/docs': { navigation: [] },
+        '/docs/2': { navigation: [] },
+        '/docs/10': { navigation: [] },
+      },
+      files: {
+        '/_assets/footer.md': {
+          frontMatter: { excerpt: '' },
+          layout: '',
+          link: '',
+          payload: {},
+          readingTime: 0,
+        },
+        '/_assets/header.md': {
+          frontMatter: { excerpt: '' },
+          layout: '',
+          link: '',
+          payload: {},
+          readingTime: 0,
+        },
+        '/_assets/layout.md': {
+          frontMatter: { excerpt: '' },
+          layout: '',
+          link: '',
+          payload: {},
+          readingTime: 0,
+        },
+        '/docs/2.md': {
+          frontMatter: { excerpt: '' },
+          layout: '',
+          link: '/docs/2',
+          payload: {},
+          readingTime: 0,
+        },
+        '/docs/10.md': {
+          frontMatter: { excerpt: '' },
+          layout: '',
+          link: '/docs/10',
+          payload: {},
+          readingTime: 0,
+        },
+        '/docs/page.md': {
+          frontMatter: { excerpt: '' },
+          layout: '',
+          link: '/docs/page',
+          payload: {},
+          readingTime: 0,
+        },
+      },
+      assets: { '/asset': '/asset' },
+    })
+
+    const layoutsResponse = await app.request('http://localhost/_markee/layouts.json')
+    expect(await layoutsResponse.json()).toEqual({
       header: '/_assets/header.md',
       footer: '/_assets/footer.md',
       layouts: { docs: { main: '/_assets/layout.md' } },
     })
-    await expect(app.routes.get('/_markee/search.json')?.()).resolves.toEqual({
-      '/docs/page.md': {},
-    })
-    await expect(app.routes.get('/_markee/head.json')?.()).resolves.toEqual([
-      { html: '<meta />' },
-    ])
 
-    const markdownReply = {
-      sent: false,
-      status: vi.fn(),
-      type: vi.fn(),
-    }
-    await expect(
-      app.hooks.onSend?.(
-        { url: '/docs/page.md', params: {} },
-        markdownReply,
-        'payload',
-      ),
-    ).resolves.toBe('sanitized:/docs/page.md')
-    expect(markdownReply.status).toHaveBeenCalledWith(200)
-    expect(markdownReply.type).toHaveBeenCalledWith('text/markdown')
+    const searchResponse = await app.request('http://localhost/_markee/search.json')
+    expect(await searchResponse.json()).toEqual({ '/docs/page.md': {} })
 
-    const extensionMarkdownReply = {
-      sent: false,
-      status: vi.fn(),
-      type: vi.fn(),
-    }
-    await expect(
-      app.hooks.onSend?.(
-        {
-          url: '/_assets/_extension/pkg/file.md',
-          params: { '*': 'pkg/file.md' },
-        },
-        extensionMarkdownReply,
-        'payload',
-      ),
-    ).resolves.toBe('sanitized:/_assets/_extension/pkg/file.md')
+    const headResponse = await app.request('http://localhost/_markee/head.json')
+    expect(await headResponse.json()).toEqual([{ html: '<meta />' }])
 
-    const jsReply = { sent: false, status: vi.fn(), type: vi.fn() }
-    await expect(
-      app.hooks.onSend?.(
-        { url: '/docs/app.js?x=1', params: {} },
-        jsReply,
-        'payload',
-      ),
-    ).resolves.toBe('busted:/project/docs/app.js')
-    expect(jsReply.type).toHaveBeenCalledWith('text/javascript')
+    const markdownResponse = await app.request('http://localhost/docs/page.md')
+    expect(markdownResponse.headers.get('content-type')).toBe('text/markdown')
+    expect(await markdownResponse.text()).toBe('sanitized:/docs/page.md')
 
-    const cssReply = { sent: false, status: vi.fn(), type: vi.fn() }
-    await expect(
-      app.hooks.onSend?.(
-        { url: '/docs/app.css', params: {} },
-        cssReply,
-        'payload',
-      ),
-    ).resolves.toBe('busted:/project/docs/app.css')
-    expect(cssReply.type).toHaveBeenCalledWith('text/css')
-
-    const passthroughReply = { sent: true }
-    await expect(
-      app.hooks.onSend?.(
-        { url: '/docs/page.md', params: {} },
-        passthroughReply,
-        'payload',
-      ),
-    ).resolves.toBe('payload')
-    await expect(
-      app.hooks.onSend?.(
-        { url: '/docs/image.png', params: {} },
-        { sent: false },
-        'payload',
-      ),
-    ).resolves.toBe('payload')
-
-    const assetNotFoundReply = { sendFile: vi.fn().mockResolvedValue('asset') }
-    await expect(
-      app.notFoundHandler?.({ url: '/_assets/logo.svg' }, assetNotFoundReply),
-    ).resolves.toBe('asset')
-    expect(assetNotFoundReply.sendFile).toHaveBeenCalledWith(
-      '/extension/logo.svg',
-      '/',
+    const extensionMarkdownResponse = await app.request(
+      'http://localhost/_assets/_extension/pkg/file.md',
+    )
+    expect(await extensionMarkdownResponse.text()).toBe(
+      'sanitized:/_assets/_extension/pkg/file.md',
     )
 
-    const htmlNotFoundReply = {
-      sendFile: vi.fn(),
-      type: vi.fn(),
-    }
-    await expect(
-      app.notFoundHandler?.({ url: '/docs/unknown' }, htmlNotFoundReply),
-    ).resolves.toContain("window[Symbol.for('markee::development')] = true")
-    expect(htmlNotFoundReply.type).toHaveBeenCalledWith('text/html')
+    const jsResponse = await app.request('http://localhost/docs/app.js?x=1')
+    expect(jsResponse.headers.get('content-type')).toBe('text/javascript')
+    expect(await jsResponse.text()).toBe(`busted:${rootDir}/docs/app.js`)
+
+    const cssResponse = await app.request('http://localhost/docs/app.css')
+    expect(cssResponse.headers.get('content-type')).toBe('text/css')
+    expect(await cssResponse.text()).toBe(`busted:${rootDir}/docs/app.css`)
+
+    const sourceAsset = await app.request('http://localhost/docs/static.txt')
+    expect(await sourceAsset.text()).toBe('docs-static')
+
+    const sourceIndex = await app.request('http://localhost/docs')
+    expect(await sourceIndex.text()).toBe('docs-index')
+
+    const clientAsset = await app.request('http://localhost/assets/dev.js')
+    expect(await clientAsset.text()).toBe('client-static')
+
+    const localAsset = await app.request('http://localhost/_assets/local.txt')
+    expect(await localAsset.text()).toBe('asset-static')
+
+    const extensionAsset = await app.request(
+      'http://localhost/_assets/_extension/pkg/file.js',
+    )
+    expect(await extensionAsset.text()).toBe('extension-file')
+
+    const publicAsset = await app.request('http://localhost/logo.txt')
+    expect(await publicAsset.text()).toBe('public-static')
+
+    const extensionFallback = await app.request('http://localhost/_assets/logo.svg')
+    expect(await extensionFallback.text()).toBe('<svg></svg>')
+
+    const htmlFallback = await app.request('http://localhost/docs/unknown')
+    expect(await htmlFallback.text()).toContain(
+      "window[Symbol.for('markee::development')] = true",
+    )
   })
 
   it('returns the preloading marker for slow markdown sanitation with build-time extensions enabled', async () => {
     vi.useFakeTimers()
 
+    const rootDir = await mkdtemp(`${os.tmpdir()}/markee-dev-preload-`)
+    const clientDir = await mkdtemp(`${os.tmpdir()}/markee-client-preload-`)
+    await mkdir(`${rootDir}/docs`, { recursive: true })
+    await mkdir(`${rootDir}/blog`, { recursive: true })
+    await mkdir(`${rootDir}/_assets`, { recursive: true })
+    await mkdir(`${rootDir}/public`, { recursive: true })
+    await mkdir(`${clientDir}/assets`, { recursive: true })
+
     let resolveSanitized = (_value: string) => {}
     const deferred = new Promise<string>((resolve) => {
       resolveSanitized = resolve
     })
-    const loadFiles = vi.fn().mockResolvedValue({
-      '/docs/page.md': {
-        link: '/docs/page',
-        frontMatter: { excerpt: '' },
-        readingTime: 0,
-        layout: '',
-        payload: {},
-      },
-    })
-    const loadFolders = vi
-      .fn()
-      .mockResolvedValue({ '/docs': { navigation: [] } })
-    const markdownGet = vi.fn(() => ({
-      sanitize: vi.fn().mockReturnValue(deferred),
-      promise: { sanitized: undefined },
-      stale: { sanitized: true },
-    }))
-    const { commandDev, app, mocks } = await importCommandDev({
+
+    const { createDevApp, mocks } = await importCommandDev({
+      rootDir,
+      clientDir,
       pathExists: vi.fn().mockResolvedValue(true),
       hasBuildTimeExtensions: vi.fn(() => true),
-      loadFiles,
-      loadFolders,
+      loadFiles: vi.fn().mockResolvedValue({
+        '/docs/page.md': {
+          link: '/docs/page',
+          frontMatter: { excerpt: '' },
+          readingTime: 0,
+          layout: '',
+          payload: {},
+        },
+      }),
+      loadFolders: vi.fn().mockResolvedValue({ '/docs': { navigation: [] } }),
       loadMetadata: vi.fn().mockResolvedValue(undefined),
       reportBrokenLinks: vi.fn(),
-      markdownGet,
+      markdownGet: vi.fn(() => ({
+        sanitize: vi.fn().mockReturnValue(deferred),
+        promise: { sanitized: undefined },
+        stale: { sanitized: true },
+      })),
       layoutsDetails: vi.fn().mockResolvedValue({ layouts: {} }),
       assets: vi.fn().mockResolvedValue({}),
       searchIndex: vi.fn().mockResolvedValue({}),
@@ -482,17 +453,12 @@ describe('commandDev', () => {
       index: vi.fn().mockResolvedValue('<html><head></head></html>'),
     })
 
-    await commandDev()
-
-    const reply = { sent: false, status: vi.fn(), type: vi.fn() }
-    const onSendPromise = app.hooks.onSend?.(
-      { url: '/docs/page.md', params: {} },
-      reply,
-      'payload',
-    )
+    const app = await createDevApp()
+    const responsePromise = app.request('http://localhost/docs/page.md')
 
     await vi.advanceTimersByTimeAsync(200)
-    await expect(onSendPromise).resolves.toBe('::markee-preloading')
+    const response = await responsePromise
+    expect(await response.text()).toBe('::markee-preloading')
 
     resolveSanitized('late-content')
     await Promise.resolve()
@@ -501,5 +467,139 @@ describe('commandDev', () => {
     await Promise.resolve()
 
     expect(mocks.loadFiles).toHaveBeenCalledTimes(3)
+  })
+
+  it('removes aborted sse watchers before the next file-change event', async () => {
+    const rootDir = await mkdtemp(`${os.tmpdir()}/markee-dev-sse-`)
+    const clientDir = await mkdtemp(`${os.tmpdir()}/markee-client-sse-`)
+    await mkdir(`${rootDir}/docs`, { recursive: true })
+    await mkdir(`${rootDir}/blog`, { recursive: true })
+    await mkdir(`${rootDir}/_assets`, { recursive: true })
+    await mkdir(`${rootDir}/public`, { recursive: true })
+    await mkdir(`${clientDir}/assets`, { recursive: true })
+
+    const { createDevApp, watcher, mocks } = await importCommandDev({
+      rootDir,
+      clientDir,
+      pathExists: vi.fn().mockResolvedValue(false),
+      loadFiles: vi.fn().mockResolvedValue({}),
+      loadFolders: vi.fn().mockResolvedValue({}),
+      loadMetadata: vi.fn().mockResolvedValue(undefined),
+      reportBrokenLinks: vi.fn(),
+      markdownGet: vi.fn(() => ({
+        sanitize: vi.fn().mockResolvedValue(''),
+        promise: { sanitized: undefined },
+        stale: { sanitized: false },
+      })),
+      layoutsDetails: vi.fn().mockResolvedValue({ layouts: {} }),
+      assets: vi.fn().mockResolvedValue({}),
+      searchIndex: vi.fn().mockResolvedValue({}),
+      head: vi.fn().mockResolvedValue([]),
+      index: vi.fn().mockResolvedValue('<html><head></head></html>'),
+      treatFile: vi.fn(async () => ''),
+    })
+
+    const app = await createDevApp()
+    const controller = new AbortController()
+    controller.abort()
+
+    const response = await app.request('http://localhost/_markee/sse', {
+      signal: controller.signal,
+    })
+
+    expect(response.status).toBe(200)
+    watcher()
+    expect(mocks.streamWriteSSE).not.toHaveBeenCalled()
+  })
+
+  it('serves source files when a configured source is mounted at the project root', async () => {
+    global.config.sources = [{ root: '' }] as any
+
+    const rootDir = await mkdtemp(`${os.tmpdir()}/markee-dev-root-`)
+    const clientDir = await mkdtemp(`${os.tmpdir()}/markee-client-root-`)
+    await mkdir(`${rootDir}/_assets`, { recursive: true })
+    await mkdir(`${rootDir}/public`, { recursive: true })
+    await mkdir(`${clientDir}/assets`, { recursive: true })
+    await writeFile(`${rootDir}/root-static.txt`, 'root-static')
+
+    const { createDevApp } = await importCommandDev({
+      rootDir,
+      clientDir,
+      pathExists: vi.fn().mockResolvedValue(false),
+      loadFiles: vi.fn().mockResolvedValue({}),
+      loadFolders: vi.fn().mockResolvedValue({}),
+      loadMetadata: vi.fn().mockResolvedValue(undefined),
+      reportBrokenLinks: vi.fn(),
+      markdownGet: vi.fn(() => ({
+        sanitize: vi.fn().mockResolvedValue(''),
+        promise: { sanitized: undefined },
+        stale: { sanitized: false },
+      })),
+      layoutsDetails: vi.fn().mockResolvedValue({ layouts: {} }),
+      assets: vi.fn().mockResolvedValue({}),
+      searchIndex: vi.fn().mockResolvedValue({}),
+      head: vi.fn().mockResolvedValue([]),
+      index: vi.fn().mockResolvedValue('<html><head></head></html>'),
+      treatFile: vi.fn(async () => ''),
+    })
+
+    const app = await createDevApp()
+    const response = await app.request('http://localhost/root-static.txt')
+
+    expect(await response.text()).toBe('root-static')
+  })
+
+  it('starts the Hono dev server and prints the ready message after listen', async () => {
+    const rootDir = await mkdtemp(`${os.tmpdir()}/markee-dev-command-`)
+    const clientDir = await mkdtemp(`${os.tmpdir()}/markee-client-command-`)
+    await mkdir(`${rootDir}/docs`, { recursive: true })
+    await mkdir(`${rootDir}/blog`, { recursive: true })
+    await mkdir(`${rootDir}/_assets`, { recursive: true })
+    await mkdir(`${rootDir}/public`, { recursive: true })
+    await mkdir(`${clientDir}/assets`, { recursive: true })
+
+    const { commandDev, mocks } = await importCommandDev({
+      rootDir,
+      clientDir,
+      pathExists: vi.fn().mockResolvedValue(false),
+      loadFiles: vi.fn().mockResolvedValue({}),
+      loadFolders: vi.fn().mockResolvedValue({}),
+      loadMetadata: vi.fn().mockResolvedValue(undefined),
+      reportBrokenLinks: vi.fn(),
+      markdownGet: vi.fn(() => ({
+        sanitize: vi.fn().mockResolvedValue(''),
+        promise: { sanitized: undefined },
+        stale: { sanitized: false },
+      })),
+      layoutsDetails: vi.fn().mockResolvedValue({ layouts: {} }),
+      assets: vi.fn().mockResolvedValue({}),
+      searchIndex: vi.fn().mockResolvedValue({}),
+      head: vi.fn().mockResolvedValue([]),
+      index: vi.fn().mockResolvedValue('<html><head></head></html>'),
+      treatFile: vi.fn(async () => ''),
+    })
+
+    await commandDev()
+
+    expect(mocks.serve).toHaveBeenCalledWith(
+      expect.objectContaining({
+        fetch: expect.any(Function),
+        hostname: '127.0.0.1',
+        port: 8000,
+      }),
+      expect.any(Function),
+    )
+
+    expect(mocks.printReadyMessage).not.toHaveBeenCalled()
+    mocks.serve.mock.calls[0]?.[1]?.({
+      address: '127.0.0.1',
+      family: 'IPv4',
+      port: 8000,
+    })
+    expect(mocks.printReadyMessage).toHaveBeenCalledTimes(1)
+    expect(console.log).toHaveBeenCalledWith('Markdown files tracking enabled')
+    expect(console.log).toHaveBeenCalledWith(
+      'Start editing and see your changes live in your browser',
+    )
   })
 })
