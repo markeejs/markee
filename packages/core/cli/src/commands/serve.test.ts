@@ -1,28 +1,18 @@
+import os from 'node:os'
+import { mkdtemp, mkdir, writeFile } from 'node:fs/promises'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-async function importCommandServe() {
+async function importCommandServe(rootDir: string) {
   vi.resetModules()
 
-  const register = vi.fn()
-  const setNotFoundHandler = vi.fn()
-  const listen = vi.fn().mockResolvedValue(undefined)
-  const fastify = {
-    register,
-    setNotFoundHandler,
-    listen,
-  }
+  const serve = vi.fn()
   const printReadyMessage = vi.fn()
-  const fastifyStatic = Symbol('FastifyStatic')
-  const cors = Symbol('cors')
 
-  vi.doMock('fastify', () => ({
-    default: vi.fn(() => fastify),
+  vi.doMock('@hono/node-server', () => ({
+    serve,
   }))
-  vi.doMock('@fastify/static', () => ({
-    default: fastifyStatic,
-  }))
-  vi.doMock('@fastify/cors', () => ({
-    default: cors,
+  vi.doMock('../constants.js', () => ({
+    ROOT_DIR: rootDir,
   }))
   vi.doMock('../helpers/server.js', () => ({
     ServerHelpers: {
@@ -32,12 +22,8 @@ async function importCommandServe() {
 
   return {
     ...(await import('./serve.js')),
-    register,
-    setNotFoundHandler,
-    listen,
+    serve,
     printReadyMessage,
-    fastifyStatic,
-    cors,
   }
 }
 
@@ -49,39 +35,56 @@ describe('commandServe', () => {
     } as any
   })
 
-  it('serves the output directory, falls back to index.html, and prints the ready message', async () => {
-    const {
-      commandServe,
-      register,
-      setNotFoundHandler,
-      listen,
-      printReadyMessage,
-      fastifyStatic,
-      cors,
-    } = await importCommandServe()
+  it('serves built assets and falls back to index.html for unknown routes', async () => {
+    const rootDir = await mkdtemp(`${os.tmpdir()}/markee-preview-`)
+    await mkdir(`${rootDir}/site`, { recursive: true })
+    await writeFile(`${rootDir}/site/index.html`, '<html>preview</html>')
+    await writeFile(`${rootDir}/site/app.js`, 'console.log("preview")')
+
+    const { createPreviewApp } = await importCommandServe(rootDir)
+    const app = createPreviewApp()
+
+    const asset = await app.request('http://localhost/app.js')
+    expect(await asset.text()).toBe('console.log("preview")')
+
+    const notFound = await app.request('http://localhost/docs/unknown')
+    expect(notFound.status).toBe(200)
+    expect(await notFound.text()).toBe('<html>preview</html>')
+  })
+
+  it('returns a 404 when the built index file is missing', async () => {
+    const rootDir = await mkdtemp(`${os.tmpdir()}/markee-preview-missing-`)
+    await mkdir(`${rootDir}/site`, { recursive: true })
+
+    const { createPreviewApp } = await importCommandServe(rootDir)
+    const app = createPreviewApp()
+
+    const response = await app.request('http://localhost/docs/unknown')
+    expect(response.status).toBe(404)
+    expect(await response.text()).toBe('Not Found')
+  })
+
+  it('starts the Hono preview server and prints the ready message after listen', async () => {
+    const rootDir = await mkdtemp(`${os.tmpdir()}/markee-preview-command-`)
+    await mkdir(`${rootDir}/site`, { recursive: true })
+    await writeFile(`${rootDir}/site/index.html`, '<html>preview</html>')
+
+    const { commandServe, serve, printReadyMessage } =
+      await importCommandServe(rootDir)
 
     await commandServe()
 
-    expect(register).toHaveBeenCalledWith(cors)
-    expect(register).toHaveBeenCalledWith(
-      fastifyStatic,
+    expect(serve).toHaveBeenCalledWith(
       expect.objectContaining({
-        root: expect.stringContaining('/site'),
-        wildcard: true,
-        decorateReply: true,
-        prefix: '/',
+        fetch: expect.any(Function),
+        hostname: '127.0.0.1',
+        port: 8000,
       }),
+      expect.any(Function),
     )
 
-    const notFound = setNotFoundHandler.mock.calls[0]?.[0]
-    const reply = { sendFile: vi.fn() }
-    await notFound({}, reply)
-    expect(reply.sendFile).toHaveBeenCalledWith('index.html')
-
-    expect(listen).toHaveBeenCalledWith({
-      host: '127.0.0.1',
-      port: 8000,
-    })
+    expect(printReadyMessage).not.toHaveBeenCalled()
+    serve.mock.calls[0]?.[1]?.({ address: '127.0.0.1', family: 'IPv4', port: 8000 })
     expect(printReadyMessage).toHaveBeenCalledTimes(1)
   })
 })
