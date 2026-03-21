@@ -5,12 +5,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 async function importCommandServe(rootDir: string) {
   vi.resetModules()
 
-  const serve = vi.fn()
+  const startHonoServer = vi.fn()
   const printReadyMessage = vi.fn()
 
-  vi.doMock('@hono/node-server', () => ({
-    serve,
-  }))
   vi.doMock('../constants.js', () => ({
     ROOT_DIR: rootDir,
   }))
@@ -19,10 +16,21 @@ async function importCommandServe(rootDir: string) {
       printReadyMessage,
     },
   }))
+  vi.doMock('../helpers/hono.js', async () => {
+    const actual =
+      await vi.importActual<typeof import('../helpers/hono.js')>(
+        '../helpers/hono.js',
+      )
+
+    return {
+      ...actual,
+      startHonoServer,
+    }
+  })
 
   return {
     ...(await import('./serve.js')),
-    serve,
+    startHonoServer,
     printReadyMessage,
   }
 }
@@ -69,22 +77,22 @@ describe('commandServe', () => {
     await mkdir(`${rootDir}/site`, { recursive: true })
     await writeFile(`${rootDir}/site/index.html`, '<html>preview</html>')
 
-    const { commandServe, serve, printReadyMessage } =
+    const { commandServe, startHonoServer, printReadyMessage } =
       await importCommandServe(rootDir)
 
     await commandServe()
 
-    expect(serve).toHaveBeenCalledWith(
+    expect(startHonoServer).toHaveBeenCalledWith(
       expect.objectContaining({
         fetch: expect.any(Function),
         hostname: '127.0.0.1',
         port: 8000,
+        onListen: expect.any(Function),
       }),
-      expect.any(Function),
     )
 
     expect(printReadyMessage).not.toHaveBeenCalled()
-    serve.mock.calls[0]?.[1]?.({ address: '127.0.0.1', family: 'IPv4', port: 8000 })
+    startHonoServer.mock.calls[0]?.[0]?.onListen?.()
     expect(printReadyMessage).toHaveBeenCalledTimes(1)
   })
 })

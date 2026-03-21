@@ -42,7 +42,7 @@ async function importCommandDev({
   vi.resetModules()
 
   let watcher: (() => void) | undefined
-  const serve = vi.fn()
+  const startHonoServer = vi.fn()
   const printReadyMessage = vi.fn()
   const streamWriteSSE = vi.fn(async () => undefined)
   const streamSSE = vi.fn((c: any, cb: (stream: any) => Promise<void>) => {
@@ -50,17 +50,22 @@ async function importCommandDev({
     return c.text('sse')
   })
 
-  vi.doMock('@hono/node-server', () => ({
-    serve,
-  }))
   vi.doMock('hono/streaming', () => ({
     streamSSE,
   }))
-  vi.doMock('fs-extra', () => ({
-    default: {
-      pathExists,
-    },
-  }))
+  vi.doMock('fs-extra', async () => {
+    const actual = await vi.importActual<typeof import('fs-extra')>('fs-extra')
+    const fsModule =
+      'default' in actual && actual.default ? actual.default : (actual as any)
+
+    return {
+      ...actual,
+      default: {
+        ...fsModule,
+        pathExists,
+      },
+    }
+  })
   vi.doMock('../constants.js', () => ({
     ROOT_DIR: rootDir,
     CLIENT_DIR: clientDir,
@@ -75,6 +80,17 @@ async function importCommandDev({
       printReadyMessage,
     },
   }))
+  vi.doMock('../helpers/hono.js', async () => {
+    const actual =
+      await vi.importActual<typeof import('../helpers/hono.js')>(
+        '../helpers/hono.js',
+      )
+
+    return {
+      ...actual,
+      startHonoServer,
+    }
+  })
   vi.doMock('../helpers/filesystem.js', () => ({
     FilesystemHelpers: {
       fileWatcher: vi.fn((cb: () => void) => {
@@ -132,7 +148,7 @@ async function importCommandDev({
     ...module,
     watcher: () => watcher?.(),
     mocks: {
-      serve,
+      startHonoServer,
       printReadyMessage,
       streamSSE,
       streamWriteSSE,
@@ -269,7 +285,9 @@ describe('commandDev', () => {
       index: vi.fn().mockResolvedValue('<html><head></head></html>'),
       treatFile: vi.fn(async (file: string) => `busted:${file}`),
       getExtensionFile: vi.fn(async (file: string) =>
-        file === '/_assets/logo.svg' ? `${rootDir}/extension-logo.svg` : undefined,
+        file === '/_assets/logo.svg'
+          ? `${rootDir}/extension-logo.svg`
+          : undefined,
       ),
     })
 
@@ -285,7 +303,9 @@ describe('commandDev', () => {
       data: '{}',
     })
 
-    const configResponse = await app.request('http://localhost/_markee/config.json')
+    const configResponse = await app.request(
+      'http://localhost/_markee/config.json',
+    )
     expect(await configResponse.json()).toEqual({
       title: 'Docs',
       development: true,
@@ -347,14 +367,18 @@ describe('commandDev', () => {
       assets: { '/asset': '/asset' },
     })
 
-    const layoutsResponse = await app.request('http://localhost/_markee/layouts.json')
+    const layoutsResponse = await app.request(
+      'http://localhost/_markee/layouts.json',
+    )
     expect(await layoutsResponse.json()).toEqual({
       header: '/_assets/header.md',
       footer: '/_assets/footer.md',
       layouts: { docs: { main: '/_assets/layout.md' } },
     })
 
-    const searchResponse = await app.request('http://localhost/_markee/search.json')
+    const searchResponse = await app.request(
+      'http://localhost/_markee/search.json',
+    )
     expect(await searchResponse.json()).toEqual({ '/docs/page.md': {} })
 
     const headResponse = await app.request('http://localhost/_markee/head.json')
@@ -399,7 +423,9 @@ describe('commandDev', () => {
     const publicAsset = await app.request('http://localhost/logo.txt')
     expect(await publicAsset.text()).toBe('public-static')
 
-    const extensionFallback = await app.request('http://localhost/_assets/logo.svg')
+    const extensionFallback = await app.request(
+      'http://localhost/_assets/logo.svg',
+    )
     expect(await extensionFallback.text()).toBe('<svg></svg>')
 
     const htmlFallback = await app.request('http://localhost/docs/unknown')
@@ -581,21 +607,17 @@ describe('commandDev', () => {
 
     await commandDev()
 
-    expect(mocks.serve).toHaveBeenCalledWith(
+    expect(mocks.startHonoServer).toHaveBeenCalledWith(
       expect.objectContaining({
         fetch: expect.any(Function),
         hostname: '127.0.0.1',
         port: 8000,
+        onListen: expect.any(Function),
       }),
-      expect.any(Function),
     )
 
     expect(mocks.printReadyMessage).not.toHaveBeenCalled()
-    mocks.serve.mock.calls[0]?.[1]?.({
-      address: '127.0.0.1',
-      family: 'IPv4',
-      port: 8000,
-    })
+    mocks.startHonoServer.mock.calls[0]?.[0]?.onListen?.()
     expect(mocks.printReadyMessage).toHaveBeenCalledTimes(1)
     expect(console.log).toHaveBeenCalledWith('Markdown files tracking enabled')
     expect(console.log).toHaveBeenCalledWith(

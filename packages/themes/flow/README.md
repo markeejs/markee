@@ -1,6 +1,6 @@
 # @markee/theme-flow
 
-Flow theme package used by the official Markee documentation website.
+Markee theme used by the official Markee documentation website.
 
 Full Markee documentation at https://markee.dev/
 
@@ -10,6 +10,14 @@ Full Markee documentation at https://markee.dev/
 pnpm add @markee/theme-flow
 ```
 
+## Usage
+
+```yaml
+theme: flow
+extensions:
+  - '@markee/theme-flow'
+```
+
 ## Notes
 
-This package ships a Markee theme bundle through `extension.yaml` together with the static assets that implement the Flow theme.
+Use Flow when you want a polished starting point instead of the intentionally minimal default theme.
