@@ -16,6 +16,7 @@
     "lint:tsc": "pnpm -r --workspace-concurrency=1 --if-present lint:tsc",
     "preview": "cd website && markee preview",
     "start": "pnpm --parallel -F @markee/client -F @markee/cli start",
+    "build": "pnpm -r --workspace-concurrency=1 --if-present build",
     "test": "pnpm -r --workspace-concurrency=1 --if-present test"
   },
   "devDependencies": {
