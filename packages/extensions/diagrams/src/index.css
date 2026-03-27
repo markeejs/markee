@@ -25,10 +25,10 @@
 
   markee-diagram .markee-diagram-status,
   markee-diagram .markee-diagram-error {
-    border: 1px solid var(--mk-color-border, #d9d9d9);
+    border: 1px solid var(--mk-color-border, oklch(88.5% 0 0));
     border-radius: 0.5rem;
-    background: var(--mk-color-background, #fafafa);
-    color: var(--mk-color-text, #333);
+    background: var(--mk-color-background, oklch(98.5% 0 0));
+    color: var(--mk-color-text, oklch(32% 0 0));
     padding: 0.75rem 0.9rem;
   }
 
@@ -37,7 +37,7 @@
   }
 
   markee-diagram .markee-diagram-error {
-    border-left: 4px solid var(--mk-admonition-color-danger);
+    border-inline-start: 0.25rem solid var(--mk-admonition-color-danger);
   }
 
   markee-diagram .markee-diagram-error pre {

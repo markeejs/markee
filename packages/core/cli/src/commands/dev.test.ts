@@ -1,6 +1,7 @@
 import os from 'node:os'
 import { mkdtemp, mkdir, writeFile } from 'node:fs/promises'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+let ConfigCache: typeof import('../cache/config-cache.js').ConfigCache
 
 type MockedFn = ReturnType<typeof vi.fn>
 
@@ -39,8 +40,6 @@ async function importCommandDev({
   index?: MockedFn
   treatFile?: MockedFn
 }) {
-  vi.resetModules()
-
   let watcher: (() => void) | undefined
   const startHonoServer = vi.fn()
   const printReadyMessage = vi.fn()
@@ -114,12 +113,21 @@ async function importCommandDev({
       loadFolders,
     },
   }))
-  vi.doMock('../cache/config-cache.js', () => ({
-    ConfigCache: {
-      getRoot: vi.fn((root: string) => root),
-      filterConfig: vi.fn(() => ({ title: 'Docs' })),
-    },
-  }))
+  vi.doMock('../cache/config-cache.js', async () => {
+    const actual = await vi.importActual<
+      typeof import('../cache/config-cache.js')
+    >('../cache/config-cache.js')
+
+    class MockConfigCache extends actual.ConfigCache {
+      static getRoot = vi.fn((root: string) => root)
+      static filterConfig = vi.fn(() => ({ title: 'Docs' }))
+    }
+
+    return {
+      ...actual,
+      ConfigCache: MockConfigCache,
+    }
+  })
   vi.doMock('../cache/metadata-cache.js', () => ({
     MetadataCache: {
       layoutsDetails,
@@ -171,9 +179,14 @@ async function importCommandDev({
 }
 
 describe('commandDev', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    vi.resetModules()
+    ;({ ConfigCache } = await vi.importActual<
+      typeof import('../cache/config-cache.js')
+    >('../cache/config-cache.js'))
+    ConfigCache.reset()
     vi.spyOn(console, 'log').mockImplementation(() => {})
-    global.config = {
+    ConfigCache.config = {
       sources: [{ root: 'docs' }],
       server: { host: '127.0.0.1', port: 8000 },
     } as any
@@ -539,7 +552,7 @@ describe('commandDev', () => {
   })
 
   it('serves source files when a configured source is mounted at the project root', async () => {
-    global.config.sources = [{ root: '' }] as any
+    ConfigCache.config.sources = [{ root: '' }] as any
 
     const rootDir = await mkdtemp(`${os.tmpdir()}/markee-dev-root-`)
     const clientDir = await mkdtemp(`${os.tmpdir()}/markee-client-root-`)

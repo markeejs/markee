@@ -17,8 +17,8 @@
       }
 
       &:focus-visible {
-        outline: 2px solid var(--mk-color-primary);
-        outline-offset: 2px;
+        outline: 0.125rem solid var(--mk-color-primary);
+        outline-offset: 0.125rem;
       }
     }
 
@@ -30,7 +30,7 @@
     }
 
     ul:not(:is(ul ul)) {
-      padding-bottom: 1rem;
+      padding-block-end: 1rem;
     }
 
     li > markee-mobile-navigation-item > a,
@@ -47,7 +47,7 @@
 
     li {
       padding-inline-start: 1rem;
-      border-top: 1px solid var(--mk-color-border);
+      border-block-start: 1px solid var(--mk-color-border);
     }
 
     header {
@@ -84,8 +84,8 @@
     cursor: pointer;
 
     a:focus-visible {
-      outline: 2px solid var(--mk-color-primary);
-      outline-offset: 2px;
+      outline: 0.125rem solid var(--mk-color-primary);
+      outline-offset: 0.125rem;
     }
   }
 }

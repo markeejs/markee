@@ -1,7 +1,70 @@
+import type { Configuration } from '@markee/types'
 import fs from 'fs-extra'
 import yaml from 'yaml'
 
 import { PathHelpers } from '../helpers/path.js'
+
+export interface CliConfig extends Configuration {
+  sources: {
+    root: string
+    mount?: string
+    layout?: string
+  }[]
+  server: {
+    host: string
+    port: number
+  }
+  build: {
+    outDir: string
+    inlineHeadAssets?: InlineHeadAssetsConfig
+    minify?:
+      | boolean
+      | {
+          js?: boolean
+          css?: boolean
+        }
+    splits?: Record<string, string>
+    skipLinkValidation?: boolean
+    rss?: Record<
+      string,
+      {
+        filter: {
+          folder?: string
+          author?: string | string[]
+          tag?: string | string[]
+        }
+        settings: {
+          site: string
+          title: string
+          description?: string
+          size?: number
+          language?: string
+          managingEditor?: string
+          webMaster?: string
+        }
+      }
+    >
+    sitemap?: {
+      site: string
+    }
+  }
+  watch?: string[]
+  extensions?: string[]
+}
+
+export type InlineHeadAssetsConfig =
+  | boolean
+  | {
+      js?: number
+      css?: number
+    }
+
+export type CliMode = 'preview' | 'production'
+export type CliCommand = 'develop' | 'build' | 'serve' | 'init' | (string & {})
+
+let _config: CliConfig | undefined
+let _mode: CliMode | undefined
+let _command: CliCommand | undefined
 
 let _options:
   | {
@@ -12,7 +75,42 @@ let _options:
     }
   | undefined
 
+function getRequiredValue<T>(
+  key: 'config' | 'mode' | 'command',
+  value: T | undefined,
+): T {
+  if (value === undefined) {
+    throw new Error(`Markee CLI ${key} accessed before initialization`)
+  }
+
+  return value
+}
+
 export class ConfigCache {
+  static get config() {
+    return getRequiredValue('config', _config)
+  }
+
+  static set config(value: CliConfig) {
+    _config = value
+  }
+
+  static get mode() {
+    return getRequiredValue('mode', _mode)
+  }
+
+  static set mode(value: CliMode) {
+    _mode = value
+  }
+
+  static get command() {
+    return getRequiredValue('command', _command)
+  }
+
+  static set command(value: CliCommand) {
+    _command = value
+  }
+
   static async loadConfig(
     root: string,
     options:
@@ -35,28 +133,30 @@ export class ConfigCache {
       .catch(() => fs.readFile(PathHelpers.concat(root, './.markeerc'), 'utf8'))
       .catch(() => '')
 
-    global.config = yaml.parse(config) ?? {}
-    global.config.sources ||= []
+    const parsedConfig = (yaml.parse(config) ?? {}) as CliConfig
+    parsedConfig.sources ||= []
     const defaultBuild = { outDir: 'site' }
-    global.config.build = {
+    parsedConfig.build = {
       ...defaultBuild,
-      ...global.config.build,
+      ...parsedConfig.build,
       ...(options?.outDir ? { outDir: options.outDir } : {}),
       ...(options?.skipLinkValidation
         ? { skipLinkValidation: options.skipLinkValidation }
         : {}),
     }
     const defaultServer = { port: 8000, host: '0.0.0.0' }
-    global.config.server = {
+    parsedConfig.server = {
       ...defaultServer,
-      ...global.config.server,
+      ...parsedConfig.server,
       ...(options?.host ? { host: options.host } : {}),
       ...(options?.port ? { port: options.port } : {}),
     }
+
+    this.config = parsedConfig
   }
 
   static get() {
-    return global.config
+    return this.config
   }
 
   /**
@@ -70,7 +170,7 @@ export class ConfigCache {
       build: _3,
       extensions: _4,
       ...configuration
-    } = config
+    } = this.config
     return configuration
   }
 
@@ -89,12 +189,14 @@ export class ConfigCache {
    * environment variables
    */
   static getSplits() {
-    return Object.keys(config.build.splits ?? {})
+    return Object.keys(this.config.build.splits ?? {})
       .sort((a, b) =>
-        config.build.splits![b].localeCompare(config.build.splits![a]),
+        this.config.build.splits![b].localeCompare(
+          this.config.build.splits![a],
+        ),
       )
       .map((split) => {
-        const baseFolder = config.build.splits![split]
+        const baseFolder = this.config.build.splits![split]
         const folder = baseFolder.startsWith('/')
           ? baseFolder
           : '/' + baseFolder
@@ -108,5 +210,12 @@ export class ConfigCache {
 
         return { folder, root }
       })
+  }
+
+  static reset() {
+    _config = undefined
+    _mode = undefined
+    _command = undefined
+    _options = undefined
   }
 }

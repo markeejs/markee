@@ -13,110 +13,110 @@
   :root {
     --mk-admonition-color-default: var(
       --markee-admonition-color-default,
-      rgba(68, 138, 255, 0.8)
+      oklch(65% 0.2 260.1 / 0.8)
     );
     --mk-admonition-background-default: var(
       --markee-admonition-background-default,
-      rgba(68, 138, 255, 0.1)
+      oklch(65% 0.2 260.1 / 0.1)
     );
 
     --mk-admonition-color-summary: var(
       --markee-admonition-color-summary,
-      rgba(0, 176, 255, 0.8)
+      oklch(72% 0.2 239.3 / 0.8)
     );
     --mk-admonition-background-summary: var(
       --markee-admonition-background-summary,
-      rgba(0, 176, 255, 0.1)
+      oklch(72% 0.2 239.3 / 0.1)
     );
 
     --mk-admonition-color-hint: var(
       --markee-admonition-color-hint,
-      rgba(0, 191, 165, 0.8)
+      oklch(72% 0.1 178.3 / 0.8)
     );
     --mk-admonition-background-hint: var(
       --markee-admonition-background-hint,
-      rgba(0, 191, 165, 0.1)
+      oklch(72% 0.1 178.3 / 0.1)
     );
 
     --mk-admonition-color-info: var(
       --markee-admonition-color-info,
-      rgba(0, 184, 212, 0.8)
+      oklch(72% 0.1 213.7 / 0.8)
     );
     --mk-admonition-background-info: var(
       --markee-admonition-background-info,
-      rgba(0, 184, 212, 0.1)
+      oklch(72% 0.1 213.7 / 0.1)
     );
 
     --mk-admonition-color-success: var(
       --markee-admonition-color-success,
-      rgba(0, 200, 83, 0.8)
+      oklch(72.5% 0.2 148.3 / 0.8)
     );
     --mk-admonition-background-success: var(
       --markee-admonition-background-success,
-      rgba(0, 200, 83, 0.1)
+      oklch(72.5% 0.2 148.3 / 0.1)
     );
 
     --mk-admonition-color-question: var(
       --markee-admonition-color-question,
-      rgba(100, 221, 23, 0.8)
+      oklch(79.5% 0.2 137.5 / 0.8)
     );
     --mk-admonition-background-question: var(
       --markee-admonition-background-question,
-      rgba(100, 221, 23, 0.1)
+      oklch(79.5% 0.2 137.5 / 0.1)
     );
 
     --mk-admonition-color-warning: var(
       --markee-admonition-color-warning,
-      rgba(255, 145, 0, 0.8)
+      oklch(76% 0.2 60.6 / 0.8)
     );
     --mk-admonition-background-warning: var(
       --markee-admonition-background-warning,
-      rgba(255, 145, 0, 0.1)
+      oklch(76% 0.2 60.6 / 0.1)
     );
 
     --mk-admonition-color-failure: var(
       --markee-admonition-color-failure,
-      rgba(255, 82, 82, 0.8)
+      oklch(68% 0.2 24.7 / 0.8)
     );
     --mk-admonition-background-failure: var(
       --markee-admonition-background-failure,
-      rgba(255, 82, 82, 0.1)
+      oklch(68% 0.2 24.7 / 0.1)
     );
 
     --mk-admonition-color-danger: var(
       --markee-admonition-color-danger,
-      rgba(255, 23, 68, 0.8)
+      oklch(64% 0.2 20.7 / 0.8)
     );
     --mk-admonition-background-danger: var(
       --markee-admonition-background-danger,
-      rgba(255, 23, 68, 0.1)
+      oklch(64% 0.2 20.7 / 0.1)
     );
 
     --mk-admonition-color-example: var(
       --markee-admonition-color-example,
-      rgba(124, 77, 255, 0.8)
+      oklch(58% 0.2 288.2 / 0.8)
     );
     --mk-admonition-background-example: var(
       --markee-admonition-background-example,
-      rgba(124, 77, 255, 0.1)
+      oklch(58% 0.2 288.2 / 0.1)
     );
 
     --mk-admonition-color-snippet: var(
       --markee-admonition-color-snippet,
-      rgba(0, 184, 212, 0.8)
+      oklch(72% 0.1 213.7 / 0.8)
     );
     --mk-admonition-background-snippet: var(
       --markee-admonition-background-snippet,
-      rgba(0, 184, 212, 0.1)
+      oklch(72% 0.1 213.7 / 0.1)
     );
 
     --mk-admonition-color-quote: var(
       --markee-admonition-color-quote,
-      rgba(158, 158, 158, 0.8)
+      oklch(70% 0 0 / 0.8)
     );
     --mk-admonition-background-quote: var(
       --markee-admonition-background-quote,
-      rgba(158, 158, 158, 0.1)
+      oklch(70% 0 0 / 0.1)
     );
 
     --mk-admonition-padding-default: 1.25rem;
@@ -132,7 +132,7 @@
     --admonition-icon: '';
     --admonition-background: var(--mk-admonition-background-default);
     --admonition-color: var(--mk-admonition-color-default);
-    --admonition-padding-left: var(--mk-admonition-padding-default);
+    --admonition-padding-inline-start: var(--mk-admonition-padding-default);
 
     /* Position */
     position: relative;
@@ -145,8 +145,8 @@
     border: 1px solid var(--admonition-color);
     border-radius: 0.25rem;
     box-shadow:
-      0 0.25rem 0.5rem rgba(0, 0, 0, 0.05),
-      0 0 0.05rem rgba(0, 0, 0, 0.1);
+      0 0.25rem 0.5rem oklch(0% 0 0 / 0.1),
+      0 0 0.05rem oklch(0% 0 0 / 0.1);
 
     > p {
       /* Box */
@@ -159,7 +159,7 @@
     > .mk-admonition-title {
       /* Box */
       margin: 0 -1.25rem;
-      padding: 0.5rem 1rem 0.5rem var(--admonition-padding-left);
+      padding: 0.5rem 1rem 0.5rem var(--admonition-padding-inline-start);
 
       /* Appearance */
       background-color: var(--admonition-background);
@@ -195,7 +195,7 @@
 
         /* Position */
         position: absolute;
-        left: 1rem;
+        inset-inline-start: 1rem;
       }
 
       > p {
@@ -256,7 +256,7 @@
     &.mk-quote,
     &.mk-cite {
       /* Appearance */
-      --admonition-padding-left: var(--mk-admonition-padding-with-icon);
+      --admonition-padding-inline-start: var(--mk-admonition-padding-with-icon);
     }
 
     &.mk-note {
@@ -392,9 +392,9 @@
     content: '\e5cc';
 
     /* Box */
-    margin-left: auto;
-    margin-top: -0.5rem;
-    margin-bottom: -0.5rem;
+    margin-inline-start: auto;
+    margin-block-start: -0.5rem;
+    margin-block-end: -0.5rem;
 
     /* Position */
     transform: rotate(90deg);
@@ -450,7 +450,7 @@
 
     &:checked + .mk-tabbed-title {
       /* Box */
-      border-bottom: 0.2rem solid var(--admonition-color);
+      border-block-end: 0.2rem solid var(--admonition-color);
     }
 
     &:focus + .mk-tabbed-title {
@@ -466,8 +466,8 @@
     /* Box */
     padding: 0.3rem 1rem;
     box-sizing: border-box;
-    border-top: 0.2rem solid transparent;
-    border-bottom: 0.2rem solid transparent;
+    border-block-start: 0.2rem solid transparent;
+    border-block-end: 0.2rem solid transparent;
 
     > p {
       margin: 0;

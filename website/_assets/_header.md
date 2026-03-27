@@ -12,6 +12,6 @@
 [Blog](../blog/index.md)
 [GitHub](https://github.com/markeejs/markee)
 :::
-::markee-search{data-dialog}
+::markee-search{data-label="Search"}
 ::markee-color-scheme-manager
 ::::

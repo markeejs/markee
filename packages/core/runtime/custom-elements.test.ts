@@ -26,7 +26,7 @@ describe('custom-elements', () => {
     expect(BooleanConverter(null)).toBe(false)
   })
 
-  it('defines elements through tag(), sets aria-role through with(), and renders in light dom', () => {
+  it('defines elements through tag(), sets role through with(), and renders in light dom', () => {
     class TestElement extends MarkeeElement {}
 
     const EnhancedElement = TestElement.with({ role: 'dialog' })
@@ -39,11 +39,11 @@ describe('custom-elements', () => {
     >
 
     expect(customElements.get(tagName)).toBe(EnhancedElement)
-    expect(element.getAttribute('aria-role')).toBe('dialog')
+    expect(element.getAttribute('role')).toBe('dialog')
     expect(element.createRenderRoot()).toBe(element)
   })
 
-  it('delegates to withStores when stores are provided and leaves aria-role unset otherwise', () => {
+  it('delegates to withStores when stores are provided and leaves role unset otherwise', () => {
     class TestElement extends MarkeeElement {}
 
     const stores = [
@@ -65,7 +65,7 @@ describe('custom-elements', () => {
       TestElement,
       stores,
     )
-    expect(element.getAttribute('aria-role')).toBeNull()
+    expect(element.getAttribute('role')).toBeNull()
     expect(element).toBeInstanceOf(TestElement)
   })
 })

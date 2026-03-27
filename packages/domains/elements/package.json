@@ -13,6 +13,8 @@
     "test": "vitest run --coverage"
   },
   "dependencies": {
+    "@markee/state": "0.1.0",
+    "@markee/types": "0.1.0",
     "@nanostores/lit": "^0.2.3",
     "lit": "^3.3.2"
   },

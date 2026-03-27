@@ -7,12 +7,12 @@
     margin: 0;
 
     &[data-side='right'] {
-      left: auto;
+      inset-inline-start: auto;
     }
 
     &::backdrop {
       opacity: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: oklch(0% 0 0 / 0.5);
       transition:
         opacity 0.3s,
         display 0.2s allow-discrete,

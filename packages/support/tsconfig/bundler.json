@@ -3,7 +3,7 @@
   "compilerOptions": {
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "types": ["vite/client", "@markee/types"],
+    "types": ["vite/client"],
     "noEmit": true
   }
 }

@@ -1,3 +1,4 @@
+import type { SearchResult } from '@markee/state'
 import { customElement, property, state } from 'lit/decorators.js'
 import { html, nothing } from 'lit'
 
@@ -233,6 +234,9 @@ export class MarkeeSearch extends MarkeeElement.with({
   @property({ type: String, attribute: 'data-icon' })
   icon = 'fa fa-search'
 
+  @property({ type: String, attribute: 'data-label' })
+  label = ''
+
   @property({ type: String, attribute: 'data-placeholder' })
   placeholder = ''
 
@@ -300,7 +304,8 @@ export class MarkeeSearch extends MarkeeElement.with({
       <input
         ?data-active=${hasResults}
         .value="${this.value}"
-        placeholder=${this.placeholder}
+        placeholder="${this.placeholder}"
+        aria-label="${this.label}"
         @input=${this.#handleInput}
         @keydown=${this.#handleKeyDown}
       />

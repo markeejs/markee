@@ -2,6 +2,7 @@ import fs from 'fs-extra'
 import colors from 'colors/safe.js'
 
 import { CLIENT_DIR, ROOT_DIR } from '../constants.js'
+import { ConfigCache } from '../cache/config-cache.js'
 
 import { PathHelpers } from '../helpers/path.js'
 import { FilesystemHelpers } from '../helpers/filesystem.js'
@@ -23,11 +24,11 @@ export async function writeClient() {
   await fs
     .copy(
       PathHelpers.concat(ROOT_DIR, 'public'),
-      PathHelpers.concat(ROOT_DIR, config.build.outDir),
+      PathHelpers.concat(ROOT_DIR, ConfigCache.config.build.outDir),
     )
     .catch(() => {})
   await FilesystemHelpers.copyDirectory(
     PathHelpers.concat(CLIENT_DIR, 'assets'),
-    PathHelpers.concat(ROOT_DIR, config.build.outDir),
+    PathHelpers.concat(ROOT_DIR, ConfigCache.config.build.outDir),
   ).catch(FilesystemHelpers.handleCopyError('Error copying @markee/client'))
 }

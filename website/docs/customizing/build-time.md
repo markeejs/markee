@@ -15,14 +15,14 @@ can be used.
 A build-time plugin is a JavaScript file that exports pre-determined values:
 
 - `name: string`: a unique name for the plugin. This is used to identify the plugin when preloading content and later retrieving it.
-- `preloadFence?: (fence: Fence, params: Params) => Promise<FenceReturn>`: a function that gets called for every code fence found in documents, and
+- `preloadFence?: (fence: Fence, params: Params, context: Context) => Promise<FenceReturn>`: a function that gets called for every code fence found in documents, and
   returns a promise that can either modify the fence's attributes, or return preloaded content, or both.
   
-  The second parameter contains the plugin's options, as found in `markee.yaml` or the document's frontmatter.
-- `preloadDirective?: (directive: Directive, params: Params) => Promise<DirectiveReturn>`: a function that gets called for every directive found in documents, and
+  The second parameter contains the plugin's options, as found in `markee.yaml` or the document's frontmatter. The third parameter contains explicit build-time context from the CLI.
+- `preloadDirective?: (directive: Directive, params: Params, context: Context) => Promise<DirectiveReturn>`: a function that gets called for every directive found in documents, and
   returns a promise that can either modify the directive's attributes, or return preloaded content, or both.
 
-  The second parameter contains the plugin's options, as found in `markee.yaml` or the document's frontmatter.
+  The second parameter contains the plugin's options, as found in `markee.yaml` or the document's frontmatter. The third parameter contains explicit build-time context from the CLI.
 
 As soon as a JavaScript file placed in `_assets/_build` exports `name` and at least one of `preloadFence` or `preloadDirective`,
 it will be automatically loaded during build-time.
@@ -50,6 +50,13 @@ interface Directive {
   attrs: Record<string, string | number | boolean>
 }
 
+interface Context {
+  // Current Markee command
+  command: 'develop' | 'build' | 'serve' | 'init'
+  // Current Markee mode
+  mode: 'preview' | 'production'
+}
+
 interface FenceReturn {
   // New language to set to the fence, replacing the previous one
   lang?: string
@@ -70,6 +77,23 @@ interface DirectiveReturn {
   attrs?: Record<string, string | number | boolean>
   // Preloaded content for that directive. Will be stored in a cache and accessible on the client.
   payload?: any
+}
+```
+
+Build-time plugins should use the explicit `context` argument when they need CLI state such as the active command or mode.
+They should not rely on ambient globals such as `command`.
+
+```js
+export const name = 'example'
+
+export async function preloadFence(fence, config, context) {
+  if (context.command !== 'build') return
+
+  return {
+    attrs: {
+      'data-mode': context.mode,
+    },
+  }
 }
 ```
 

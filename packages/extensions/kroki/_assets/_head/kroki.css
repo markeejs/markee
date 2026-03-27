@@ -82,7 +82,7 @@
     font-weight: 700;
     font-size: 0.8em;
     background: var(--mk-admonition-background-danger);
-    border: 1px solid rgba(0, 0, 0, 0.2);
+    border: 1px solid oklch(0% 0 0 / 0.2);
     width: fit-content;
     padding: 0.5em 0.75em;
     margin: 0.25em 0;

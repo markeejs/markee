@@ -1,3 +1,4 @@
+import type { MarkdownFile } from '@markee/types'
 import { atom, computed, onNotify } from 'nanostores'
 import { cache } from '../cache.js'
 import { $router, compareLink } from './router.js'

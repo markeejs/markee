@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import type { MarkeeElement } from '@markee/runtime'
 
 function createVisit() {
   return vi.fn((tree: any, _type: string, callback: Function) => {
@@ -142,6 +143,12 @@ describe('@markee/tooltips', () => {
                 },
               ],
             },
+            {
+              type: 'element',
+              tagName: 'em',
+              properties: {},
+              children: [{ type: 'text', value: 'Side note' }],
+            },
             { type: 'text', value: 'tail' },
           ],
         },
@@ -178,6 +185,10 @@ describe('@markee/tooltips', () => {
           tagName: 'markee-title-tooltip-paragraph',
           children: [{ value: 'Footnote body' }],
         },
+        {
+          tagName: 'em',
+          children: [{ value: 'Side note' }],
+        },
         { value: 'tail' },
       ],
     })
@@ -197,7 +208,9 @@ describe('@markee/tooltips', () => {
 
     const removeWindowListener = vi.spyOn(window, 'removeEventListener')
 
-    const tooltip = document.createElement('markee-title-tooltip')
+    const tooltip = document.createElement(
+      'markee-title-tooltip',
+    ) as MarkeeElement
     tooltip.innerHTML =
       '<span title="Tip">Trigger</span><markee-title-tooltip-content></markee-title-tooltip-content>'
     const removeElementListener = vi.spyOn(tooltip, 'removeEventListener')
@@ -211,7 +224,7 @@ describe('@markee/tooltips', () => {
     mockRect(tooltip, { x: 100, y: 10, width: 40, height: 20 })
     mockRect(content, { width: 80, height: 30 })
 
-    tooltip.onmouseenter?.({ currentTarget: tooltip } as MouseEvent)
+    tooltip.onmouseenter?.({ currentTarget: tooltip } as unknown as MouseEvent)
 
     expect(trigger.hasAttribute('title')).toBe(false)
     expect(content.style.left).toBe('80px')

@@ -255,7 +255,7 @@ export async function createDevApp() {
     await next()
   })
 
-  config.sources.forEach((source) => {
+  ConfigCache.config.sources.forEach((source) => {
     const root = ConfigCache.getRoot(source.root)
     const prefix = PathHelpers.concat('/', root)
 
@@ -309,8 +309,8 @@ export async function commandDev() {
 
   await startHonoServer({
     fetch: app.fetch,
-    hostname: config.server.host,
-    port: config.server.port,
+    hostname: ConfigCache.config.server.host,
+    port: ConfigCache.config.server.port,
     onListen: () => {
       console.log('Markdown files tracking enabled')
       console.log('Start editing and see your changes live in your browser')

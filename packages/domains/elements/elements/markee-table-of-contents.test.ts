@@ -161,7 +161,7 @@ describe('markee-table-of-contents', () => {
     await element.updateComplete
 
     expect(currentLoaderSubscribe).toHaveBeenCalled()
-    expect(element.getAttribute('aria-role')).toBe('navigation')
+    expect(element.getAttribute('role')).toBe('navigation')
     expect(element.querySelector('strong')?.textContent).toBe(' ')
     expect(
       element.querySelectorAll('markee-table-of-contents-entry'),

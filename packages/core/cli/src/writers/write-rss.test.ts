@@ -1,4 +1,6 @@
+import type { MarkdownFile } from '@markee/types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+let ConfigCache: typeof import('../cache/config-cache.js').ConfigCache
 
 const rssState = vi.hoisted(() => {
   const instances: {
@@ -34,7 +36,6 @@ async function importWriteRss({
   ensureDir?: ReturnType<typeof vi.fn>
   writeFile?: ReturnType<typeof vi.fn>
 } = {}) {
-  vi.resetModules()
   rssState.instances.length = 0
   vi.doMock('fs-extra', () => ({
     default: {
@@ -51,8 +52,13 @@ async function importWriteRss({
 }
 
 describe('writeRss', () => {
-  beforeEach(() => {
-    global.config = {
+  beforeEach(async () => {
+    vi.resetModules()
+    ;({ ConfigCache } = await vi.importActual<
+      typeof import('../cache/config-cache.js')
+    >('../cache/config-cache.js'))
+    ConfigCache.reset()
+    ConfigCache.config = {
       build: {},
     } as any
   })
@@ -67,7 +73,7 @@ describe('writeRss', () => {
   })
 
   it('builds feeds using folder, author, tag, and size filters', async () => {
-    global.config.build = {
+    ConfigCache.config.build = {
       outDir: 'site',
       rss: {
         docs: {

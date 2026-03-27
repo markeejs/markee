@@ -12,6 +12,9 @@
     "lint:tsc": "tsc --noEmit",
     "test": "vitest run --coverage"
   },
+  "dependencies": {
+    "@markee/pipeline": "0.1.0"
+  },
   "devDependencies": {
     "@markee/tsconfig": "0.1.0",
     "@markee/vite": "0.1.0",

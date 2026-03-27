@@ -1,3 +1,5 @@
+import type { TreeItem } from '@markee/state'
+import type { MarkdownFile, SectionFile } from '@markee/types'
 import { html, nothing } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 

@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { pluginExposeDependency } from './vite/plugin-expose-dependency.js'
+import { pluginInlineHeadAssets } from './vite/plugin-inline-head-assets.js'
 
 const MARKEE_DEV_SERVER = 'http://localhost:8000'
 
@@ -109,6 +110,7 @@ export default defineConfig({
     pluginExposeDependency('@markee/elements'),
     pluginExposeDependency('@markee/pipeline'),
     pluginExposeDependency('@markee/search'),
+    pluginInlineHeadAssets(),
   ],
   optimizeDeps: {
     exclude: ['lit'],

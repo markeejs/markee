@@ -117,8 +117,8 @@ export const FilesystemHelpers = {
           !filename.startsWith('.git/') &&
           !filename.startsWith('.git\\') &&
           !filename.startsWith('node_modules') &&
-          !filename.startsWith(config.build.outDir + '/') &&
-          !filename.startsWith(config.build.outDir + '\\')
+          !filename.startsWith(ConfigCache.config.build.outDir + '/') &&
+          !filename.startsWith(ConfigCache.config.build.outDir + '\\')
         ) {
           filename = PathHelpers.concat(root, filename)
 
@@ -146,7 +146,7 @@ export const FilesystemHelpers = {
     }
 
     const watcher = WatchHelpers.watchTree(ROOT_DIR, watch('/'))
-    const watchers = config.watch?.map((w) =>
+    const watchers = ConfigCache.config.watch?.map((w) =>
       WatchHelpers.watchTree(PathHelpers.concat(ROOT_DIR, w), watch(w)),
     )
 

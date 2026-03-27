@@ -1,6 +1,8 @@
+import type { MarkdownFile, SectionFile } from '@markee/types'
 import fs from 'fs-extra'
 
 import { ROOT_DIR } from '../constants.js'
+import { ConfigCache } from '../cache/config-cache.js'
 import { PathHelpers } from '../helpers/path.js'
 
 /**
@@ -18,24 +20,26 @@ export async function writeSplitBuilds(
   folders: Record<string, SectionFile>,
   search: Record<string, { [anchor: string]: { l: string; c: string[] } }>,
 ) {
-  if (!config.build.splits) return
+  if (!ConfigCache.config.build.splits) return
 
   const splitsRoot = PathHelpers.concat(
     ROOT_DIR,
-    config.build.outDir,
+    ConfigCache.config.build.outDir,
     '_splits',
   )
   await fs.ensureDir(splitsRoot)
 
-  const splits = Object.keys(config.build.splits).sort((a, b) =>
-    config.build.splits![b].localeCompare(config.build.splits![a]),
+  const splits = Object.keys(ConfigCache.config.build.splits).sort((a, b) =>
+    ConfigCache.config.build.splits![b].localeCompare(
+      ConfigCache.config.build.splits![a],
+    ),
   )
 
   for (const folder in folders) {
     for (const split of splits) {
-      const root = config.build.splits[split].startsWith('/')
-        ? config.build.splits[split]
-        : '/' + config.build.splits[split]
+      const root = ConfigCache.config.build.splits[split].startsWith('/')
+        ? ConfigCache.config.build.splits[split]
+        : '/' + ConfigCache.config.build.splits[split]
 
       if (folders[folder].navigation?.length) {
         for (const entry of folders[folder].navigation) {
@@ -73,12 +77,12 @@ export async function writeSplitBuilds(
       { [anchor: string]: { l: string; c: string[] } }
     > = {}
 
-    const root = config.build.splits[split].startsWith('/')
-      ? config.build.splits[split]
-      : '/' + config.build.splits[split]
+    const root = ConfigCache.config.build.splits[split].startsWith('/')
+      ? ConfigCache.config.build.splits[split]
+      : '/' + ConfigCache.config.build.splits[split]
     const splitRoot = PathHelpers.concat(
       ROOT_DIR,
-      config.build.outDir,
+      ConfigCache.config.build.outDir,
       root.slice(1),
     )
     const splitSlug = split.toLowerCase().replace(/[^a-z0-9]/g, '-')

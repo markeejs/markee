@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 
 import { ROOT_DIR } from '../constants.js'
+import { ConfigCache } from '../cache/config-cache.js'
 import { PathHelpers } from '../helpers/path.js'
 import { ServerHelpers } from '../helpers/server.js'
 import {
@@ -13,7 +14,10 @@ import {
 
 export function createPreviewApp() {
   const app = new Hono()
-  const outputDir = PathHelpers.concat(ROOT_DIR, config.build.outDir)
+  const outputDir = PathHelpers.concat(
+    ROOT_DIR,
+    ConfigCache.config.build.outDir,
+  )
 
   app.use('*', cors())
   app.use('*', createStaticMiddleware({ root: outputDir }))
@@ -34,8 +38,8 @@ export async function commandServe() {
 
   await startHonoServer({
     fetch: app.fetch,
-    hostname: config.server.host,
-    port: config.server.port,
+    hostname: ConfigCache.config.server.host,
+    port: ConfigCache.config.server.port,
     onListen: () => {
       ServerHelpers.printReadyMessage()
     },

@@ -20,7 +20,7 @@ export class MarkeeElement extends LitElement {
       constructor() {
         super()
         if (options.role) {
-          this.setAttribute('aria-role', options.role)
+          this.setAttribute('role', options.role)
         }
       }
     }

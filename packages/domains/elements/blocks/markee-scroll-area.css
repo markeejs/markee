@@ -20,8 +20,8 @@
 
   /* Chromium / Safari scrollbar styling */
   markee-scroll-area > div::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 0.625rem;
+    height: 0.625rem;
   }
 
   markee-scroll-area > div::-webkit-scrollbar-track {
@@ -29,9 +29,9 @@
   }
 
   markee-scroll-area > div::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0);
-    border-radius: 999px;
-    border: 3px solid transparent; /* inset padding */
+    background-color: transparent;
+    border-radius: 100rem;
+    border: 0.1875rem solid transparent; /* inset padding */
     background-clip: content-box; /* pill thumb */
     transition: background-color 180ms ease;
   }
@@ -42,16 +42,16 @@
 
   /* “Active” (hover/focus/scroll): fade in */
   markee-scroll-area[data-active] > div {
-    scrollbar-color: rgba(0, 0, 0, 0.45) transparent; /* Firefox */
+    scrollbar-color: oklch(0% 0 0 / 0.5) transparent; /* Firefox */
   }
 
   markee-scroll-area[data-active] > div::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.45);
+    background-color: oklch(0% 0 0 / 0.5);
   }
 
   /* Optional: stronger while dragging */
   markee-scroll-area[data-dragging] > div::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: oklch(0% 0 0 / 0.6);
   }
 
   @media (prefers-reduced-motion: reduce) {

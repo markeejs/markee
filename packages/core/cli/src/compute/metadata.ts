@@ -1,5 +1,8 @@
+import type { MarkdownFile, SectionFile } from '@markee/types'
 import merge from 'deepmerge'
 
+import type { Frontmatter } from './markdown.js'
+import { ConfigCache } from '../cache/config-cache.js'
 import { PathHelpers } from '../helpers/path.js'
 import { FilesystemHelpers } from '../helpers/filesystem.js'
 
@@ -90,7 +93,10 @@ export const MetadataCompute = {
           }
 
           // Remove drafts if in production mode
-          if (files[file].frontMatter.draft && global.mode === 'production') {
+          if (
+            files[file].frontMatter.draft &&
+            ConfigCache.mode === 'production'
+          ) {
             delete files[file]
           }
 

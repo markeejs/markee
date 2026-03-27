@@ -7,9 +7,9 @@ import { visit } from 'unist-util-visit'
  */
 export function remarkLightbox(this: Processor): Transformer<Root, Root> {
   return (tree) => {
+    const { pluginConfig } = this.data()
     const resolved =
-      this.data().pluginConfig<boolean | { enabled: boolean }>('lightbox') ??
-      true
+      pluginConfig<boolean | { enabled: boolean }>('lightbox') ?? true
     const lightboxEnabled =
       typeof resolved === 'boolean' ? resolved : resolved.enabled
 

@@ -16,6 +16,7 @@ openCache.promise = new Promise((resolve, reject) => {
 }).then(() => openCache.result)
 
 export async function readCache(key) {
+  /* v8 ignore next */
   if (DEBUG_NO_CACHE) throw new Error()
 
   const cache = await openCache.promise

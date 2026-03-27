@@ -2,6 +2,7 @@ import fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+let ConfigCache: typeof import('../cache/config-cache.js').ConfigCache
 
 type ImportMarkdownOptions = {
   readProjectFile?: ReturnType<typeof vi.fn>
@@ -30,8 +31,6 @@ async function importMarkdownCompute({
   resolve = vi.fn((value: string) => value),
   pathResolve = vi.fn((...parts: string[]) => path.resolve(...parts)),
 }: ImportMarkdownOptions = {}) {
-  vi.resetModules()
-
   vi.doMock('fs-extra', () => ({
     default: {
       pathExistsSync,
@@ -47,12 +46,21 @@ async function importMarkdownCompute({
       readProjectFile,
     },
   }))
-  vi.doMock('../cache/config-cache.js', () => ({
-    ConfigCache: {
-      getRoot: vi.fn((root: string) => root),
-      getSplits,
-    },
-  }))
+  vi.doMock('../cache/config-cache.js', async () => {
+    const actual = await vi.importActual<
+      typeof import('../cache/config-cache.js')
+    >('../cache/config-cache.js')
+
+    class MockConfigCache extends actual.ConfigCache {
+      static getRoot = vi.fn((root: string) => root)
+      static getSplits = getSplits
+    }
+
+    return {
+      ...actual,
+      ConfigCache: MockConfigCache,
+    }
+  })
   vi.doMock('../cache/markdown-cache.js', () => ({
     MarkdownCache: {
       get: markdownCacheGet,
@@ -85,11 +93,16 @@ async function importMarkdownCompute({
 }
 
 describe('MarkdownCompute', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    vi.resetModules()
+    ;({ ConfigCache } = await vi.importActual<
+      typeof import('../cache/config-cache.js')
+    >('../cache/config-cache.js'))
+    ConfigCache.reset()
     vi.spyOn(console, 'log').mockImplementation(() => {})
     vi.spyOn(console, 'info').mockImplementation(() => {})
     vi.spyOn(console, 'error').mockImplementation(() => {})
-    global.config = {
+    ConfigCache.config = {
       sources: [
         { root: 'pages' },
         { root: 'blog' },
@@ -102,8 +115,8 @@ describe('MarkdownCompute', () => {
         example: { fromConfig: true },
       },
     } as any
-    global.command = 'build' as any
-    global.mode = 'production' as any
+    ConfigCache.command = 'build'
+    ConfigCache.mode = 'production'
   })
 
   it('builds initial file data and resolves markdown, self, raw, missing, and looping inclusions', async () => {
@@ -224,11 +237,11 @@ describe('MarkdownCompute', () => {
       ext,
       [
         "export const name = 'example'",
-        'export async function preloadFence(params, config) {',
-        "  return { lang: params.lang === 'js' ? 'ts' : params.lang, attrs: { ...params.attrs, class: 'fence', dataConfig: String(!!config?.fromConfig) }, payload: { changed: true } }",
+        'export async function preloadFence(params, config, context) {',
+        "  return { lang: params.lang === 'js' ? 'ts' : params.lang, attrs: { ...params.attrs, class: 'fence', dataConfig: String(!!config?.fromConfig), dataCommand: context.command, dataMode: context.mode }, payload: { changed: true } }",
         '}',
-        'export async function preloadDirective(params) {',
-        "  return { type: params.type === 'note' ? 'callout' : params.type, attrs: { ...params.attrs, collapsed: 'true' }, payload: { directive: true } }",
+        'export async function preloadDirective(params, _config, context) {',
+        "  return { type: params.type === 'note' ? 'callout' : params.type, label: params.label ? `${params.label} (${context.command})` : params.label, attrs: { ...params.attrs, collapsed: 'true', dataMode: context.mode }, payload: { directive: true } }",
         '}',
       ].join('\n'),
       'utf8',
@@ -283,7 +296,7 @@ describe('MarkdownCompute', () => {
     ].join('\n')
 
     const productionTokens = await MarkdownCompute.tokens(source)
-    global.mode = 'preview' as any
+    ConfigCache.mode = 'preview'
     const allTokens = await MarkdownCompute.tokens(source)
 
     expect(
@@ -334,8 +347,10 @@ describe('MarkdownCompute', () => {
     )
 
     expect(sanitized).toContain('/docs/guide.md')
-    expect(sanitized).toContain(":::callout[Label]{role='alert'")
+    expect(sanitized).toContain(":::callout[Label (build)]{role='alert'")
     expect(sanitized).toContain("collapsed='true'")
+    expect(sanitized).toContain("dataCommand='build'")
+    expect(sanitized).toContain("dataMode='preview'")
     expect(sanitized).toContain("```ts title='Example'")
     expect(sanitized).toContain('.fence')
     expect([...links]).toEqual(['/docs/guide.md'])
@@ -609,7 +624,7 @@ describe('MarkdownCompute', () => {
   })
 
   it('resolves default-delimiter self includes, relative source files, and extension asset includes', async () => {
-    global.config = {
+    ConfigCache.config = {
       sources: [{ root: 'docs' }],
       plugins: {},
     } as any
@@ -753,7 +768,7 @@ describe('MarkdownCompute', () => {
   it('sanitizes h1 titles, draft blocks, external links, and empty broken-link reports', async () => {
     const { MarkdownCompute } = await importMarkdownCompute()
 
-    global.mode = 'preview' as any
+    ConfigCache.mode = 'preview'
     const content = [
       '# Real title',
       '',
@@ -766,7 +781,7 @@ describe('MarkdownCompute', () => {
     ].join('\n')
     const tokens = await MarkdownCompute.tokens(content)
 
-    global.mode = 'production' as any
+    ConfigCache.mode = 'production'
 
     const frontMatter = await MarkdownCompute.frontMatter(tokens, {
       file: '/docs/page.md',
@@ -844,7 +859,7 @@ describe('MarkdownCompute', () => {
         'export async function preloadFence(params, cfg) {',
         "  if (params.content.trim() === 'plain') return { payload: { only: true } }",
         "  if (params.lang === 'js') return null",
-        "  return { attrs: { disabled: 'disabled', count: 2, configFlag: String(!!cfg?.fromConfig) }, payload: { changed: true } }",
+        "  return { attrs: { disabled: 'disabled', count: 2, configFlag: String(!!cfg?.fromConfig), withQuote: \"with'quote\" }, payload: { changed: true } }",
         '}',
         'export async function preloadDirective(params, cfg) {',
         "  if (params.type === 'same') return { type: params.type, attrs: { ...params.attrs }, payload: null }",
@@ -916,7 +931,7 @@ describe('MarkdownCompute', () => {
     expect(sanitized).toContain('/docs/guide.md')
     expect(sanitized).toContain('/manual/docs/folder/')
     expect(sanitized).toContain(
-      "```none #mk-payload-1 disabled count=2 configFlag='true'",
+      "```none #mk-payload-1 disabled count=2 configFlag='true' withQuote=\"with'quote\"",
     )
     expect(sanitized).toContain('```none #mk-payload-2')
     expect(sanitized).toContain('::callout')
@@ -928,6 +943,57 @@ describe('MarkdownCompute', () => {
       expect.objectContaining({ version: 'fixed', file: '/docs/page.md' }),
     ])
     expect(Object.values(payload).some((entry) => entry.example)).toBe(true)
+  })
+
+  it('covers payload-only fence rewrites and label-less directive rewrites after extension-side attr mutation', async () => {
+    const tempDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), 'markee-cli-markdown-branch-'),
+    )
+    const branchy = path.join(tempDir, 'branchy.mjs')
+
+    await fs.writeFile(
+      branchy,
+      [
+        "export const name = 'branchy'",
+        'export async function preloadFence(params) {',
+        '  delete params.attrs.id',
+        "  return { payload: { kind: 'fence' } }",
+        '}',
+        'export async function preloadDirective(params) {',
+        '  delete params.attrs.id',
+        "  return { type: 'callout', payload: { kind: 'directive' } }",
+        '}',
+      ].join('\n'),
+      'utf8',
+    )
+
+    const { MarkdownCompute } = await importMarkdownCompute({
+      hasBuildTimeExtensions: vi.fn(() => true),
+      getBuildTimeExtensions: vi.fn(() => [branchy]),
+    })
+
+    const source = ['```', 'body', '```', '', '::note'].join('\n')
+    const tokens = await MarkdownCompute.tokens(source)
+    const payload: Record<string, Record<string, unknown>> = {}
+
+    const sanitized = await MarkdownCompute.sanitizedContent(source, tokens, {
+      splits: [],
+      links: new Set<string>(),
+      linksData: new Map<string, any>(),
+      payload,
+      frontMatter: { excerpt: '' },
+    })
+
+    expect(sanitized.split('\n').slice(0, 5)).toEqual([
+      '```',
+      'body',
+      '```',
+      '',
+      '::callout',
+    ])
+    expect(payload.undefined).toMatchObject({
+      branchy: { kind: 'directive' },
+    })
   })
 
   it('handles overlapping link spans by sorting and skipping stale ranges', async () => {

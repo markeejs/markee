@@ -76,7 +76,7 @@ The `build` option gives you control over various outputs of the
 `build` step. The `build.outDir` option is also used by the `serve`
 command to determine which directory to serve from.
 
-There are five sub-fields to this option:
+There are seven sub-fields to this option:
 
 #### `outDir`
 
@@ -97,6 +97,61 @@ Controls how `markee build` behaves when broken links are detected.
 build:
   skipLinkValidation: true
 ```
+
+#### `minify`
+
+`minify` enables an optional CSS and JS minification pass during `markee build`.
+It applies only to build output, never to `dev` or `serve`.
+
+- `false` or omitted: do not minify copied or inlined CSS/JS.
+- `true`: minify both CSS and JS.
+- object form: enable minification per asset type.
+
+```yaml
+build:
+  minify: true
+```
+
+```yaml
+build:
+  minify:
+    css: true
+    js: true
+```
+
+This minifies:
+
+- copied files from `public/`
+- copied files from `_assets/`
+- copied files from configured source roots
+- small `_assets/_head` CSS/JS fragments that get inlined into `index.html` when `build.inlineHeadAssets` is enabled
+
+Markee uses a failure-safe strategy here: if a specific file cannot be minified,
+the build keeps the original content and logs a warning instead of failing.
+
+#### `inlineHeadAssets`
+
+`inlineHeadAssets` controls whether small CSS and JS files found in `_assets/_head`
+are inlined directly into the generated `index.html` during `markee build`.
+
+- `false` or omitted: keep `_assets/_head` files external
+- `true`: inline small `_assets/_head` CSS and JS files when they are below Markee's built-in size limits (`4 KB` for JS, `16 KB` for CSS) and do not contain `import`
+- object form: inline `_assets/_head` CSS and JS files using custom thresholds in KB; omitted fields fall back to the built-in defaults
+
+```yaml
+build:
+  inlineHeadAssets: true
+```
+
+```yaml
+build:
+  inlineHeadAssets:
+    js: 8
+    css: 24
+```
+
+This is a CLI build-time optimization only. It does not affect `dev` mode, where
+Markee keeps head assets external for hot reloading.
 
 #### `rss`
 

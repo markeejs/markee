@@ -1,10 +1,9 @@
 import os from 'node:os'
 import { mkdtemp, mkdir, writeFile } from 'node:fs/promises'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+let ConfigCache: typeof import('../cache/config-cache.js').ConfigCache
 
 async function importCommandServe(rootDir: string) {
-  vi.resetModules()
-
   const startHonoServer = vi.fn()
   const printReadyMessage = vi.fn()
 
@@ -36,8 +35,13 @@ async function importCommandServe(rootDir: string) {
 }
 
 describe('commandServe', () => {
-  beforeEach(() => {
-    global.config = {
+  beforeEach(async () => {
+    vi.resetModules()
+    ;({ ConfigCache } = await vi.importActual<
+      typeof import('../cache/config-cache.js')
+    >('../cache/config-cache.js'))
+    ConfigCache.reset()
+    ConfigCache.config = {
       build: { outDir: 'site' },
       server: { host: '127.0.0.1', port: 8000 },
     } as any

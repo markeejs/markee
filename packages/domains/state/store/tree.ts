@@ -1,6 +1,33 @@
+import type { MarkdownFile, SectionFile } from '@markee/types'
 import { atom, computed } from 'nanostores'
 import { $navigationLoader } from './metadata.js'
 import { $currentFile } from './current.js'
+
+export interface TreeLeaf {
+  key: string
+  label: string
+  link: string
+  hidden: boolean
+  parent?: TreeItem
+  versionLabel?: string
+  outdated?: string
+}
+
+export interface TreeItem {
+  key: string
+  indexKey?: string
+  label: string
+  collapsible?: boolean
+  hidden: boolean
+  items?: (TreeItem | TreeLeaf)[]
+  canonicalItems?: (TreeItem | TreeLeaf)[]
+  link?: string
+  canonicalLink?: string
+  parent?: TreeItem
+  versionLabel?: string
+  versions?: (TreeItem | TreeLeaf)[]
+  outdated?: string
+}
 
 const treeCache = new Map<string, TreeItem | null>()
 

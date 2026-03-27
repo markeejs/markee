@@ -7,7 +7,7 @@
 
 :::markee-header-section
 ::markee-contribute{data-root data-label="Contribute"}
-::markee-search
+::markee-search{data-label="Search"}
 ::markee-color-scheme-manager
 :::
 

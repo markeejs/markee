@@ -3,6 +3,7 @@ import fs from 'fs-extra'
 import colors from 'colors/safe.js'
 
 import { ROOT_DIR } from '../constants.js'
+import { ConfigCache } from './config-cache.js'
 import { PathHelpers } from '../helpers/path.js'
 import { ModuleHelpers } from '../helpers/module.js'
 
@@ -23,7 +24,7 @@ export class ExtensionsCache {
     if (this.extensions) return this.extensions
 
     const extensions: Record<string, string> = Object.fromEntries(
-      (config.extensions ?? [])
+      (ConfigCache.config.extensions ?? [])
         .map((extension) => {
           try {
             return [

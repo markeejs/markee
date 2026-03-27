@@ -1,20 +1,20 @@
 .home {
     .btn {
         padding: 0.8rem 1.5rem;
-        border-radius: 50px;
+        border-radius: 3.125rem;
         text-decoration: none;
         font-weight: 700;
         font-size: 1rem;
         transition: all 0.3s ease;
         display: inline-block;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 0.25rem 0.9375rem oklch(0% 0 0 / 0.1);
         background-color: var(--mk-flow-color-background-secondary);
         color: var(--mk-color-text);
         margin-inline: 0.5rem;
 
         &:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            transform: translateY(-0.125rem);
+            box-shadow: 0 0.5rem 1.5625rem oklch(0% 0 0 / 0.2);
         }
     }
 
@@ -28,7 +28,7 @@
         gap: 0.5em;
         cursor: pointer;
         background: var(--mk-color-primary);
-        color: white;
+        color: oklch(100% 0 0);
 
         &::after {
             content: '⇢';
@@ -70,7 +70,7 @@
             font-weight: 800;
             line-height: 1.1;
             letter-spacing: -0.025em;
-            margin-bottom: 1.5rem;
+            margin-block-end: 1.5rem;
             display: flex;
             flex-direction: column;
 
@@ -105,7 +105,7 @@
         }
 
         p {
-            max-width: 600px;
+            max-width: 37.5rem;
             margin: 0 auto 2.5rem auto;
             font-size: 1.35rem;
         }
@@ -141,11 +141,11 @@
 
         > :last-child {
             background: var(--mk-flow-color-background);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(1rem);
+            -webkit-backdrop-filter: blur(1rem);
             border: 1px solid var(--mk-flow-color-border);
-            border-radius: 24px;
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
+            border-radius: 1.5rem;
+            box-shadow: 0 1.25rem 2.5rem -0.9375rem oklch(0% 0 0 / 0.1);
             padding: 2rem;
         }
     }
@@ -176,10 +176,10 @@
         }
 
         .fs-url {
-            color: var(--mk-color-hint);
+            color: color-mix(in oklch, var(--mk-color-hint), oklch(0% 0 0) 25%);
             background: var(--mk-flow-color-background-element);
             padding: 0.2rem 0.5rem;
-            border-radius: 4px;
+            border-radius: 0.25rem;
         }
     }
 
@@ -206,29 +206,29 @@
                 'foot foot foot';
             grid-template-columns: 1fr 3fr 1fr;
             grid-template-rows: 1fr 1fr 2fr 1fr 1fr;
-            gap: 8px;
-            height: 300px;
-            padding: 8px;
+            gap: 0.5rem;
+            height: 18.75rem;
+            padding: 0.5rem;
         }
 
         .lg-part {
             background: var(--mk-flow-color-background-element);
-            border: 2px dashed rgba(59, 130, 246, 0.3);
-            border-radius: 8px;
+            border: 0.125rem dashed oklch(62.5% 0.2 259.8 / 0.3);
+            border-radius: 0.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            color: var(--mk-color-primary);
+            color: color-mix(in oklch, var(--mk-color-primary), oklch(0% 0 0) 3%);
             font-size: 0.8rem;
             text-transform: uppercase;
         }
 
         .lg-doc {
             grid-area: doc;
-            background: rgba(139, 92, 246, 0.1);
-            border-color: rgba(139, 92, 246, 0.3);
-            color: var(--mk-flow-color-secondary);
+            background: oklch(60.5% 0.2 292.7 / 0.1);
+            border-color: oklch(60.5% 0.2 292.7 / 0.3);
+            color: color-mix(in oklch, var(--mk-flow-color-secondary), oklch(0% 0 0) 5%);
         }
 
         .lg-head { grid-area: head; }
@@ -239,9 +239,9 @@
         .lg-right { grid-area: right; }
 
         .lg-head, .lg-foot {
-            background: rgba(139, 139, 139, 0.1);
-            border-color: rgba(139, 139, 139, 0.3);
-            color: var(--mk-color-hint);
+            background: oklch(63.5% 0 0 / 0.1);
+            border-color: oklch(63.5% 0 0 / 0.3);
+            color: color-mix(in oklch, var(--mk-color-hint), oklch(0% 0 0) 25%);
         }
     }
 
@@ -256,11 +256,11 @@
 
         > :first-child {
             background: var(--mk-flow-color-background);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(1rem);
+            -webkit-backdrop-filter: blur(1rem);
             border: 1px solid var(--mk-flow-color-border);
-            border-radius: 24px;
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
+            border-radius: 1.5rem;
+            box-shadow: 0 1.25rem 2.5rem -0.9375rem oklch(0% 0 0 / 0.1);
             padding: 2rem;
         }
 
@@ -288,7 +288,7 @@
             display: inline-flex;
         }
 
-        padding-bottom: 4rem;
+        padding-block-end: 4rem;
     }
 
     @media (max-width: 60rem) {

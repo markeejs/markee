@@ -1,5 +1,6 @@
 import os from 'node:os'
 import { MARKEE } from '../constants.js'
+import { ConfigCache } from '../cache/config-cache.js'
 
 export const ServerHelpers = {
   getExternalIP() {
@@ -27,17 +28,17 @@ export const ServerHelpers = {
     return external
   },
   printReadyMessage() {
-    if (config.server.host === '0.0.0.0') {
+    if (ConfigCache.config.server.host === '0.0.0.0') {
       const external = ServerHelpers.getExternalIP()
       console.log(
-        `${MARKEE} server listening on http://localhost:${config.server.port}`,
+        `${MARKEE} server listening on http://localhost:${ConfigCache.config.server.port}`,
       )
       console.log(
-        `Or on local network: http://${external}:${config.server.port}`,
+        `Or on local network: http://${external}:${ConfigCache.config.server.port}`,
       )
     } else {
       console.log(
-        `${MARKEE} server listening on http://${config.server.host}:${config.server.port}`,
+        `${MARKEE} server listening on http://${ConfigCache.config.server.host}:${ConfigCache.config.server.port}`,
       )
     }
   },

@@ -1,7 +1,9 @@
+import type { MarkdownFile } from '@markee/types'
 import RSS from 'rss'
 import fs from 'fs-extra'
 
 import { ROOT_DIR } from '../constants.js'
+import { ConfigCache } from '../cache/config-cache.js'
 import { PathHelpers } from '../helpers/path.js'
 
 /**
@@ -21,13 +23,15 @@ function getArticleLink(site: string, link: string) {
  * @param files - Record of Markdown files
  */
 export async function writeRss(files: Record<string, MarkdownFile>) {
-  if (!config.build.rss) return
+  if (!ConfigCache.config.build.rss) return
 
-  await fs.ensureDir(PathHelpers.concat(ROOT_DIR, config.build.outDir, 'rss'))
+  await fs.ensureDir(
+    PathHelpers.concat(ROOT_DIR, ConfigCache.config.build.outDir, 'rss'),
+  )
 
-  for (const feed in config.build.rss) {
-    const feedFilter = config.build.rss[feed].filter
-    const feedSettings = config.build.rss[feed].settings
+  for (const feed in ConfigCache.config.build.rss) {
+    const feedFilter = ConfigCache.config.build.rss[feed].filter
+    const feedSettings = ConfigCache.config.build.rss[feed].settings
 
     const feedUrl = new URL(feedSettings.site)
     feedUrl.pathname = '/rss/' + feed + '.xml'
@@ -108,7 +112,12 @@ export async function writeRss(files: Record<string, MarkdownFile>) {
     })
 
     await fs.writeFile(
-      PathHelpers.concat(ROOT_DIR, config.build.outDir, 'rss', feed + '.xml'),
+      PathHelpers.concat(
+        ROOT_DIR,
+        ConfigCache.config.build.outDir,
+        'rss',
+        feed + '.xml',
+      ),
       rssFeed.xml(),
       'utf8',
     )

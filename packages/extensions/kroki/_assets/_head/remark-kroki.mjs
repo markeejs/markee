@@ -52,8 +52,9 @@ extend.markdownPipeline.remark('markee-kroki', function () {
 
     extend.markdownPipeline.visit(tree, 'code', (node, index, parent) => {
       if (parent && index !== undefined && node.meta?.startsWith('kroki')) {
-        const uniqueId = node.data.hProperties?.id
-        const properties = Object.entries(parseAttributes(node.meta ?? '', {}))
+        const uniqueId =
+          node.data.hProperties?.id ?? `kroki-${node.position.start.offset}`
+        const properties = Object.entries(parseAttributes(node.meta, {}))
           .filter(([key]) => key !== 'kroki')
           .map(([key, value]) => `${key}="${value}"`)
           .join(' ')

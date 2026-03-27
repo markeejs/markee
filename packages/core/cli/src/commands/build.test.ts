@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+let ConfigCache: typeof import('../cache/config-cache.js').ConfigCache
 
 async function importCommandBuild({
   brokenLinks = 0,
@@ -8,6 +9,10 @@ async function importCommandBuild({
   skipLinkValidation?: boolean
 } = {}) {
   vi.resetModules()
+  ;({ ConfigCache } = await vi.importActual<
+    typeof import('../cache/config-cache.js')
+  >('../cache/config-cache.js'))
+  ConfigCache.reset()
 
   const emptyDir = vi.fn().mockResolvedValue(undefined)
   const ensureDir = vi.fn().mockResolvedValue(undefined)
@@ -15,6 +20,7 @@ async function importCommandBuild({
   const writeJSON = vi.fn().mockResolvedValue(undefined)
   const writeAssets = vi.fn().mockResolvedValue(undefined)
   const writeClient = vi.fn().mockResolvedValue(undefined)
+  const writeMinify = vi.fn().mockResolvedValue(undefined)
   const writeRss = vi.fn().mockResolvedValue(undefined)
   const writeSitemap = vi.fn().mockResolvedValue(undefined)
   const writeSplitBuilds = vi.fn().mockResolvedValue(['/_splits/docs'])
@@ -74,11 +80,6 @@ async function importCommandBuild({
       loadFolders,
     },
   }))
-  vi.doMock('../cache/config-cache.js', () => ({
-    ConfigCache: {
-      filterConfig: vi.fn(() => ({ title: 'Docs' })),
-    },
-  }))
   vi.doMock('../cache/markdown-cache.js', () => ({
     MarkdownCache: {
       loadFiles,
@@ -100,6 +101,9 @@ async function importCommandBuild({
   vi.doMock('../writers/write-client.js', () => ({
     writeClient,
   }))
+  vi.doMock('../writers/write-minify.js', () => ({
+    writeMinify,
+  }))
   vi.doMock('../writers/write-rss.js', () => ({
     writeRss,
   }))
@@ -110,7 +114,8 @@ async function importCommandBuild({
     writeSplitBuilds,
   }))
 
-  global.config = {
+  ConfigCache.config = {
+    title: 'Docs',
     build: {
       outDir: 'site',
       skipLinkValidation,
@@ -125,6 +130,7 @@ async function importCommandBuild({
     writeJSON,
     writeAssets,
     writeClient,
+    writeMinify,
     writeRss,
     writeSitemap,
     writeSplitBuilds,
@@ -141,7 +147,12 @@ async function importCommandBuild({
 }
 
 describe('commandBuild', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    vi.resetModules()
+    ;({ ConfigCache } = await vi.importActual<
+      typeof import('../cache/config-cache.js')
+    >('../cache/config-cache.js'))
+    ConfigCache.reset()
     vi.spyOn(console, 'log').mockImplementation(() => {})
     vi.spyOn(console, 'time').mockImplementation(() => {})
     vi.spyOn(console, 'timeEnd').mockImplementation(() => {})
@@ -160,6 +171,7 @@ describe('commandBuild', () => {
       writeJSON,
       writeAssets,
       writeClient,
+      writeMinify,
       writeRss,
       writeSitemap,
       writeSplitBuilds,
@@ -181,6 +193,7 @@ describe('commandBuild', () => {
     expect(getAllBrokenLinks).toHaveBeenCalledTimes(1)
     expect(writeAssets).toHaveBeenCalledTimes(1)
     expect(writeClient).toHaveBeenCalledTimes(1)
+    expect(writeMinify).toHaveBeenCalledTimes(1)
     expect(writeRss).toHaveBeenCalledTimes(1)
     expect(writeSitemap).toHaveBeenCalledTimes(1)
     expect(writeSplitBuilds).toHaveBeenCalledTimes(1)
@@ -215,11 +228,12 @@ describe('commandBuild', () => {
     })
     await skipped.commandBuild()
     expect(exit).not.toHaveBeenCalled()
-    expect(console.log).toHaveBeenCalledWith(
+    expect(console.log).toHaveBeenNthCalledWith(
+      2,
       expect.any(String),
       expect.any(String),
       expect.stringContaining(
-        'broken links. Run without build.skipLinkValidation for details.',
+        'Run without build.skipLinkValidation for details.',
       ),
     )
   })

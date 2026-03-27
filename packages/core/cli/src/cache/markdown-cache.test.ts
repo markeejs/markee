@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+let ConfigCache: typeof import('./config-cache.js').ConfigCache
 
 async function importMarkdownCache({
   globby = vi.fn(),
@@ -33,8 +34,6 @@ async function importMarkdownCache({
   versionedContentOrdering?: ReturnType<typeof vi.fn>
   convertDeprecatedSyntaxes?: ReturnType<typeof vi.fn>
 } = {}) {
-  vi.resetModules()
-
   vi.doMock('globby', () => ({
     globby,
   }))
@@ -46,12 +45,22 @@ async function importMarkdownCache({
       readProjectFile,
     },
   }))
-  vi.doMock('./config-cache.js', () => ({
-    ConfigCache: {
-      getRoot: vi.fn((root: string) => root),
-      getSplits,
-    },
-  }))
+  vi.doMock('./config-cache.js', async () => {
+    const actual =
+      await vi.importActual<typeof import('./config-cache.js')>(
+        './config-cache.js',
+      )
+
+    class MockConfigCache extends actual.ConfigCache {
+      static getRoot = vi.fn((root: string) => root)
+      static getSplits = getSplits
+    }
+
+    return {
+      ...actual,
+      ConfigCache: MockConfigCache,
+    }
+  })
   vi.doMock('../compute/markdown.js', () => ({
     MarkdownCompute: {
       initialFileData,
@@ -100,8 +109,14 @@ async function importMarkdownCache({
 }
 
 describe('MarkdownCache', () => {
-  beforeEach(() => {
-    global.config = {
+  beforeEach(async () => {
+    vi.resetModules()
+    ;({ ConfigCache } =
+      await vi.importActual<typeof import('./config-cache.js')>(
+        './config-cache.js',
+      ))
+    ConfigCache.reset()
+    ConfigCache.config = {
       sources: [{ root: 'docs' }, { root: 'blog' }],
     } as any
   })

@@ -19,6 +19,17 @@ async function importRemark() {
         'max-height': '24rem',
       }
     }
+    if (meta.includes('meta')) {
+      return {
+        class: 'likec4 compact',
+      }
+    }
+    if (meta.includes('pan-on')) {
+      return {
+        class: 'likec4 compact',
+        pan: 'true',
+      }
+    }
     return {
       class: 'likec4 off-glb',
       lightbox: 'true',
@@ -40,6 +51,7 @@ async function importRemark() {
   return {
     ...(await import('./remark.js')),
     remark,
+    visit,
   }
 }
 
@@ -83,5 +95,89 @@ describe('@markee/likec4 remark', () => {
 
     expect((tree.children[1] as any).value).toContain('markee-likec4-0')
     expect((tree.children[1] as any).value).not.toContain('glightbox')
+  })
+
+  it('defaults lightbox behavior and ignores unsupported or detached nodes', async () => {
+    const { registerLikeC4Remark, remark, visit } = await importRemark()
+
+    registerLikeC4Remark()
+
+    const transform = remark.mock.calls[0]?.[1].call({
+      data: () => ({
+        pluginConfig: () => undefined,
+      }),
+    })
+
+    transform({ children: [] })
+    const callback = visit.mock.calls[0]?.[2] as Function
+
+    expect(() =>
+      callback({ lang: 'likec4', value: 'model {}' }, undefined, undefined),
+    ).not.toThrow()
+
+    const tree = {
+      children: [
+        {
+          lang: 'likec4',
+          meta: 'meta',
+          value: 'model {}',
+          data: {},
+        },
+        {
+          lang: 'bash',
+          meta: '',
+          value: 'echo nope',
+          data: {},
+        },
+        {
+          lang: 'c4',
+          meta: 'pan-on',
+          data: {},
+        },
+      ],
+    }
+
+    transform(tree)
+
+    expect((tree.children[0] as any).value).toContain("class='glightbox'")
+    expect((tree.children[0] as any).value).toContain('markee-likec4-0')
+    expect((tree.children[0] as any).value).toContain('data-pan="false"')
+    expect(tree.children[1]).toMatchObject({
+      lang: 'bash',
+    })
+    expect((tree.children[2] as any).value).toContain('data-source=""')
+    expect((tree.children[2] as any).value).toContain('data-pan="true"')
+  })
+
+  it('supports boolean lightbox configuration values and undefined metadata', async () => {
+    const { registerLikeC4Remark, remark } = await importRemark()
+
+    registerLikeC4Remark()
+
+    const transform = remark.mock.calls[0]?.[1].call({
+      data: () => ({
+        pluginConfig: () => false,
+      }),
+    })
+
+    const tree = {
+      children: [
+        {
+          lang: 'likec4',
+          meta: 'meta',
+          value: 'model {}',
+          data: {},
+        },
+        {
+          lang: 'c4',
+          data: {},
+        },
+      ],
+    }
+
+    transform(tree)
+
+    expect((tree.children[0] as any).value).not.toContain("class='glightbox'")
+    expect((tree.children[1] as any).value).toContain('data-source=""')
   })
 })

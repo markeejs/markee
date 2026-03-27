@@ -1,7 +1,13 @@
-import type { Processor } from 'unified'
+import type { Data, Processor } from 'unified'
 
 import { mdastGenericTag } from './generic-tags/mdast.js'
 import { micromarkGenericTag } from './generic-tags/micromark.js'
+
+type GenericTagProcessorData = Data & {
+  micromarkExtensions?: any[]
+  fromMarkdownExtensions?: any[]
+  toMarkdownExtensions?: any[]
+}
 
 export function remarkInsAndMark(this: Processor) {
   const mdastIns = mdastGenericTag({
@@ -21,15 +27,14 @@ export function remarkInsAndMark(this: Processor) {
     character: 'equalsTo',
   })
 
-  const data = this.data()
+  const data = this.data() as GenericTagProcessorData
 
   const micromarkExtensions =
-    (data.micromarkExtensions as any[]) || (data.micromarkExtensions = [])
+    data.micromarkExtensions || (data.micromarkExtensions = [])
   const fromMarkdownExtensions =
-    (data.fromMarkdownExtensions as any[]) || (data.fromMarkdownExtensions = [])
+    data.fromMarkdownExtensions || (data.fromMarkdownExtensions = [])
   const toMarkdownExtensions =
-    ((data as any).toMarkdownExtensions as any[]) ||
-    ((data as any).toMarkdownExtensions = [])
+    data.toMarkdownExtensions || (data.toMarkdownExtensions = [])
 
   micromarkExtensions.push(micromarkIns)
   fromMarkdownExtensions.push(mdastIns.genericTagFromMarkdown())

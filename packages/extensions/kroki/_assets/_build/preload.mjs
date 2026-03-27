@@ -9,14 +9,15 @@ async function loadDiagram(engine, server, content) {
 }
 
 export const name = 'kroki'
-export const preloadFence = async (fence, params) => {
-  if (!params.prerender) return { attrs: { 'data-prerendered': false } }
-  if (command !== 'build') return { attrs: { 'data-prerendered': false } }
+export const preloadFence = async (fence, config, context) => {
+  if (!config.prerender) return { attrs: { 'data-prerendered': false } }
+  if (context.command !== 'build')
+    return { attrs: { 'data-prerendered': false } }
 
   if (fence.attrs.kroki) {
     let payload = ''
     try {
-      payload = await loadDiagram(fence.lang, params.serverUrl, fence.content)
+      payload = await loadDiagram(fence.lang, config.serverUrl, fence.content)
     } catch (err) {
       void err
       payload =

@@ -21,14 +21,14 @@ blog-info {
 
     img {
         position: absolute;
-        top: -3rem;
-        left: -4rem;
-        right: -4rem;
+        inset-block-start: -3rem;
+        inset-inline-start: -4rem;
+        inset-inline-end: -4rem;
         max-width: calc(100% + 8rem);
         border-radius: 1.5rem 1.5rem 0 0;
         z-index: -1;
 
-        mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 1));
+        mask-image: linear-gradient(to top, transparent 0, transparent 50%, oklch(0% 0 0));
 
         body[data-color-scheme='dark'] & {
             filter: invert(1) hue-rotate(180deg);

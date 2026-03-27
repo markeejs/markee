@@ -8,6 +8,25 @@ async function importCli(options: Record<string, unknown>) {
   const commandLineArgs = vi.fn(() => options)
   const commandLineUsage = vi.fn(() => 'USAGE')
   const loadConfig = vi.fn().mockResolvedValue(undefined)
+  const configCacheState = {
+    command: '',
+    mode: '',
+  }
+  const configCache = {
+    loadConfig,
+    get command() {
+      return configCacheState.command
+    },
+    set command(value: string) {
+      configCacheState.command = value
+    },
+    get mode() {
+      return configCacheState.mode
+    },
+    set mode(value: string) {
+      configCacheState.mode = value
+    },
+  }
   const commandDev = vi.fn().mockResolvedValue(undefined)
   const commandBuild = vi.fn().mockResolvedValue(undefined)
   const commandInit = vi.fn().mockResolvedValue(undefined)
@@ -28,9 +47,7 @@ async function importCli(options: Record<string, unknown>) {
     },
   }))
   vi.doMock('./cache/config-cache.js', () => ({
-    ConfigCache: {
-      loadConfig,
-    },
+    ConfigCache: configCache,
   }))
   vi.doMock('./commands/dev.js', () => ({
     commandDev,
@@ -51,6 +68,7 @@ async function importCli(options: Record<string, unknown>) {
       commandLineArgs,
       commandLineUsage,
       loadConfig,
+      configCache,
       commandDev,
       commandBuild,
       commandInit,
@@ -90,8 +108,8 @@ describe('cli entrypoint', () => {
       mode: 'production',
     })
 
-    expect(global.command).toBe('develop')
-    expect(global.mode).toBe('preview')
+    expect(mocks.configCache.command).toBe('develop')
+    expect(mocks.configCache.mode).toBe('preview')
     expect(mocks.loadConfig).toHaveBeenCalledWith('/project', {
       command: 'start',
       mode: 'production',
@@ -110,8 +128,8 @@ describe('cli entrypoint', () => {
       mode: 'preview',
     })
 
-    expect(global.command).toBe('init')
-    expect(global.mode).toBe('preview')
+    expect(mocks.configCache.command).toBe('init')
+    expect(mocks.configCache.mode).toBe('preview')
     expect(console.log).toBe(originalLog)
     expect(mocks.commandInit).toHaveBeenCalledTimes(1)
     expect(process.stdout.write).not.toHaveBeenCalled()

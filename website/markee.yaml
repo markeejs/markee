@@ -12,6 +12,8 @@ sources:
     mount: /blog
 
 build:
+  minify: true
+  inlineHeadAssets: true
   rss:
     blog:
       filter:
@@ -30,7 +32,7 @@ plugins:
     footnotes: true
   kroki:
     serverUrl: 'https://kroki.io/'
-    prerender: true
+    prerender: false
 
 extensions:
   - '@markee/theme-flow'

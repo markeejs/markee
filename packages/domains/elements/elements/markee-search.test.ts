@@ -1,3 +1,4 @@
+import type { SearchResult } from '@markee/state'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { extend, state } from '@markee/runtime'

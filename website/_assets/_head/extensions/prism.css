@@ -1,10 +1,10 @@
 [data-theme='flow'] {
     & {
-        --markee-color-background-code: #1e293b;
+        --markee-color-background-code: oklch(28% 0 260);
     }
 
     &[data-color-scheme='dark'] {
-        --markee-color-background-code: #0d1119;
+        --markee-color-background-code: oklch(17.5% 0 264);
     }
 
     .mk-prism-title {
@@ -12,7 +12,7 @@
         margin-block: -1.5rem 0.25rem;
         margin-inline: -1.5rem;
         opacity: 0.7;
-        color: white;
+        color: oklch(100% 0 0);
     }
 
     pre[class*="language-"] {

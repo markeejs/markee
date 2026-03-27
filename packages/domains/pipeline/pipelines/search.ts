@@ -44,10 +44,13 @@ const ALIASED_TAGS: Record<string, string> = {
 }
 
 const searchUnifiedPipeline = unified()
-  .data('pluginConfig', (plugin: string) => {
-    const config = state.$config.get()
-    return (config?.plugins as any)?.[plugin]
-  })
+const searchPipelineData = searchUnifiedPipeline.data()
+searchPipelineData.pluginConfig = (plugin: string) => {
+  const config = state.$config.get()
+  return (config?.plugins as any)?.[plugin]
+}
+
+searchUnifiedPipeline
   .use(remarkParser)
   .use(remarkGfm)
   .use(remarkFrontMatter)

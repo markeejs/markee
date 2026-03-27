@@ -1,4 +1,6 @@
+import type { MarkdownFile, SectionFile } from '@markee/types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+let ConfigCache: typeof import('../cache/config-cache.js').ConfigCache
 
 async function importMetadata({
   getRevisionDate = vi.fn(),
@@ -7,7 +9,6 @@ async function importMetadata({
   getRevisionDate?: ReturnType<typeof vi.fn>
   sortFiles?: ReturnType<typeof vi.fn>
 } = {}) {
-  vi.resetModules()
   vi.doMock('../cache/git-cache.js', () => ({
     GitCache: {
       getRevisionDate,
@@ -27,8 +28,13 @@ async function importMetadata({
 }
 
 describe('MetadataCompute', () => {
-  beforeEach(() => {
-    global.mode = 'preview'
+  beforeEach(async () => {
+    vi.resetModules()
+    ;({ ConfigCache } = await vi.importActual<
+      typeof import('../cache/config-cache.js')
+    >('../cache/config-cache.js'))
+    ConfigCache.reset()
+    ConfigCache.mode = 'preview'
   })
 
   it('inherits front matter, titles, visibility, and layout from folder metadata', async () => {
@@ -99,7 +105,7 @@ describe('MetadataCompute', () => {
   })
 
   it('removes draft files in production and direct descendants of version folders', async () => {
-    global.mode = 'production'
+    ConfigCache.mode = 'production'
     const { MetadataCompute } = await importMetadata({
       getRevisionDate: vi.fn(async () => 'rev'),
     })

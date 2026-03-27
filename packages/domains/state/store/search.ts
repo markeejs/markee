@@ -3,6 +3,29 @@ import { MarkeeSearchIndexer, type SearchOptions } from '@markee/search'
 import { searchPipeline } from '@markee/pipeline'
 import { $searchLoader, $navigationLoader } from './metadata.js'
 
+export interface SearchResult {
+  file: string
+  results: {
+    label: string
+    anchor: string
+    content: string
+  }[]
+}
+
+export interface SearchData {
+  id: string
+  key: string
+  tags: string[]
+  content: string
+  title: string
+  label: string
+  info: {
+    anchor: string
+    content: string
+    label: string
+  }
+}
+
 export const $search = computed(
   [$searchLoader, $navigationLoader],
   (searchLoader, navigationLoader) => {

@@ -4,7 +4,7 @@
     flex-direction: column;
     padding: 0 1rem;
     position: sticky;
-    top: calc(var(--mk-header-height) + 1rem);
+    inset-block-start: calc(var(--mk-header-height) + 1rem);
     height: 100%;
     max-height: calc(100vh - 1rem - var(--mk-header-height));
 
@@ -20,7 +20,7 @@
 
     ul:not(:is(ul ul)) {
       width: max-content;
-      padding-bottom: 1rem;
+      padding-block-end: 1rem;
     }
 
     li > a {
@@ -28,7 +28,7 @@
       align-items: center;
       text-decoration: none;
       color: var(--mk-color-text);
-      margin-top: 0.5em;
+      margin-block-start: 0.5em;
     }
 
     li[data-passed='true'] > a {

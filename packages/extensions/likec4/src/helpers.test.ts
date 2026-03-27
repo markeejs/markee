@@ -24,14 +24,27 @@ describe('@markee/likec4 helpers', () => {
   })
 
   it('reads metadata booleans, classes, and max-height values', () => {
-    const meta = { class: 'on-glb compact', zoom: 'true', pan: 'off', id: 4 }
+    const meta = {
+      class: 'on-glb compact',
+      zoom: 'true',
+      pan: 'off',
+      maybe: 'later',
+      id: 4,
+      invalid: {},
+    }
 
     expect(getStringFromMeta(meta, 'id')).toBe('4')
+    expect(getStringFromMeta(meta, 'invalid')).toBe('')
     expect(getBooleanFromMeta(meta, 'zoom')).toBe(true)
+    expect(getBooleanFromMeta({ zoom: 'zoom' }, 'zoom')).toBe(true)
+    expect(getBooleanFromMeta({ pan: '0' }, 'pan', true)).toBe(false)
     expect(getBooleanFromMeta(meta, 'pan', true)).toBe(false)
+    expect(getBooleanFromMeta(meta, 'maybe', true)).toBe(true)
     expect(hasClass(meta, 'compact')).toBe(true)
+    expect(hasClass({ class: true }, 'compact')).toBe(false)
     expect(normalizeMaxHeight(' 20rem ')).toBe('20rem')
     expect(normalizeMaxHeight('100')).toBe('')
+    expect(normalizeMaxHeight('   ')).toBe('')
     expect(normalizeMaxHeight(undefined)).toBe('')
   })
 

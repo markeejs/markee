@@ -1,3 +1,4 @@
+import type { MarkdownFile, SectionFile } from '@markee/types'
 import yaml from 'yaml'
 import micromatch from 'micromatch'
 
@@ -479,7 +480,7 @@ export const SectionCompute = {
   async navigationStructure(markdownFiles: Record<string, MarkdownFile>) {
     const files = Object.keys(markdownFiles).sort(FilesystemHelpers.sortFiles)
     const folders = extractAllFolders(files).sort(FilesystemHelpers.sortFiles)
-    const sourceRoots = config.sources.map((source) =>
+    const sourceRoots = ConfigCache.config.sources.map((source) =>
       ConfigCache.getRoot(source.root),
     )
 
@@ -522,7 +523,7 @@ export const SectionCompute = {
         sectionFiles[folder] = sanitizeSectionFile({
           ...loadYamlContent(dataFile),
         })
-        sectionFiles[folder].link = getLink(folder, config.sources)
+        sectionFiles[folder].link = getLink(folder, ConfigCache.config.sources)
         if (sectionFiles[folder].navigation) {
           sectionFiles[folder].navigation = simplifyNavigationStructure(
             sectionFiles[folder].navigation as Navigation,

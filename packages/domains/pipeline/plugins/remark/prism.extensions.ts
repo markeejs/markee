@@ -1,6 +1,18 @@
 import Prism from 'prismjs'
 import { loadLanguage } from '../resources/prism-languages.js'
 
+export type PrismTheme =
+  | 'oneLight'
+  | 'oneDark'
+  | 'default'
+  | 'coy'
+  | 'dark'
+  | 'funky'
+  | 'okaidia'
+  | 'solarizedlight'
+  | 'tomorrow'
+  | 'twilight'
+
 const themes = {
   // @ts-ignore
   default: () => import('../styles/prism-themes/one-light.css?raw'),
@@ -8,12 +20,19 @@ const themes = {
   oneLight: () => import('../styles/prism-themes/one-light.css?raw'),
   // @ts-ignore
   oneDark: () => import('../styles/prism-themes/one-dark.css?raw'),
+  // @ts-ignore
   coy: () => import('prismjs/themes/prism-coy.css?raw'),
+  // @ts-ignore
   dark: () => import('prismjs/themes/prism-dark.css?raw'),
+  // @ts-ignore
   funky: () => import('prismjs/themes/prism-funky.css?raw'),
+  // @ts-ignore
   okaidia: () => import('prismjs/themes/prism-okaidia.css?raw'),
+  // @ts-ignore
   solarizedlight: () => import('prismjs/themes/prism-solarizedlight.css?raw'),
+  // @ts-ignore
   tomorrow: () => import('prismjs/themes/prism-tomorrow.css?raw'),
+  // @ts-ignore
   twilight: () => import('prismjs/themes/prism-twilight.css?raw'),
 } as Record<PrismTheme, () => Promise<{ default: string }>>
 

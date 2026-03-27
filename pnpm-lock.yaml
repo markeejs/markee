@@ -49,6 +49,9 @@ importers:
       '@markee/runtime':
         specifier: 0.1.0
         version: link:../runtime
+      '@markee/types':
+        specifier: 0.1.0
+        version: link:../../support/types
       attributes-parser:
         specifier: ^2.2.3
         version: 2.2.3
@@ -73,6 +76,9 @@ importers:
       es-module-lexer:
         specifier: ^2.0.0
         version: 2.0.0
+      esbuild:
+        specifier: ^0.27.2
+        version: 0.27.2
       fs-extra:
         specifier: ^11.3.4
         version: 11.3.4
@@ -88,6 +94,9 @@ importers:
       js-sha1:
         specifier: ^0.7.0
         version: 0.7.0
+      lightningcss:
+        specifier: ^1.32.0
+        version: 1.32.0
       markdown-it:
         specifier: ^14.1.1
         version: 14.1.1
@@ -151,6 +160,10 @@ importers:
         version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/core/client:
+    dependencies:
+      '@markee/types':
+        specifier: 0.1.0
+        version: link:../../support/types
     devDependencies:
       '@markee/pipeline':
         specifier: 0.1.0
@@ -205,9 +218,6 @@ importers:
       '@markee/state':
         specifier: 0.1.0
         version: link:../../domains/state
-      '@markee/types':
-        specifier: 0.1.0
-        version: link:../../support/types
       '@nanostores/lit':
         specifier: ^0.2.3
         version: 0.2.3(lit@3.3.2)(nanostores@1.1.0)
@@ -233,6 +243,12 @@ importers:
 
   packages/domains/elements:
     dependencies:
+      '@markee/state':
+        specifier: 0.1.0
+        version: link:../state
+      '@markee/types':
+        specifier: 0.1.0
+        version: link:../../support/types
       '@nanostores/lit':
         specifier: ^0.2.3
         version: 0.2.3(lit@3.3.2)(nanostores@1.1.0)
@@ -272,6 +288,10 @@ importers:
         version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/domains/pipeline:
+    dependencies:
+      '@markee/types':
+        specifier: 0.1.0
+        version: link:../../support/types
     devDependencies:
       '@discordapp/twemoji':
         specifier: ^15.1.0
@@ -480,6 +500,10 @@ importers:
         version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/extensions/diagrams:
+    dependencies:
+      '@markee/pipeline':
+        specifier: 0.1.0
+        version: link:../../domains/pipeline
     devDependencies:
       '@markee/tsconfig':
         specifier: 0.1.0
@@ -531,6 +555,10 @@ importers:
         version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/extensions/likec4:
+    dependencies:
+      '@markee/pipeline':
+        specifier: 0.1.0
+        version: link:../../domains/pipeline
     devDependencies:
       '@likec4/diagram':
         specifier: ^1.52.0
@@ -576,6 +604,10 @@ importers:
         version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.3)(jsdom@29.0.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/extensions/mathjax:
+    dependencies:
+      '@markee/pipeline':
+        specifier: 0.1.0
+        version: link:../../domains/pipeline
     devDependencies:
       '@markee/tsconfig':
         specifier: 0.1.0

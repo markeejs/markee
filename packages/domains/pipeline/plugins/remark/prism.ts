@@ -1,3 +1,4 @@
+import type { Configuration } from '@markee/types'
 import type { Root } from 'mdast'
 import type { Processor, Transformer } from 'unified'
 import { visit } from 'unist-util-visit'
@@ -30,7 +31,9 @@ const knownAliases: Record<string, string> = {
  * Goes in pair with rehypePrism()
  */
 export function remarkPrism(this: Processor): Transformer<Root, Root> {
-  const prismConfig = this.data().pluginConfig('prism')
+  const { pluginConfig } = this.data()
+  const prismConfig =
+    pluginConfig<NonNullable<Configuration['plugins']>['prism']>('prism')
   return (tree) => {
     const loadPromises: Promise<void>[] = [
       import('./prism.plugins.js').then(() => {}),

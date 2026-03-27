@@ -1,3 +1,4 @@
+import type { MarkdownFile } from '@markee/types'
 import fs from 'fs-extra'
 import colors from 'colors/safe.js'
 
@@ -14,6 +15,7 @@ import { type Layouts, MetadataCache } from '../cache/metadata-cache.js'
 import { writeRss } from '../writers/write-rss.js'
 import { writeAssets } from '../writers/write-assets.js'
 import { writeClient } from '../writers/write-client.js'
+import { writeMinify } from '../writers/write-minify.js'
 import { writeSitemap } from '../writers/write-sitemap.js'
 import { writeSplitBuilds } from '../writers/write-split-builds.js'
 
@@ -67,9 +69,11 @@ function getLayoutsFiles(
 
 export async function commandBuild() {
   console.time('Website built in' + '\u001b[32m')
-  await fs.emptyDir(PathHelpers.concat(ROOT_DIR, config.build.outDir))
+  await fs.emptyDir(
+    PathHelpers.concat(ROOT_DIR, ConfigCache.config.build.outDir),
+  )
   await fs.ensureDir(
-    PathHelpers.concat(ROOT_DIR, config.build.outDir, '_markee'),
+    PathHelpers.concat(ROOT_DIR, ConfigCache.config.build.outDir, '_markee'),
   )
 
   time('Detecting Markdown sources')
@@ -79,6 +83,9 @@ export async function commandBuild() {
 
   const copyPromise = writeAssets()
   const clientPromise = writeClient()
+  const minifyPromise = Promise.all([copyPromise, clientPromise]).then(() =>
+    writeMinify(),
+  )
   const indexPromise = HtmlCache.index(true)
   const assetsListPromise = MetadataCache.assets()
 
@@ -124,7 +131,7 @@ export async function commandBuild() {
   const brokenLinks = await MarkdownCache.getAllBrokenLinks(files, folders)
 
   if (brokenLinks > 0) {
-    const details = config.build.skipLinkValidation
+    const details = ConfigCache.config.build.skipLinkValidation
       ? 'Run without build.skipLinkValidation for details.'
       : 'Stopping build.'
     console.log(
@@ -133,7 +140,7 @@ export async function commandBuild() {
       colors.red(`broken link${plural(brokenLinks)}. ${details}`),
     )
 
-    if (!config.build.skipLinkValidation) {
+    if (!ConfigCache.config.build.skipLinkValidation) {
       process.exit(1)
     }
   }
@@ -145,11 +152,19 @@ export async function commandBuild() {
       if (outFiles[file]) {
         await fs.ensureDir(
           PathHelpers.dirname(
-            PathHelpers.concat(ROOT_DIR, `/${config.build.outDir}`, file),
+            PathHelpers.concat(
+              ROOT_DIR,
+              `/${ConfigCache.config.build.outDir}`,
+              file,
+            ),
           ),
         )
         await fs.writeFile(
-          PathHelpers.concat(ROOT_DIR, `/${config.build.outDir}`, file),
+          PathHelpers.concat(
+            ROOT_DIR,
+            `/${ConfigCache.config.build.outDir}`,
+            file,
+          ),
           outFiles[file].sanitized,
           'utf8',
         )
@@ -167,21 +182,34 @@ export async function commandBuild() {
   await writeSitemap(files)
   const splits = await writeSplitBuilds(files, folders, search)
 
-  await fs.writeJSON(`${config.build.outDir}/_markee/navigation.json`, {
-    folders,
-    files,
-    assets,
-    splits,
-  })
   await fs.writeJSON(
-    `${config.build.outDir}/_markee/config.json`,
+    `${ConfigCache.config.build.outDir}/_markee/navigation.json`,
+    {
+      folders,
+      files,
+      assets,
+      splits,
+    },
+  )
+  await fs.writeJSON(
+    `${ConfigCache.config.build.outDir}/_markee/config.json`,
     ConfigCache.filterConfig(),
   )
-  await fs.writeJSON(`${config.build.outDir}/_markee/search.json`, search)
-  await fs.writeJSON(`${config.build.outDir}/_markee/layouts.json`, layouts)
-  await fs.writeFile(`${config.build.outDir}/index.html`, index, 'utf8')
+  await fs.writeJSON(
+    `${ConfigCache.config.build.outDir}/_markee/search.json`,
+    search,
+  )
+  await fs.writeJSON(
+    `${ConfigCache.config.build.outDir}/_markee/layouts.json`,
+    layouts,
+  )
+  await fs.writeFile(
+    `${ConfigCache.config.build.outDir}/index.html`,
+    index,
+    'utf8',
+  )
 
-  await clientPromise
+  await minifyPromise
   timeEnd('Writing metadata to disk')
   console.timeEnd('Website built in' + '\u001b[32m')
 }

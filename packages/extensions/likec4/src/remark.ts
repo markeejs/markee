@@ -1,3 +1,4 @@
+import type { Processor } from 'unified'
 import parseAttrs from 'attributes-parser'
 import { extend } from '@markee/runtime'
 import {
@@ -9,12 +10,10 @@ import {
 } from './helpers'
 
 export function registerLikeC4Remark() {
-  extend.markdownPipeline.remark('markee-likec4', function (this: any) {
+  extend.markdownPipeline.remark('markee-likec4', function (this: Processor) {
     return (tree: any) => {
-      const resolved = this.data().pluginConfig('lightbox') as
-        | boolean
-        | { enabled: boolean }
-        | undefined
+      const { pluginConfig } = this.data()
+      const resolved = pluginConfig<boolean | { enabled: boolean }>('lightbox')
       const lightboxEnabled =
         typeof resolved === 'boolean' ? resolved : (resolved?.enabled ?? true)
 

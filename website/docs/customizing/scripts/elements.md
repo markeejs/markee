@@ -12,7 +12,7 @@ The recommended way to create a Markee custom element is to use the `MarkeeEleme
 You can import `MarkeeElement` from `@markee/runtime`, and Lit from `lit` directly.
 
 The `MarkeeElement` class is a wrapper around Lit `LitElement`, with some added helpers for listening to
-a nanostores atom, as well as easily adding an aria-role since most custom elements added to Markee sites
+a nanostores atom, as well as easily adding an ARIA role since most custom elements added to Markee sites
 will have a semantic role to play.
 
 `MarkeeElement` instances also have a `tag` helper for easily registering your custom element.

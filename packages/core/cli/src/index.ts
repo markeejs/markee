@@ -3,7 +3,7 @@ import commandLineArgs from 'command-line-args'
 import commandLineUsage from 'command-line-usage'
 
 import { ROOT_DIR, MARKEE_PREFIX, MARKEE } from './constants.js'
-import { ConfigCache } from './cache/config-cache.js'
+import { ConfigCache, type CliMode } from './cache/config-cache.js'
 import { commandDev } from './commands/dev.js'
 import { commandBuild } from './commands/build.js'
 import { commandInit } from './commands/init.js'
@@ -89,10 +89,12 @@ if (options.help || !options.command) {
   process.exit(0)
 }
 
-global.command = commandAliasMap[options.command] || options.command
-global.mode = global.command === 'develop' ? 'preview' : options.mode
+ConfigCache.command = commandAliasMap[options.command] || options.command
+ConfigCache.mode = (
+  ConfigCache.command === 'develop' ? 'preview' : options.mode
+) as CliMode
 
-if (global.command !== 'init') {
+if (ConfigCache.command !== 'init') {
   const baseLog = console.log.bind(console)
   console.log = (...args) => {
     process.stdout.write(MARKEE_PREFIX.get())
@@ -102,14 +104,23 @@ if (global.command !== 'init') {
 
 console.log(MARKEE, 'starting up...')
 await ConfigCache.loadConfig(ROOT_DIR, options as any)
-console.log('Entering', colors.blue(commandName[global.command]), 'mode')
+const resolvedCommand = ConfigCache.command
+console.log(
+  'Entering',
+  colors.blue(
+    resolvedCommand in commandName
+      ? commandName[resolvedCommand as keyof typeof commandName]
+      : resolvedCommand,
+  ),
+  'mode',
+)
 
 const command = {
   develop: commandDev,
   build: commandBuild,
   serve: commandServe,
   init: commandInit,
-}[global.command]
+}[resolvedCommand as keyof typeof commandName]
 
 if (command) {
   await command()

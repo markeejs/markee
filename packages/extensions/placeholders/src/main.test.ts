@@ -19,6 +19,13 @@ async function waitForMutation() {
   await Promise.resolve()
 }
 
+let mainImport: Promise<void> | null = null
+
+async function ensureMainImported() {
+  mainImport ??= import('./main.js').then(() => undefined)
+  await mainImport
+}
+
 async function importPluginRegistration() {
   vi.resetModules()
 
@@ -73,10 +80,51 @@ vi.mock('@markee/runtime', () => ({
   },
 }))
 
-await import('./main.js')
-
 describe('@markee/placeholders', () => {
+  it('loads stored scoped values and syncs placeholders rendered as inputs', async () => {
+    sessionStorage.setItem(
+      'markee::placeholders::scopes',
+      JSON.stringify([['team', [['ScopedToken::team', 'Remembered']]]]),
+    )
+
+    await ensureMainImported()
+
+    const remembered = document.createElement('markee-placeholder')
+    remembered.dataset.scope = 'team'
+    remembered.textContent = 'ScopedToken'
+
+    const mirror = document.createElement('markee-placeholder')
+    mirror.dataset.scope = 'team'
+    mirror.dataset.tag = 'input'
+    mirror.textContent = 'ScopedToken'
+
+    const inputs = document.createElement('markee-placeholder-inputs')
+    document.body.append(remembered, mirror, inputs)
+
+    expect(remembered.querySelector('[data-value]')?.textContent).toBe(
+      'Remembered',
+    )
+
+    const editable = remembered.querySelector(
+      '[contenteditable]',
+    ) as HTMLElement
+    editable.textContent = 'Updated'
+    editable.dispatchEvent(new Event('input', { bubbles: true }))
+
+    const tableInput = inputs.querySelector(
+      'tbody tr input',
+    ) as HTMLInputElement
+    tableInput.value = 'Updated'
+    tableInput.dispatchEvent(new Event('input', { bubbles: true }))
+
+    expect((mirror.querySelector('input') as HTMLInputElement).value).toBe(
+      'Updated',
+    )
+  })
+
   it('syncs placeholders through editable values and placeholder inputs', async () => {
+    await ensureMainImported()
+
     const first = document.createElement('markee-placeholder')
     first.textContent = 'Name'
     const second = document.createElement('markee-placeholder')
@@ -95,10 +143,14 @@ describe('@markee/placeholders', () => {
     ).toMatchObject({
       value: 'Alice',
     })
-    expect(sessionStorage.getItem('markee::placeholders::scopes')).toBe('[]')
+    expect(sessionStorage.getItem('markee::placeholders::scopes')).toContain(
+      'team',
+    )
   })
 
   it('supports scoped values, router clearing, and input-driven updates', async () => {
+    await ensureMainImported()
+
     const scoped = document.createElement('markee-placeholder-variable')
     scoped.dataset.scope = 'team'
     scoped.textContent = 'ScopedToken'
@@ -135,6 +187,27 @@ describe('@markee/placeholders', () => {
     expect(fresh.querySelector('[data-value]')?.textContent).toBe('RouteToken')
   })
 
+  it('handles empty placeholders and disconnects unknown instances safely', async () => {
+    await ensureMainImported()
+
+    const empty = document.createElement('markee-placeholder')
+    Object.defineProperty(empty, 'textContent', {
+      configurable: true,
+      get: () => null,
+    })
+    document.body.append(empty)
+
+    expect(empty.querySelector('[data-value]')?.textContent).toBe('')
+
+    const orphan = document.createElement('markee-placeholder')
+    ;(orphan as unknown as { value: string }).value = '__missing__'
+    expect(() =>
+      (
+        orphan as unknown as { disconnectedCallback(): void }
+      ).disconnectedCallback(),
+    ).not.toThrow()
+  })
+
   it('registers a rehype plugin that converts placeholder elements', async () => {
     const rehype = await importPluginRegistration()
 
@@ -156,6 +229,17 @@ describe('@markee/placeholders', () => {
           properties: { variable: '', global: '' },
           children: [],
         },
+        {
+          type: 'element',
+          tagName: 'code',
+          properties: {},
+          children: [],
+        },
+        {
+          type: 'element',
+          tagName: 'span',
+          children: [],
+        },
       ],
     }
 
@@ -175,18 +259,32 @@ describe('@markee/placeholders', () => {
         dataTag: 'strong',
       },
     })
+    expect(tree.children[2]).toMatchObject({
+      tagName: 'code',
+      properties: {},
+    })
+    expect(tree.children[3]).toMatchObject({
+      tagName: 'span',
+      children: [],
+    })
   })
 
   it('replaces placeholder markup in eligible code blocks and leaves pre blocks alone', async () => {
+    await ensureMainImported()
+
     const host = document.createElement('div')
     host.setAttribute('tabindex', '0')
     host.innerHTML =
-      '<code placeholders>[CodeName]{placeholder} [CodeRole]{variable scope}</code>'
+      '<code placeholders>[CodeName]{placeholder} [CodeRole]{variable} [Scoped]{variable scope}</code>'
 
     const pre = document.createElement('pre')
     pre.innerHTML = '<code placeholders>[Skip]{placeholder}</code>'
+    const alreadyProcessed = document.createElement('div')
+    alreadyProcessed.setAttribute('tabindex', '0')
+    alreadyProcessed.innerHTML =
+      '<code placeholders><markee-placeholder>Keep</markee-placeholder></code>'
 
-    document.body.append(host, pre)
+    document.body.append(host, pre, alreadyProcessed)
     await waitForMutation()
 
     expect(host.querySelector('markee-placeholder')?.textContent).toBe(
@@ -195,6 +293,32 @@ describe('@markee/placeholders', () => {
     expect(host.querySelector('markee-placeholder-variable')?.textContent).toBe(
       'CodeRole',
     )
+    expect(host.innerHTML).toContain('data-scope=')
     expect(pre.querySelector('markee-placeholder')).toBeNull()
+    expect(
+      alreadyProcessed.querySelector('markee-placeholder')?.textContent,
+    ).toBe('Keep')
+  })
+
+  it('propagates editable updates into input-tag placeholders', async () => {
+    await ensureMainImported()
+
+    const editable = document.createElement('markee-placeholder')
+    editable.textContent = 'Name'
+    const mirroredInput = document.createElement('markee-placeholder')
+    mirroredInput.dataset.tag = 'input'
+    mirroredInput.textContent = 'Name'
+
+    document.body.append(editable, mirroredInput)
+
+    const contenteditable = editable.querySelector(
+      '[contenteditable]',
+    ) as HTMLElement
+    contenteditable.textContent = 'Alice'
+    contenteditable.dispatchEvent(new Event('input', { bubbles: true }))
+
+    expect(
+      (mirroredInput.querySelector('input') as HTMLInputElement).value,
+    ).toBe('Alice')
   })
 })

@@ -1,5 +1,7 @@
+import type { MarkdownFile, SearchIndex, SectionFile } from '@markee/types'
 import { globby } from 'globby'
 
+import type { Frontmatter } from '../compute/markdown.js'
 import type { Token } from '../compute/markdown/tokenizer/index.js'
 
 import { ROOT_DIR } from '../constants.js'
@@ -221,7 +223,7 @@ export class MarkdownCache {
     const files: Record<string, MarkdownFile> = {}
 
     await Promise.all(
-      config.sources.map(async (source) => {
+      ConfigCache.config.sources.map(async (source) => {
         const found = await globby('**/*.md', {
           cwd: PathHelpers.concat(ROOT_DIR, ConfigCache.getRoot(source.root)),
         })
