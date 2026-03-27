@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ModuleHelpers } from '../helpers/module.js'
+let ConfigCache: typeof import('./config-cache.js').ConfigCache
 
 async function importMetadataCache({
   readFile = vi.fn(),
@@ -18,7 +19,17 @@ async function importMetadataCache({
   getSplits?: ReturnType<typeof vi.fn>
   resolve?: ReturnType<typeof vi.fn>
 } = {}) {
+  const config = ConfigCache.config
+  const command = ConfigCache.command
+
   vi.resetModules()
+  ;({ ConfigCache } =
+    await vi.importActual<typeof import('./config-cache.js')>(
+      './config-cache.js',
+    ))
+  ConfigCache.reset()
+  ConfigCache.config = config
+  ConfigCache.command = command
 
   vi.doMock('fs-extra', () => ({
     default: {
@@ -45,12 +56,22 @@ async function importMetadataCache({
       loadExtensions,
     },
   }))
-  vi.doMock('./config-cache.js', () => ({
-    ConfigCache: {
-      getSplits,
-      getRoot: vi.fn((root: string) => root),
-    },
-  }))
+  vi.doMock('./config-cache.js', async () => {
+    const actual =
+      await vi.importActual<typeof import('./config-cache.js')>(
+        './config-cache.js',
+      )
+
+    class MockConfigCache extends actual.ConfigCache {
+      static getSplits = getSplits
+      static getRoot = vi.fn((root: string) => root)
+    }
+
+    return {
+      ...actual,
+      ConfigCache: MockConfigCache,
+    }
+  })
   vi.doMock('../helpers/module.js', async () => {
     const actual = await vi.importActual('../helpers/module.js')
     return {
@@ -66,11 +87,16 @@ async function importMetadataCache({
 }
 
 describe('MetadataCache', () => {
-  beforeEach(() => {
-    global.config = {
+  beforeEach(async () => {
+    ;({ ConfigCache } =
+      await vi.importActual<typeof import('./config-cache.js')>(
+        './config-cache.js',
+      ))
+    ConfigCache.reset()
+    ConfigCache.config = {
       sources: [{ root: 'docs' }, { root: 'blog', mount: 'articles' }],
     } as any
-    global.command = 'build' as any
+    ConfigCache.command = 'build'
   })
 
   it('builds the search index from indexable markdown files', async () => {
@@ -164,7 +190,7 @@ describe('MetadataCache', () => {
       '/_assets/logo.svg': '/_assets/logo.svg',
     })
 
-    global.command = 'develop' as any
+    ConfigCache.command = 'develop'
     const { MetadataCache: DevelopmentMetadataCache } = await makeImport()
     await expect(DevelopmentMetadataCache.assets()).resolves.toMatchObject({
       '/docs/guide.pdf': '/docs/guide.pdf',

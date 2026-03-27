@@ -6,9 +6,9 @@
       position: absolute;
       position-anchor: --input;
       /*noinspection ALL*/
-      top: calc(anchor(bottom) + 0.5rem);
+      inset-block-start: calc(anchor(bottom) + 0.5rem);
       /*noinspection ALL*/
-      right: anchor(right);
+      inset-inline-end: anchor(right);
       width: 50rem;
       height: min(60vh, 48rem);
       background-color: var(--mk-color-background-light);
@@ -25,11 +25,11 @@
       position: absolute;
       position-anchor: --input;
       /*noinspection ALL*/
-      right: calc(anchor(right) + 0.5rem);
+      inset-inline-end: calc(anchor(right) + 0.5rem);
       /*noinspection ALL*/
-      top: anchor(top);
+      inset-block-start: anchor(top);
       /*noinspection ALL*/
-      bottom: anchor(bottom);
+      inset-block-end: anchor(bottom);
 
       display: flex;
       align-items: center;
@@ -44,7 +44,7 @@
       position: fixed;
       inset: 0;
       height: 100dvh;
-      background-color: rgba(0, 0, 0, 0.25);
+      background-color: oklch(0% 0 0 / 0.3);
       z-index: 1;
       &[data-active] {
         display: block;
@@ -86,11 +86,11 @@
       display: inline-block;
       padding: 0.5em;
       background-color: var(--mk-color-background);
-      border-bottom: 1px solid var(--mk-color-border);
+      border-block-end: 1px solid var(--mk-color-border);
     }
 
     &:not(:first-child) > strong {
-      border-top: 1px solid var(--mk-color-border);
+      border-block-start: 1px solid var(--mk-color-border);
     }
   }
 
@@ -148,7 +148,7 @@
     }
 
     > div:nth-of-type(2) {
-      margin-top: 0.5rem;
+      margin-block-start: 0.5rem;
       padding-inline: 1rem;
       display: flex;
       gap: 0.5rem;
@@ -187,9 +187,9 @@
     }
 
     &:has(+ markee-search-file) {
-      border-bottom: 1px solid var(--mk-color-border);
-      padding-bottom: 1em;
-      margin-bottom: 0.5em;
+      border-block-end: 1px solid var(--mk-color-border);
+      padding-block-end: 1em;
+      margin-block-end: 0.5em;
     }
   }
 }

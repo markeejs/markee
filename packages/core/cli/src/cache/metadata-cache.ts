@@ -1,3 +1,4 @@
+import type { MarkdownFile } from '@markee/types'
 import yaml from 'yaml'
 import fs from 'fs-extra'
 import { globby } from 'globby'
@@ -199,7 +200,7 @@ export class MetadataCache {
 
   static async assets() {
     const splits = ConfigCache.getSplits()
-    const sources = config.sources.map((source) =>
+    const sources = ConfigCache.config.sources.map((source) =>
       ConfigCache.getRoot(source.root),
     )
 
@@ -239,7 +240,7 @@ export class MetadataCache {
           .filter((file) => !file.endsWith('.md') && !file.endsWith('/.pages'))
           .map((file) => [
             file,
-            split && command !== 'develop'
+            split && ConfigCache.command !== 'develop'
               ? file.replace(split.folder, split.root)
               : file,
           ])

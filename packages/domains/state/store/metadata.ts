@@ -1,3 +1,9 @@
+import type {
+  Configuration,
+  MarkdownFile,
+  SearchIndex,
+  SectionFile,
+} from '@markee/types'
 import { computed, map, onMount } from 'nanostores'
 import { cache } from '../cache.js'
 

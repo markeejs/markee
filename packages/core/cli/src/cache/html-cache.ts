@@ -2,13 +2,47 @@ import fs from 'fs-extra'
 import { globby } from 'globby'
 
 import { CLIENT_FILE, ROOT_DIR } from '../constants.js'
+import { ConfigCache } from './config-cache.js'
 
 import { PathHelpers } from '../helpers/path.js'
+import { BuildMinifyHelpers } from '../helpers/build-minify.js'
 
 import { BustCache } from './bust-cache.js'
 import { ExtensionsCache } from './extensions-cache.js'
 
+const INLINE_HEAD_LIMITS_KB = {
+  js: 4,
+  css: 16,
+} as const
+const INLINE_HEAD_IMPORT_RE = /\bimport\b/
+
 export class HtmlCache {
+  private static inlineHeadAssetsEnabled() {
+    const inlineHeadAssets = ConfigCache.config.build.inlineHeadAssets
+    return (
+      inlineHeadAssets === true ||
+      (!!inlineHeadAssets && typeof inlineHeadAssets === 'object')
+    )
+  }
+
+  private static inlineHeadLimitBytes(
+    kind: keyof typeof INLINE_HEAD_LIMITS_KB,
+  ) {
+    const inlineHeadAssets = ConfigCache.config.build.inlineHeadAssets
+    const configuredLimit =
+      inlineHeadAssets && typeof inlineHeadAssets === 'object'
+        ? inlineHeadAssets[kind]
+        : undefined
+    const limitKb =
+      typeof configuredLimit === 'number' &&
+      Number.isFinite(configuredLimit) &&
+      configuredLimit >= 0
+        ? configuredLimit
+        : INLINE_HEAD_LIMITS_KB[kind]
+
+    return limitKb * 1024
+  }
+
   /**
    * Generate the content to inject in the <head> part of the HTML file
    * to load all JS, CSS and HTML assets in _head
@@ -46,10 +80,9 @@ export class HtmlCache {
     const headFiles = (
       await Promise.all(
         files.map(async (file) => {
-          const modified = new Date(
-            (await fs.stat(PathHelpers.concat(root, '_assets/_head', file)))
-              .mtimeMs,
-          ).valueOf()
+          const filePath = PathHelpers.concat(root, '_assets/_head', file)
+          const stats = await fs.stat(filePath)
+          const modified = new Date(stats.mtimeMs).valueOf()
 
           // JS and MJS files are loaded as JS modules
           if (file.endsWith('.js') || file.endsWith('.mjs')) {
@@ -57,11 +90,26 @@ export class HtmlCache {
               return
             }
 
+            const shouldInline =
+              ConfigCache.command === 'build' &&
+              this.inlineHeadAssetsEnabled() &&
+              stats.size <= this.inlineHeadLimitBytes('js')
+
+            if (shouldInline) {
+              const source = await fs.readFile(filePath, 'utf-8')
+              if (!INLINE_HEAD_IMPORT_RE.test(source)) {
+                return {
+                  key: baseUrl + '/' + file,
+                  modified,
+                  kind: 'script' as const,
+                  html: `<script data-file="${baseUrl}/${file}" type="module">${await BuildMinifyHelpers.minifyContent(filePath, source)}</script>`,
+                }
+              }
+            }
+
             return {
               key: baseUrl + '/' + file,
-              modified: await BustCache.getFileTime(
-                PathHelpers.concat(root, '_assets/_head', file),
-              ),
+              modified: await BustCache.getFileTime(filePath),
               kind: 'script' as const,
               html: `<script type="module" src="${baseUrl}/${file}"></script>`,
             }
@@ -69,11 +117,26 @@ export class HtmlCache {
 
           // CSS files are loaded as CSS stylesheets
           if (file.endsWith('.css')) {
+            const shouldInline =
+              ConfigCache.command === 'build' &&
+              this.inlineHeadAssetsEnabled() &&
+              stats.size <= this.inlineHeadLimitBytes('css')
+
+            if (shouldInline) {
+              const source = await fs.readFile(filePath, 'utf-8')
+              if (!INLINE_HEAD_IMPORT_RE.test(source)) {
+                return {
+                  key: baseUrl + '/' + file,
+                  modified,
+                  kind: 'style' as const,
+                  html: `<style data-file="${baseUrl}/${file}">${await BuildMinifyHelpers.minifyContent(filePath, source)}</style>`,
+                }
+              }
+            }
+
             return {
               key: baseUrl + '/' + file,
-              modified: await BustCache.getFileTime(
-                PathHelpers.concat(root, '_assets/_head', file),
-              ),
+              modified: await BustCache.getFileTime(filePath),
               kind: 'style' as const,
               html: `<link rel="stylesheet" href="${baseUrl}/${file}" />`,
             }
@@ -85,16 +148,8 @@ export class HtmlCache {
             modified,
             kind: 'fragment' as const,
             html: await fs
-              .readFile(
-                PathHelpers.concat(root, '_assets', '_head', file),
-                'utf-8',
-              )
-              .catch(
-                () =>
-                  '<!-- Error loading file ' +
-                  PathHelpers.concat(root, '_assets', '_head', file) +
-                  ' -->',
-              ),
+              .readFile(filePath, 'utf-8')
+              .catch(() => '<!-- Error loading file ' + filePath + ' -->'),
           }
         }),
       )
@@ -150,7 +205,7 @@ export class HtmlCache {
 
     return index.replace(
       '<title>Markee</title>',
-      `<title>${config.title || 'Markee'}</title>`,
+      `<title>${ConfigCache.config.title || 'Markee'}</title>`,
     )
   }
 }

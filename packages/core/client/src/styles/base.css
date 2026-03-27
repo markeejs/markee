@@ -8,23 +8,35 @@
   }
 
   body {
-    --mk-color-text: var(--markee-color-text, #000000);
-    --mk-color-hint: var(--markee-color-hint, #868e96);
-    --mk-color-navlink: var(--markee-color-navlink, #212529);
-    --mk-color-primary: var(--markee-color-primary, #3b82f6);
-    --mk-color-primary-darker: var(--markee-color-primary-darker, #1864ab);
-    --mk-color-background: var(--markee-color-background, #f8f9fa);
-    --mk-color-background-light: var(--markee-color-background-light, #ffffff);
-    --mk-color-background-code: var(--markee-color-background-code, #f8f9fa);
-    --mk-color-background-mark: var(--markee-color-mark, #228be633);
+    --mk-color-text: var(--markee-color-text, oklch(0% 0 0));
+    --mk-color-hint: var(--markee-color-hint, oklch(64.5% 0 248.1));
+    --mk-color-navlink: var(--markee-color-navlink, oklch(26% 0 248.2));
+    --mk-color-primary: var(--markee-color-primary, oklch(57% 0.2 260));
+    --mk-color-primary-darker: var(
+      --markee-color-primary-darker,
+      oklch(49.5% 0.1 251.6)
+    );
+    --mk-color-background: var(--markee-color-background, oklch(98% 0 247.8));
+    --mk-color-background-light: var(
+      --markee-color-background-light,
+      oklch(100% 0 0)
+    );
+    --mk-color-background-code: var(
+      --markee-color-background-code,
+      oklch(98% 0 247.8)
+    );
+    --mk-color-background-mark: var(
+      --markee-color-mark,
+      oklch(62.5% 0.2 250.3 / 0.2)
+    );
     --mk-color-background-target: var(
       --markee-color-background-target,
-      #228be633
+      oklch(62.5% 0.2 250.3 / 0.2)
     );
-    --mk-color-border: var(--markee-color-border, #e9ecefff);
+    --mk-color-border: var(--markee-color-border, oklch(94% 0 247.9));
     --mk-color-border-blockquote: var(
       --markee-color-border-blockquote,
-      #ced4daff
+      oklch(86.5% 0 248)
     );
     --mk-max-width: var(--markee-max-width, 100rem);
     --mk-header-height: var(--markee-header-height, 3rem);
@@ -38,21 +50,27 @@
   }
 
   body[data-color-scheme='dark'] {
-    --mk-color-text: var(--markee-color-text, #c9c9c9);
-    --mk-color-hint: var(--markee-color-hint, #ced4da);
-    --mk-color-navlink: var(--markee-color-navlink, #c9c9c9);
-    --mk-color-background: var(--markee-color-background, #141414);
-    --mk-color-background-light: var(--markee-color-background-light, #2e2e2e);
-    --mk-color-background-code: var(--markee-color-background-code, #1f1f1f);
-    --mk-color-background-mark: var(--markee-color-mark, #74c0fc);
+    --mk-color-text: var(--markee-color-text, oklch(83.5% 0 0));
+    --mk-color-hint: var(--markee-color-hint, oklch(86.5% 0 248));
+    --mk-color-navlink: var(--markee-color-navlink, oklch(83.5% 0 0));
+    --mk-color-background: var(--markee-color-background, oklch(19% 0 0));
+    --mk-color-background-light: var(
+      --markee-color-background-light,
+      oklch(30% 0 0)
+    );
+    --mk-color-background-code: var(
+      --markee-color-background-code,
+      oklch(24% 0 0)
+    );
+    --mk-color-background-mark: var(--markee-color-mark, oklch(78% 0.1 243.8));
     --mk-color-background-target: var(
       --markee-color-background-target,
-      #74c0fc
+      oklch(78% 0.1 243.8)
     );
-    --mk-color-border: var(--markee-color-border, #212121);
+    --mk-color-border: var(--markee-color-border, oklch(25% 0 0));
     --mk-color-border-blockquote: var(
       --markee-color-border-blockquote,
-      #424242
+      oklch(38% 0 0)
     );
   }
 
@@ -115,10 +133,10 @@
     padding-inline: 0.5rem;
     height: var(--mk-header-height, 3rem);
     position: sticky;
-    top: 0;
+    inset-block-start: 0;
     z-index: 1;
     background-color: var(--mk-color-background-light);
-    border-bottom: 1px solid var(--mk-color-border);
+    border-block-end: 1px solid var(--mk-color-border);
 
     markee-header-section {
       display: flex;
@@ -143,16 +161,16 @@
     > *:not(.mk-admonition) {
       border: 1px solid var(--mk-color-border);
       background-color: var(--mk-color-background-light);
-      border-radius: 3px;
+      border-radius: 0.1875rem;
       display: block;
       padding: 0.75rem;
 
       > p:first-child {
-        margin-top: 0;
+        margin-block-start: 0;
       }
 
       > p:last-child {
-        margin-bottom: 0;
+        margin-block-end: 0;
       }
     }
   }

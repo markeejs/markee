@@ -1,3 +1,4 @@
+import type { MarkdownFile } from '@markee/types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('../cache.js', () => ({
@@ -6,6 +7,7 @@ vi.mock('../cache.js', () => ({
 
 import { $router } from './router.js'
 import { $navigationLoader } from './metadata.js'
+import type { TreeItem, TreeLeaf } from './tree.js'
 import { $navigationTree } from './tree.js'
 
 function markdownFile(link: string, title: string) {

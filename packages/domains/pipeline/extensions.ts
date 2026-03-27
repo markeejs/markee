@@ -2,6 +2,19 @@ import { visit } from 'unist-util-visit'
 import type { Plugin } from 'unified'
 import type { Root as MDAst } from 'mdast'
 import type { Root as HAst } from 'hast'
+import type { Configuration, MarkdownFile } from '@markee/types'
+
+export type MarkeePluginConfig = <T = any>(pluginName: string) => T | undefined
+
+export interface MarkeeUnifiedData {
+  config?: Configuration | null
+  frontMatter?: MarkdownFile['frontMatter']
+  pluginConfig: MarkeePluginConfig
+}
+
+declare module 'unified' {
+  interface Data extends MarkeeUnifiedData {}
+}
 
 const remarkExtensions: Record<string, [Plugin<any[], MDAst, MDAst>, any[]]> =
   {}

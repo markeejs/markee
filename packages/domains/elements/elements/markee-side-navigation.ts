@@ -1,3 +1,4 @@
+import type { TreeItem, TreeLeaf } from '@markee/state'
 import { html, nothing } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 

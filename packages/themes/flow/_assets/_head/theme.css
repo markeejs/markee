@@ -4,45 +4,45 @@
 
     --mk-header-height: 4rem;
 
-    --mk-flow-color-primary-lighter: #eff6ff;
-    --mk-flow-color-secondary: #8b5cf6;
-    --mk-flow-color-secondary-lighter: #a894dc;
-    --mk-flow-color-background: rgba(255, 255, 255, 0.7);
-    --mk-flow-color-background-element: #f1f5f9;
+    --mk-flow-color-primary-lighter: oklch(97% 0 254.6);
+    --mk-flow-color-secondary: oklch(57.5% 0.2 292.6);
+    --mk-flow-color-secondary-lighter: oklch(71% 0.1 296.4);
+    --mk-flow-color-background: oklch(100% 0 0 / 0.7);
+    --mk-flow-color-background-element: oklch(97% 0 247.9);
     --mk-flow-color-background-secondary: var(--mk-color-background-light);
-    --mk-flow-color-border: rgba(255, 255, 255, 0.8);
-    --mk-flow-color-border-toc: #e2e8f0;
-    --mk-flow-color-border-darker: rgba(226, 232, 240, 0.6);
-    --mk-flow-color-border-shade: rgba(0, 0, 0, 0.05);
-    --mk-flow-color-code-background: rgba(59, 130, 246, 0.1);
-    --mk-flow-color-code-text: var(--mk-color-primary);
-    --mk-flow-color-text-muted: #64748b;
+    --mk-flow-color-border: oklch(100% 0 0 / 0.8);
+    --mk-flow-color-border-toc: oklch(93% 0 255.5);
+    --mk-flow-color-border-darker: oklch(93% 0 255.5 / 0.6);
+    --mk-flow-color-border-shade: oklch(0% 0 0 / 0.1);
+    --mk-flow-color-code-background: oklch(62.5% 0.2 259.8 / 0.1);
+    --mk-flow-color-code-text: var(--mk-color-primary-darker);
+    --mk-flow-color-text-muted: oklch(55.5% 0 257.4);
 
-    --private-color-primary-blob: #bfdbfe;
-    --private-color-secondary-blob: #e9d5ff;
+    --private-color-primary-blob: oklch(88% 0.1 254.1);
+    --private-color-secondary-blob: oklch(90% 0.1 306.7);
 
     --markee-color-placeholders: var(--mk-flow-color-secondary);
 
     &[data-color-scheme='dark'] {
-      --markee-color-background: #141419;
-      --markee-color-background-light: #111117;
+      --markee-color-background: oklch(19.5% 0 285.4);
+      --markee-color-background-light: oklch(18% 0 285.1);
 
-      --mk-flow-color-primary-lighter: #0b0c0e;
-      --mk-flow-color-secondary: #8b5cf6;
-      --mk-flow-color-secondary-lighter: #a894dc;
-      --mk-flow-color-background: rgba(21, 21, 21, 0.7);
-      --mk-flow-color-background-element: #000511;
+      --mk-flow-color-primary-lighter: oklch(15.5% 0 264.4);
+      --mk-flow-color-secondary: oklch(60.5% 0.2 292.7);
+      --mk-flow-color-secondary-lighter: oklch(71% 0.1 296.4);
+      --mk-flow-color-background: oklch(19.5% 0 0 / 0.7);
+      --mk-flow-color-background-element: oklch(11.5% 0 252.4);
       --mk-flow-color-background-secondary: var(--mk-flow-color-border-darker);
-      --mk-flow-color-border: rgba(21, 21, 21, 0.8);
-      --mk-flow-color-border-toc: rgb(26, 32, 40);
-      --mk-flow-color-border-darker: rgba(26, 32, 40, 0.6);
-      --mk-flow-color-border-shade: rgba(0, 0, 0, 0.05);
-      --mk-flow-color-code-background: rgba(59, 130, 246, 0.1);
+      --mk-flow-color-border: oklch(19.5% 0 0 / 0.8);
+      --mk-flow-color-border-toc: oklch(24% 0 255.7);
+      --mk-flow-color-border-darker: oklch(24% 0 255.7 / 0.6);
+      --mk-flow-color-border-shade: oklch(0% 0 0 / 0.1);
+      --mk-flow-color-code-background: oklch(62.5% 0.2 259.8 / 0.1);
       --mk-flow-color-code-text: var(--mk-color-primary);
-      --mk-flow-color-text-muted: #64748b;
+      --mk-flow-color-text-muted: oklch(55.5% 0 257.4);
 
-      --private-color-primary-blob: #103360;
-      --private-color-secondary-blob: #55307c;
+      --private-color-primary-blob: oklch(32.5% 0.1 256.3);
+      --private-color-secondary-blob: oklch(39.5% 0.1 303.6);
 
       .mk-admonition-title {
         color: var(--admonition-color);
@@ -54,8 +54,8 @@
 
     #blobs {
       position: fixed;
-      top: 0;
-      left: 0;
+      inset-block-start: 0;
+      inset-inline-start: 0;
       width: 100%;
       height: 100vh;
       z-index: -1;
@@ -64,14 +64,14 @@
 
       > div {
         position: absolute;
-        filter: blur(100px);
+        filter: blur(6.25rem);
         opacity: 0.45;
         border-radius: 50%;
       }
 
       > :first-child {
-        top: -10%;
-        left: -20%;
+        inset-block-start: -10%;
+        inset-inline-start: -20%;
         width: 60vw;
         height: 60vw;
         background: var(--private-color-primary-blob);
@@ -79,8 +79,8 @@
       }
 
       > :last-child {
-        bottom: -20%;
-        right: -20%;
+        inset-block-end: -20%;
+        inset-inline-end: -20%;
         width: 60vw;
         height: 60vw;
         background: var(--private-color-secondary-blob);
@@ -190,7 +190,7 @@
       &:not(:has(.mk-prism-title)) .toolbar {
         display: flex;
         align-items: center;
-        top: 0.75rem;
+        inset-block-start: 0.75rem;
       }
 
       &:has(.mk-prism-title) .line-highlight {
@@ -215,36 +215,32 @@
     code:not(:is(:is(pre, h2, h3, h4, h5, h6) code)) {
       color: var(--mk-flow-color-code-text);
       padding: 0.1rem 0.3rem;
-      border-radius: 4px;
+      border-radius: 0.25rem;
       font-size: 0.9em;
       background: var(--mk-flow-color-code-background);
     }
 
     /* Callouts */
     .mk-admonition {
-      --mk-flow-color-code-text: color(
-        from var(--admonition-color) srgb calc(r - 0.1) calc(g - 0.1)
-          calc(b - 0.1) / 1
+      --mk-flow-color-code-text: oklch(
+        from var(--admonition-color) calc(l - 0.1) c h / 1
       );
-      --mk-flow-color-code-background: color(
-        from var(--admonition-color) srgb r g b / 0.2
+      --mk-flow-color-code-background: oklch(
+        from var(--admonition-color) l c h / 0.2
       );
       --mk-admonition-padding-with-icon: 2.35rem;
 
       background: linear-gradient(
         170deg,
-        color(from var(--admonition-color) srgb r g b / 0.1) 0%,
-        color(from var(--admonition-color) srgb r g b / 0.05) 100%
+        oklch(from var(--admonition-color) l c h / 0.1) 0%,
+        oklch(from var(--admonition-color) l c h / 0.1) 100%
       );
       border-color: var(--mk-flow-color-border-shade);
       border-radius: 0.5rem;
       box-shadow: none;
     }
     .mk-admonition-title {
-      color: color(
-        from var(--admonition-color) srgb calc(r - 0.3) calc(g - 0.3)
-          calc(b - 0.3) / 0.7
-      );
+      color: oklch(from var(--admonition-color) calc(l - 0.3) c h / 0.7);
       background: transparent;
 
       &::before {
@@ -272,7 +268,7 @@
         content: '';
         position: absolute;
         inset: 0.25rem 0.25rem;
-        background: color(from var(--admonition-color) srgb r g b / 0.25);
+        background: oklch(from var(--admonition-color) l c h / 0.3);
         border-radius: 0.375rem;
         z-index: -1;
       }
@@ -357,7 +353,7 @@
         color: var(--text-muted);
         text-decoration: none;
         font-size: 0.9rem;
-        border-radius: 6px;
+        border-radius: 0.375rem;
         margin-block: 0 0.125rem;
         transition: all 0.2s;
         border: 1px solid transparent;
@@ -401,7 +397,7 @@
           font-size: 0.85rem;
           text-decoration: none;
           padding-inline-start: 1rem;
-          border-inline-start: 2px solid var(--mk-flow-color-border-toc);
+          border-inline-start: 0.125rem solid var(--mk-flow-color-border-toc);
           transition: all 0.2s;
 
           a {
@@ -424,12 +420,12 @@
 
         ul ul li {
           padding-inline-start: 2rem;
-          margin-inline-start: calc(-1rem - 2px);
+          margin-inline-start: calc(-1rem - 0.125rem);
         }
 
         ul ul ul li {
           padding-inline-start: 3rem;
-          margin-inline-start: calc(-2rem - 2px);
+          margin-inline-start: calc(-2rem - 0.125rem);
         }
       }
 
@@ -629,8 +625,8 @@
         }
 
         &:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 20px -5px rgba(59, 130, 246, 0.1);
+          transform: translateY(-0.125rem);
+          box-shadow: 0 0.5rem 1.25rem -0.3125rem oklch(62.5% 0.2 259.8 / 0.1);
           border-color: var(--mk-color-primary);
 
           &::before {
@@ -640,7 +636,7 @@
           }
 
           &::after {
-            transform: rotate(-90deg) translateY(4px);
+            transform: rotate(-90deg) translateY(0.25rem);
             color: var(--mk-color-primary);
             opacity: 1;
           }
@@ -670,7 +666,7 @@
         border-radius: 1.5rem;
         padding: 3rem 4rem;
         border: 1px solid var(--mk-flow-color-border-shade);
-        box-shadow: 0 1rem 2rem -0.5rem rgba(0, 0, 0, 0.05);
+        box-shadow: 0 1rem 2rem -0.5rem oklch(0% 0 0 / 0.1);
       }
 
       h2 {
@@ -759,7 +755,7 @@
         li {
           background: var(--mk-flow-color-background);
           padding: 0.75rem 3rem 0.75rem 4rem;
-          border-radius: 12px;
+          border-radius: 0.75rem;
           text-decoration: none;
           color: var(--mk-color-text);
           margin: 0 0 0.5rem;
@@ -775,7 +771,7 @@
           &:hover {
             border-color: var(--mk-color-primary);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 0.25rem 0.75rem oklch(0% 0 0 / 0.1);
           }
         }
 
@@ -886,7 +882,7 @@
     @media (max-width: 75rem) {
       &[data-layout='docs'] #markee-main {
         grid-template-areas: 'left main';
-        grid-template-columns: 260px minmax(0, 1fr);
+        grid-template-columns: 16.25rem minmax(0, 1fr);
         gap: 0;
       }
     }
@@ -930,8 +926,8 @@
         markee-search:is(:focus-within, [data-active]) > [data-icon] {
           opacity: 0.5;
           /*noinspection ALL*/
-          right: auto;
-          left: calc(anchor(left) + 1rem);
+          inset-inline-end: auto;
+          inset-inline-start: calc(anchor(left) + 1rem);
         }
 
         markee-search > [data-results] {
@@ -939,7 +935,7 @@
           height: fit-content;
           max-height: calc(100vh - var(--mk-header-height));
           /*noinspection ALL*/
-          top: anchor(bottom);
+          inset-block-start: anchor(bottom);
           border-radius: 0;
         }
       }
@@ -1004,7 +1000,7 @@
       transform: translate(0, 0);
     }
     to {
-      transform: translate(250px, 250px);
+      transform: translate(15.625rem, 15.625rem);
     }
   }
 }

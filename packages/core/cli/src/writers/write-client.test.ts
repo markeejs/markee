@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+let ConfigCache: typeof import('../cache/config-cache.js').ConfigCache
 
 async function importWriteClient({
   clientDir = '/repo/node_modules/@markee/client',
@@ -11,7 +12,6 @@ async function importWriteClient({
   copyDirectory?: ReturnType<typeof vi.fn>
   handleCopyError?: ReturnType<typeof vi.fn>
 } = {}) {
-  vi.resetModules()
   vi.doMock('fs-extra', () => ({
     default: {
       copy,
@@ -40,8 +40,13 @@ async function importWriteClient({
 }
 
 describe('writeClient', () => {
-  beforeEach(() => {
-    global.config = {
+  beforeEach(async () => {
+    vi.resetModules()
+    ;({ ConfigCache } = await vi.importActual<
+      typeof import('../cache/config-cache.js')
+    >('../cache/config-cache.js'))
+    ConfigCache.reset()
+    ConfigCache.config = {
       build: { outDir: 'site' },
     } as any
   })

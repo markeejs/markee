@@ -1,3 +1,4 @@
+import type { TreeItem, TreeLeaf } from '@markee/state'
 import { computed } from 'nanostores'
 import { state } from '@markee/state'
 

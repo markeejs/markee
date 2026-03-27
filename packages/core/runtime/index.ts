@@ -1,4 +1,4 @@
-import type {} from '@markee/types'
+import type { SearchResult, TreeItem } from '@markee/state'
 
 import { markdownPipeline } from '@markee/pipeline/extensions.js'
 import { prism } from '@markee/pipeline/plugins/remark/prism.extensions.js'
@@ -22,13 +22,11 @@ export const extend = {
 }
 
 export const development = !!(window as any)[Symbol.for('markee::development')]
-export { state } from '@markee/state'
+export {
+  state,
+  type TreeItem,
+  type TreeLeaf,
+  type SearchResult,
+  type SearchData,
+} from '@markee/state'
 export * from './custom-elements.js'
-
-declare module 'unified' {
-  interface Data {
-    config?: Configuration | null
-    frontMatter?: MarkdownFile['frontMatter']
-    pluginConfig: <T = any>(pluginName: string) => T | undefined
-  }
-}

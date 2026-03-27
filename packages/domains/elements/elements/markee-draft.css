@@ -7,13 +7,13 @@
 
     background: repeating-linear-gradient(
       60deg,
-      color(from var(--mk-admonition-color-warning) srgb r g b / 0.05),
-      color(from var(--mk-admonition-color-warning) srgb r g b / 0.05) 10px,
-      color(from var(--mk-admonition-color-warning) srgb r g b / 0.1) 10px,
-      color(from var(--mk-admonition-color-warning) srgb r g b / 0.1) 20px
+      oklch(from var(--mk-admonition-color-warning) l c h / 0.1),
+      oklch(from var(--mk-admonition-color-warning) l c h / 0.1) 0.625rem,
+      oklch(from var(--mk-admonition-color-warning) l c h / 0.1) 0.625rem,
+      oklch(from var(--mk-admonition-color-warning) l c h / 0.1) 1.25rem
     );
-    border-left: 0.25rem solid
-      color(from var(--mk-admonition-color-warning) srgb r g b / 0.5);
+    border-inline-start: 0.25rem solid
+      oklch(from var(--mk-admonition-color-warning) l c h / 0.5);
     border-radius: 0.25rem;
   }
 }

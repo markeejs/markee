@@ -23,7 +23,7 @@ vi.mock('../plugins/remark/nested-html.js', () => ({
     for (const child of tree.children ?? []) {
       if (child.type === 'code') {
         child.data = {
-          ...(child.data ?? {}),
+          ...child.data,
           hProperties: {
             existing: 'true',
             ...child.data?.hProperties,

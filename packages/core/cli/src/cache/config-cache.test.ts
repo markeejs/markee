@@ -21,7 +21,7 @@ describe('ConfigCache', () => {
       .fn()
       .mockRejectedValueOnce(new Error('missing yaml'))
       .mockResolvedValueOnce(
-        'title: Docs\nbuild:\n  outDir: dist\nserver:\n  port: 7000\nsources:\n  - root: docs\n',
+        'title: Docs\nbuild:\n  outDir: dist\n  inlineHeadAssets:\n    js: 8\n    css: 24\n  minify:\n    js: true\nserver:\n  port: 7000\nsources:\n  - root: docs\n',
       )
 
     const { ConfigCache } = await importConfigCache(readFile)
@@ -35,11 +35,18 @@ describe('ConfigCache', () => {
 
     expect(readFile).toHaveBeenNthCalledWith(1, '/repo/markee.yaml', 'utf8')
     expect(readFile).toHaveBeenNthCalledWith(2, '/repo/markee.yml', 'utf8')
-    expect(global.config).toMatchObject({
+    expect(ConfigCache.config).toMatchObject({
       title: 'Docs',
       sources: [{ root: 'docs' }],
       build: {
         outDir: 'public-site',
+        inlineHeadAssets: {
+          js: 8,
+          css: 24,
+        },
+        minify: {
+          js: true,
+        },
         skipLinkValidation: true,
       },
       server: {
@@ -47,7 +54,7 @@ describe('ConfigCache', () => {
         port: 9001,
       },
     })
-    expect(ConfigCache.get()).toBe(global.config)
+    expect(ConfigCache.get()).toBe(ConfigCache.config)
   })
 
   it('reuses the previous options when reloading and falls back to .markeerc', async () => {
@@ -70,16 +77,48 @@ describe('ConfigCache', () => {
     })
     await ConfigCache.loadConfig('/repo')
 
-    expect(global.config.build.outDir).toBe('custom')
-    expect(global.config.server.port).toBe(8123)
-    expect(global.config.server.host).toBe('0.0.0.0')
-    expect(global.config.sources).toEqual([])
+    expect(ConfigCache.config.build.outDir).toBe('custom')
+    expect(ConfigCache.config.server.port).toBe(8123)
+    expect(ConfigCache.config.server.host).toBe('0.0.0.0')
+    expect(ConfigCache.config.sources).toEqual([])
+  })
+
+  it('stores config, mode, and command locally and resets them', async () => {
+    const { ConfigCache } = await importConfigCache(vi.fn())
+
+    ConfigCache.config = {
+      title: 'Docs',
+      sources: [{ root: './docs/' }],
+      server: { host: '0.0.0.0', port: 8000 },
+      build: { outDir: 'site' },
+    } as any
+    ConfigCache.mode = 'preview'
+    ConfigCache.command = 'develop'
+
+    expect(ConfigCache.get()).toMatchObject({
+      title: 'Docs',
+      sources: [{ root: './docs/' }],
+    })
+    expect(ConfigCache.mode).toBe('preview')
+    expect(ConfigCache.command).toBe('develop')
+
+    ConfigCache.reset()
+
+    expect(() => ConfigCache.get()).toThrow(
+      'Markee CLI config accessed before initialization',
+    )
+    expect(() => ConfigCache.mode).toThrow(
+      'Markee CLI mode accessed before initialization',
+    )
+    expect(() => ConfigCache.command).toThrow(
+      'Markee CLI command accessed before initialization',
+    )
   })
 
   it('filters private config fields, sanitizes roots, and resolves splits', async () => {
     const { ConfigCache } = await importConfigCache(vi.fn())
 
-    global.config = {
+    ConfigCache.config = {
       title: 'Docs',
       theme: 'ocean',
       sources: [{ root: './docs/' }],
@@ -119,7 +158,7 @@ describe('ConfigCache', () => {
 
     await ConfigCache.loadConfig('/repo', undefined)
 
-    expect(global.config).toMatchObject({
+    expect(ConfigCache.config).toMatchObject({
       sources: [],
       build: { outDir: 'site' },
       server: { host: '0.0.0.0', port: 8000 },

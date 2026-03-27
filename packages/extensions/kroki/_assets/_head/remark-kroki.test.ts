@@ -141,4 +141,65 @@ describe('@markee/kroki remark', () => {
 
     expect(valueCache.set).toHaveBeenCalledWith('diagram-3', 'diagram')
   })
+
+  it('falls back to default config values and ignores malformed kroki attributes', async () => {
+    const { remark, valueCache } = await importRemarkKroki()
+
+    const transform = remark.mock.calls[0]?.[1].call({
+      data: () => ({
+        pluginConfig: () => undefined,
+      }),
+    })
+
+    const tree = {
+      children: [
+        {
+          lang: 'mermaid',
+          meta: 'kroki :="nope" {}',
+          value: 'graph TD;A-->B',
+          position: { start: { offset: 42 } },
+          data: { hProperties: {} },
+        },
+      ],
+    }
+
+    transform(tree)
+
+    expect(valueCache.set).toHaveBeenCalledWith('kroki-42', 'graph TD;A-->B')
+    expect((tree.children[0] as any).value).toContain("class='glightbox'")
+    expect((tree.children[0] as any).value).toContain("id='kroki-42'")
+    expect((tree.children[0] as any).value).not.toContain('=""')
+  })
+
+  it('handles meta objects whose matcher returns no attributes', async () => {
+    const { remark, valueCache } = await importRemarkKroki()
+
+    const transform = remark.mock.calls[0]?.[1].call({
+      data: () => ({
+        pluginConfig: () => undefined,
+      }),
+    })
+
+    const meta = {
+      startsWith: (value: string) => value === 'kroki',
+      match: () => null,
+    }
+    const tree = {
+      children: [
+        {
+          lang: 'blockdiag',
+          meta,
+          value: 'blockdiag {}',
+          position: { start: { offset: 7 } },
+          data: { hProperties: {} },
+        },
+      ],
+    }
+
+    transform(tree)
+
+    expect(valueCache.set).toHaveBeenCalledWith('kroki-7', 'blockdiag {}')
+    expect((tree.children[0] as any).value).toContain("class='glightbox'")
+    expect((tree.children[0] as any).value).toContain("id='kroki-7'")
+  })
 })

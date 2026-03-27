@@ -38,6 +38,8 @@ export function remarkTwemoji(): Transformer<Root, Root> {
                     src: url,
                     draggable: false,
                     className: ['mk-twemoji', 'skip-lightbox'],
+                    width: '18',
+                    height: '18',
                     onerror: 'this.classList.toggle("mk-twemoji-failed", true)',
                   },
                 },

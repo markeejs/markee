@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+let ConfigCache: typeof import('../cache/config-cache.js').ConfigCache
 
 type WatchCallback = (_: unknown, filename: string | null) => unknown
 
@@ -13,7 +14,14 @@ async function importFilesystem({
   execFileImpl?: ReturnType<typeof vi.fn>
   loadConfig?: ReturnType<typeof vi.fn>
 } = {}) {
+  const config = ConfigCache.config
+
   vi.resetModules()
+  ;({ ConfigCache } = await vi.importActual<
+    typeof import('../cache/config-cache.js')
+  >('../cache/config-cache.js'))
+  ConfigCache.reset()
+  ConfigCache.config = config
 
   const watchTree = watchTreeImpl ?? vi.fn()
   const execFile = execFileImpl ?? vi.fn()
@@ -60,11 +68,20 @@ async function importFilesystem({
       clearAll,
     },
   }))
-  vi.doMock('../cache/config-cache.js', () => ({
-    ConfigCache: {
-      loadConfig,
-    },
-  }))
+  vi.doMock('../cache/config-cache.js', async () => {
+    const actual = await vi.importActual<
+      typeof import('../cache/config-cache.js')
+    >('../cache/config-cache.js')
+
+    class MockConfigCache extends actual.ConfigCache {
+      static loadConfig = loadConfig
+    }
+
+    return {
+      ...actual,
+      ConfigCache: MockConfigCache,
+    }
+  })
 
   const module = await import('./filesystem.js')
 
@@ -79,8 +96,12 @@ async function importFilesystem({
 }
 
 describe('FilesystemHelpers', () => {
-  beforeEach(() => {
-    global.config = {
+  beforeEach(async () => {
+    ;({ ConfigCache } = await vi.importActual<
+      typeof import('../cache/config-cache.js')
+    >('../cache/config-cache.js'))
+    ConfigCache.reset()
+    ConfigCache.config = {
       build: { outDir: 'site' },
       watch: ['docs'],
     } as any

@@ -1,3 +1,4 @@
+import type { MarkdownFile } from '@markee/types'
 import { SectionCompute } from '../compute/section.js'
 
 export class SectionCache {

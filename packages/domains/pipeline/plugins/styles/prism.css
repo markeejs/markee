@@ -36,7 +36,7 @@
       }
 
       &[data-start] {
-        padding-left: 3.5em;
+        padding-inline-start: 3.5em;
       }
     }
 
@@ -50,7 +50,7 @@
     }
 
     > .toolbar > .toolbar-item > span {
-      border-radius: 3px;
+      border-radius: 0.1875rem;
     }
 
     .copy-to-clipboard-button {
@@ -83,7 +83,7 @@
 
     .line-highlight {
       /* Appearance */
-      background: rgba(136, 176, 249, 0.27);
+      background: oklch(75.5% 0.1 262 / 0.3);
 
       /* Display */
       &::before,
@@ -93,11 +93,11 @@
     }
 
     &:has(.mk-prism-title) .line-highlight {
-      margin-top: 3.75rem;
+      margin-block-start: 3.75rem;
     }
 
     &:has(.mk-prism-title) .toolbar {
-      margin-top: -2.5rem;
+      margin-block-start: -2.5rem;
     }
   }
 
@@ -121,7 +121,7 @@
     figcaption {
       /* Box */
       padding: 0.25rem 0.75rem;
-      border-bottom: 1px solid var(--mk-color-border);
+      border-block-end: 1px solid var(--mk-color-border);
 
       /* Appearance */
       background-color: var(--mk-color-background);
@@ -142,17 +142,17 @@
   .mk-prism-title {
     font-family: 'Roboto', sans-serif;
     font-weight: bold;
-    border-bottom: 1px solid var(--mk-color-border);
+    border-block-end: 1px solid var(--mk-color-border);
     font-size: 0.9rem;
     margin: -1rem -1rem 1rem;
     padding: 0.75rem 1rem 0.5rem;
 
     .line-numbers & {
-      margin-left: -3.5rem;
+      margin-inline-start: -3.5rem;
     }
   }
 
   .code-toolbar:has(> pre > .mk-prism-title) .toolbar {
-    top: 3.125rem;
+    inset-block-start: 3.125rem;
   }
 }

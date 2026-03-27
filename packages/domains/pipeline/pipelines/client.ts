@@ -61,6 +61,7 @@ export async function clientPipeline(
   key: string,
 ) {
   const file = state.$navigation.get().files[key]
+  void import('../plugins/styles/index.js')
 
   try {
     const config = state.$config.get()
@@ -71,13 +72,14 @@ export async function clientPipeline(
       return fromFrontMatter ?? fromConfig
     }
 
+    const markdownProcessor = unified()
+    const data = markdownProcessor.data()
+    data.config = config
+    data.frontMatter = frontMatter
+    data.pluginConfig = pluginConfig
+
     const markdownPipeline = withRemarkExtensions(
-      unified()
-        .data({
-          config,
-          frontMatter,
-          pluginConfig,
-        })
+      markdownProcessor
         // Base Markdown
         .use(remarkParser)
         .use(remarkGfm)

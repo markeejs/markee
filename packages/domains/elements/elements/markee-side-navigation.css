@@ -4,7 +4,7 @@
     flex-direction: column;
     padding: 0 1rem;
     position: sticky;
-    top: calc(var(--mk-header-height) + 1rem);
+    inset-block-start: calc(var(--mk-header-height) + 1rem);
     height: 100%;
     max-height: calc(100vh - 1rem - var(--mk-header-height));
 
@@ -19,7 +19,7 @@
     }
 
     ul:not(:is(ul ul)) {
-      padding-bottom: 1rem;
+      padding-block-end: 1rem;
     }
 
     markee-collapse:not(:is(markee-collapse markee-collapse)) {
@@ -33,7 +33,7 @@
       flex-wrap: nowrap;
       text-decoration: none;
       color: var(--mk-color-text);
-      margin-top: 0.5em;
+      margin-block-start: 0.5em;
       min-width: var(--private-min-entry-width, auto);
       white-space: var(--private-white-space, normal);
 
@@ -80,11 +80,11 @@
       position: absolute;
       position-anchor: --input;
       /*noinspection ALL*/
-      right: calc(anchor(right) + 0.5rem);
+      inset-inline-end: calc(anchor(right) + 0.5rem);
       /*noinspection ALL*/
-      top: anchor(top);
+      inset-block-start: anchor(top);
       /*noinspection ALL*/
-      bottom: anchor(bottom);
+      inset-block-end: anchor(bottom);
 
       display: flex;
       align-items: center;

@@ -279,9 +279,8 @@ function computeTabbedContent(
  * Remark plugin for converting admonition blocks into their complex AST representation
  */
 export function remarkAdmonitions(this: Processor): Transformer<Root, Root> {
-  const tabbedContent = this.data().pluginConfig<{ linkTabs?: boolean }>(
-    'tabbedContent',
-  )
+  const { pluginConfig } = this.data()
+  const tabbedContent = pluginConfig<{ linkTabs?: boolean }>('tabbedContent')
   const linked = tabbedContent?.linkTabs ?? true
 
   return (tree) => {

@@ -1,3 +1,5 @@
+import type { TreeItem, TreeLeaf } from '@markee/state'
+import type { SectionFile } from '@markee/types'
 import { state } from '@markee/state'
 import { compareLink } from './compare-link.js'
 

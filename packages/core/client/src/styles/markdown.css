@@ -51,21 +51,22 @@
       opacity: 0;
       transition:
         opacity 0.2s,
-        right 0.2s;
+        inset-inline-end 0.2s;
       position: relative;
-      right: -2rem;
+      inset-inline-end: -2rem;
       margin-block: -1rem;
     }
 
     & li:hover .data-footnote-backref {
       opacity: 1;
-      right: 0;
+      inset-inline-end: 0;
     }
   }
 
   .mk-twemoji {
     display: inline-flex;
     height: 1.125em;
+    width: 1.125em;
     vertical-align: text-top;
     margin: 0 0.05em 0 0.1em;
   }
@@ -149,9 +150,7 @@
   blockquote {
     color: var(--mk-color-hint);
     border-inline-start: 0.25rem solid var(--mk-color-border-blockquote);
-    background-color: color(
-      from var(--mk-color-background-light) srgb r g b / 0.3
-    );
+    background-color: oklch(from var(--mk-color-background-light) l c h / 0.3);
     padding-inline: 1rem;
     padding-block: 1px;
     margin-block: 1rem;
@@ -200,7 +199,7 @@
     margin: 1.5em 0;
 
     /* Appearance */
-    border-block-end: 0.05rem solid rgba(0, 0, 0, 0.07);
+    border-block-end: 0.05rem solid oklch(0% 0 0 / 0.1);
   }
 
   mark {

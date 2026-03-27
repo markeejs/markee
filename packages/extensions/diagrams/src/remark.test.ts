@@ -20,6 +20,9 @@ async function importRemark() {
     if (meta.includes('on-glb')) {
       return { class: 'dbml roomy on-glb', lightbox: 'false' }
     }
+    if (meta.includes('meta-id')) {
+      return { id: 'meta-id', class: 'mermaid compact' }
+    }
     return {}
   })
 
@@ -38,6 +41,7 @@ async function importRemark() {
   return {
     ...(await import('./remark.js')),
     remark,
+    visit,
   }
 }
 
@@ -95,5 +99,98 @@ describe('@markee/diagrams remark', () => {
       lang: 'mermaid',
       meta: 'kroki',
     })
+  })
+
+  it('defaults lightbox behavior and ignores incomplete or unsupported nodes', async () => {
+    const { registerDiagramsRemark, remark, visit } = await importRemark()
+
+    registerDiagramsRemark()
+
+    const transform = remark.mock.calls[0]?.[1].call({
+      data: () => ({
+        pluginConfig: () => undefined,
+      }),
+    })
+
+    transform({ children: [] })
+    const callback = visit.mock.calls[0]?.[2] as Function
+
+    expect(() =>
+      callback(
+        { lang: 'mermaid', value: 'graph TD;A-->B' },
+        undefined,
+        undefined,
+      ),
+    ).not.toThrow()
+
+    const detached = {
+      lang: 'mermaid',
+      meta: 'meta-id',
+      value: 'graph TD;A-->B',
+      data: {},
+    }
+    const tree = {
+      children: [
+        detached,
+        {
+          lang: 'bash',
+          meta: '',
+          value: 'echo nope',
+          data: {},
+        },
+        {
+          lang: ' mermaid ',
+          meta: 'meta-id',
+          value: 'graph TD;A-->B',
+          data: {},
+        },
+        {
+          lang: 'mermaid',
+          data: {},
+        },
+      ],
+    }
+
+    transform({
+      children: tree.children,
+    })
+
+    expect((tree.children[0] as any).value).toContain("class='glightbox'")
+    expect((tree.children[0] as any).value).toContain('id="meta-id"')
+    expect(tree.children[1]).toMatchObject({
+      lang: 'bash',
+    })
+    expect(tree.children[2]).toMatchObject({
+      type: 'html',
+      value: expect.stringContaining('data-kind="mermaid"'),
+    })
+    expect((tree.children[3] as any).value).toContain('data-source=""')
+  })
+
+  it('supports boolean lightbox configuration values', async () => {
+    const { registerDiagramsRemark, remark } = await importRemark()
+
+    registerDiagramsRemark()
+
+    const transform = remark.mock.calls[0]?.[1].call({
+      data: () => ({
+        pluginConfig: () => true,
+      }),
+    })
+
+    const tree = {
+      children: [
+        {
+          lang: 'dbml',
+          meta: '',
+          value: 'Table users {}',
+          data: {},
+        },
+      ],
+    }
+
+    transform(tree)
+
+    expect((tree.children[0] as any).value).toContain("class='glightbox'")
   })
 })

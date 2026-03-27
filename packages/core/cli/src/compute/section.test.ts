@@ -1,16 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+let ConfigCache: typeof import('../cache/config-cache.js').ConfigCache
 
 async function importSectionCompute(readProjectFile: ReturnType<typeof vi.fn>) {
-  vi.resetModules()
-
   vi.doMock('../cache/file-cache.js', () => ({
     FileCache: {
       readProjectFile,
-    },
-  }))
-  vi.doMock('../cache/config-cache.js', () => ({
-    ConfigCache: {
-      getRoot: vi.fn((root: string) => root),
     },
   }))
 
@@ -18,8 +12,13 @@ async function importSectionCompute(readProjectFile: ReturnType<typeof vi.fn>) {
 }
 
 describe('SectionCompute', () => {
-  beforeEach(() => {
-    global.config = {
+  beforeEach(async () => {
+    vi.resetModules()
+    ;({ ConfigCache } = await vi.importActual<
+      typeof import('../cache/config-cache.js')
+    >('../cache/config-cache.js'))
+    ConfigCache.reset()
+    ConfigCache.config = {
       sources: [{ root: 'docs', mount: 'manual' }, { root: 'blog' }],
     } as any
   })

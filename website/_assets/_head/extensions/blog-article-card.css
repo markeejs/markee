@@ -34,8 +34,8 @@ blog-article-card {
         padding: var(--private-padding);
 
         &:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+            transform: translateY(-0.3125rem);
+            box-shadow: 0 1.25rem 2.5rem -0.625rem oklch(0% 0 0 / 0.1);
         }
     }
 
@@ -51,7 +51,7 @@ blog-article-card {
         font-size: 0.85rem;
         color: var(--mk-flow-color-text-muted);
         font-weight: 600;
-        margin-bottom: 1rem;
+        margin-block-end: 1rem;
 
         span:empty, span:empty + span {
             display: none;
@@ -59,7 +59,7 @@ blog-article-card {
 
         span:nth-child(1) {
             color: var(--mk-color-primary);
-            background-color: color(from var(--mk-color-primary) srgb r g b / 0.05);
+            background-color: oklch(from var(--mk-color-primary) l c h / 0.1);
             padding: 0.2rem 0.6rem;
             border-radius: 0.5rem;
         }

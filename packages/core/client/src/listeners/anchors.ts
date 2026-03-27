@@ -1,3 +1,4 @@
+import type { SectionFile } from '@markee/types'
 import { state } from '@markee/state'
 
 function findVersionRoot(link: string, folders: Record<string, SectionFile>) {

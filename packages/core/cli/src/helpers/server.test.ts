@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+let ConfigCache: typeof import('../cache/config-cache.js').ConfigCache
 
 async function importServer(interfaces: ReturnType<typeof vi.fn>) {
-  vi.resetModules()
   vi.doMock('node:os', () => ({
     default: { networkInterfaces: interfaces },
   }))
@@ -10,8 +10,13 @@ async function importServer(interfaces: ReturnType<typeof vi.fn>) {
 }
 
 describe('ServerHelpers', () => {
-  beforeEach(() => {
-    global.config = {
+  beforeEach(async () => {
+    vi.resetModules()
+    ;({ ConfigCache } = await vi.importActual<
+      typeof import('../cache/config-cache.js')
+    >('../cache/config-cache.js'))
+    ConfigCache.reset()
+    ConfigCache.config = {
       server: { host: '0.0.0.0', port: 8000 },
     } as any
   })
@@ -55,8 +60,8 @@ describe('ServerHelpers', () => {
       'Or on local network: http://192.168.1.24:8000',
     )
 
-    global.config.server.host = '127.0.0.1'
-    global.config.server.port = 9000
+    ConfigCache.config.server.host = '127.0.0.1'
+    ConfigCache.config.server.port = 9000
 
     ServerHelpers.printReadyMessage()
     expect(log).toHaveBeenNthCalledWith(

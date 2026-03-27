@@ -211,7 +211,7 @@ describe('markee-drawer', () => {
     installPopoverSupport()
 
     const element = renderDrawer(
-      '<markee-drawer side=\"unknown\"></markee-drawer>',
+      '<markee-drawer side="unknown"></markee-drawer>',
     )
     const openSpy = vi.spyOn(element, 'openDrawer')
     const closeSpy = vi.spyOn(element, 'closeDrawer')

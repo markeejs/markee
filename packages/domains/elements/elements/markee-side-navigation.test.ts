@@ -295,7 +295,7 @@ describe('MarkeeSideNavigation', () => {
       ),
     ]
 
-    expect(element.getAttribute('aria-role')).toBe('navigation')
+    expect(element.getAttribute('role')).toBe('navigation')
     expect(rootLabelContent.content).toBe('Docs')
     expect(rootLabel.getAttribute('href')).toBe('/docs')
     expect(items).toHaveLength(4)

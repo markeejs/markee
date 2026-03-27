@@ -1,5 +1,3 @@
-import type {} from '@markee/types'
-
 import { computed, type ReadableAtom, type StoreValue } from 'nanostores'
 import { persistentAtom } from '@nanostores/persistent'
 
@@ -106,3 +104,6 @@ export const state = {
     )
   },
 }
+
+export type { SearchData, SearchResult } from './store/search.js'
+export type { TreeItem, TreeLeaf } from './store/tree.js'

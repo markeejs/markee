@@ -1,3 +1,4 @@
+import type { MarkdownFile } from '@markee/types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@markee/pipeline', () => ({

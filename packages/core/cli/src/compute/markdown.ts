@@ -1,3 +1,4 @@
+import type { Configuration, SectionFile } from '@markee/types'
 import fs from 'fs-extra'
 import yaml from 'yaml'
 import color from 'colors/safe.js'
@@ -5,18 +6,40 @@ import GithubSlugger from 'github-slugger'
 import { readingTime } from 'reading-time-estimator'
 
 import { ROOT_DIR } from '../constants.js'
+import {
+  ConfigCache,
+  type CliCommand,
+  type CliConfig,
+  type CliMode,
+} from '../cache/config-cache.js'
 
 import { PathHelpers } from '../helpers/path.js'
 import { ModuleHelpers } from '../helpers/module.js'
 
 import { FileCache } from '../cache/file-cache.js'
-import { ConfigCache } from '../cache/config-cache.js'
 import { MarkdownCache } from '../cache/markdown-cache.js'
 
 import { SimpleTokenizer, type Token } from './markdown/tokenizer/index.js'
 import { ExtensionsCache } from '../cache/extensions-cache.js'
 
 /* Metadata */
+export interface Frontmatter {
+  title?: string
+  description?: string
+  tags?: string[]
+  authors?: string[]
+  date?: string
+  modificationDate?: string
+  image?: string
+  excerpt: string
+  class?: string
+  layout?: string
+  hidden?: boolean
+  indexable?: boolean
+  draft?: boolean
+  plugins?: Configuration['plugins']
+  version?: { name?: string; date?: string }
+}
 
 /**
  * Read a source configuration and infer the default layout to use, if not
@@ -24,7 +47,7 @@ import { ExtensionsCache } from '../cache/extensions-cache.js'
  * All other source names use the 'docs' as default layout
  * @param source - source definition
  */
-function inferDefaultLayout(source: (typeof config)['sources'][number]) {
+function inferDefaultLayout(source: CliConfig['sources'][number]) {
   const sourceRoot = ConfigCache.getRoot(source.root)
   return { pages: 'pages', blog: 'blog' }[sourceRoot as 'pages'] ?? 'docs'
 }
@@ -242,7 +265,8 @@ function splitAroundIncludes(content: string): {
   'preserve-includer-indent'?: boolean
   'rewrite-relative-urls'?: boolean
 }[] {
-  const delimiter = config.plugins?.fileInclude?.includeCharacter ?? '!'
+  const delimiter =
+    ConfigCache.config.plugins?.fileInclude?.includeCharacter ?? '!'
   const regex = new RegExp(
     `\\{${delimiter}([\\s\\S]*?include[\\s\\S]*?)${delimiter}}`,
   )
@@ -409,8 +433,48 @@ interface Split {
   folder: string
 }
 
+type BuildTimeHookContext = Readonly<{
+  command: CliCommand
+  mode: CliMode
+}>
+
+type BuildTimeFenceParams = {
+  content: string
+  lang?: string
+  attrs: Record<string, string | number | boolean>
+}
+
+type BuildTimeDirectiveParams = {
+  content: string
+  type: string
+  label: string
+  attrs: Record<string, string | number | boolean>
+}
+
+type BuildTimeHookResult = {
+  lang?: string
+  type?: string
+  label?: string
+  attrs?: Record<string, string | number | boolean>
+  payload?: any
+}
+
+type BuildTimeExtensionModule = {
+  name?: string
+  preloadFence?: (
+    params: BuildTimeFenceParams,
+    config: unknown,
+    context: BuildTimeHookContext,
+  ) => Promise<BuildTimeHookResult | void> | BuildTimeHookResult | void
+  preloadDirective?: (
+    params: BuildTimeDirectiveParams,
+    config: unknown,
+    context: BuildTimeHookContext,
+  ) => Promise<BuildTimeHookResult | void> | BuildTimeHookResult | void
+}
+
 function removeDrafts(content: string, tokens: Token[]) {
-  if (mode === 'preview') return content
+  if (ConfigCache.mode === 'preview') return content
 
   const drafts = tokens.filter(
     (t) => t.type === 'directive_container_open' && t.meta.name === 'draft',
@@ -489,7 +553,7 @@ function resolveLink(
 
     return {
       link:
-        split && global.command === 'build' && !beforeHash.endsWith('.md')
+        split && ConfigCache.command === 'build' && !beforeHash.endsWith('.md')
           ? split.root + resolved
           : resolved,
       relative: beforeHash,
@@ -570,6 +634,9 @@ function stringifyAttrs(attrs: Record<string, string | number | boolean>) {
         if (v === k) {
           return `${k}`
         }
+        if (v.includes("'")) {
+          return `${k}="${v}"`
+        }
         return `${k}='${v}'`
       }
       return `${k}=${v}`
@@ -589,12 +656,13 @@ async function preloadFencesAndDirectives(
     name: string
     lang?: string
     type?: string
+    label?: string
     attrs?: Record<string, string | number | boolean>
     payload?: any
   }
 
   const pluginConfig = (name: string) => {
-    const fromConfig = (config?.plugins as any)?.[name]
+    const fromConfig = (ConfigCache.config.plugins as any)?.[name]
     const fromFrontMatter = (frontMatter?.plugins as any)?.[name]
     return fromFrontMatter ?? fromConfig
   }
@@ -608,6 +676,8 @@ async function preloadFencesAndDirectives(
       markup: string
     },
   ) => {
+    if (!params.lang && !Object.keys(params.attrs).length)
+      return `${options.markup}`
     if (!params.lang) {
       params.lang = 'none'
     }
@@ -625,7 +695,7 @@ async function preloadFencesAndDirectives(
     },
   ) => {
     const attrs = stringifyAttrs(params.attrs)
-    return `${options.markup}${params.type}${params.label ? `[${params.label}]` : ''}{${attrs}}`
+    return `${options.markup}${params.type}${params.label ? `[${params.label}]` : ''}${attrs ? `{${attrs}}` : ''}`
   }
 
   const fences = tokens
@@ -672,7 +742,9 @@ async function preloadFencesAndDirectives(
   const nameRegistry = new Map<string, string>()
   for (const ext of extensions) {
     try {
-      const { preloadFence, preloadDirective, name } = await import(ext)
+      const { preloadFence, preloadDirective, name } = (await import(
+        ext
+      )) as BuildTimeExtensionModule
 
       if (!name) continue
       if (!preloadFence && !preloadDirective) continue
@@ -683,10 +755,18 @@ async function preloadFencesAndDirectives(
         continue
       }
       nameRegistry.set(name, ext)
+      const context: BuildTimeHookContext = {
+        command: ConfigCache.command,
+        mode: ConfigCache.mode,
+      }
 
       if (preloadFence) {
         for (const fence of fences) {
-          const ret = await preloadFence(fence.params, pluginConfig(name))
+          const ret = await preloadFence(
+            fence.params,
+            pluginConfig(name),
+            context,
+          )
           if (!ret || typeof ret !== 'object') continue
           const { lang, attrs, payload } = ret
           let change: null | Change = null
@@ -714,13 +794,18 @@ async function preloadFencesAndDirectives(
           const ret = await preloadDirective(
             directive.params,
             pluginConfig(name),
+            context,
           )
           if (!ret || typeof ret !== 'object') continue
-          const { type, attrs, payload } = ret
+          const { type, label, attrs, payload } = ret
           let change: null | Change = null
           if (type && type !== directive.params.type) {
             change ??= { name }
             change.type = type
+          }
+          if (label && label !== directive.params.label) {
+            change ??= { name }
+            change.label = label
           }
           if (
             attrs &&
@@ -771,9 +856,11 @@ async function preloadFencesAndDirectives(
   directives.forEach((directive) => {
     if (!directive.changes.length) return
     const id = directive.params.attrs.id
-    const { type, attrs } = directive.changes.reduce(
+    const { type, label, attrs } = directive.changes.reduce(
       (acc, change) => {
         if (change.type) acc.type = change.type
+
+        if (change.label) acc.label = change.label
 
         if (change.attrs) {
           acc.attrs = { ...acc.attrs, ...change.attrs, id }
@@ -785,15 +872,16 @@ async function preloadFencesAndDirectives(
         }
         return acc
       },
-      { type: directive.params.type, attrs: directive.params.attrs },
+      {
+        type: directive.params.type,
+        label: directive.params.label,
+        attrs: directive.params.attrs,
+      },
     )
 
     lines[directive.options.line] =
       lines[directive.options.line].slice(0, directive.options.offset) +
-      buildDirectiveLine(
-        { type, attrs, label: directive.params.label },
-        directive.options,
-      )
+      buildDirectiveLine({ type, attrs, label }, directive.options)
   })
 
   return lines.join('\n')
@@ -805,10 +893,7 @@ const payloadSlugger = new GithubSlugger()
 payloadSlugger.slug('mk-payload')
 
 export const MarkdownCompute = {
-  initialFileData: (
-    file: string,
-    source: (typeof config)['sources'][number],
-  ) => {
+  initialFileData: (file: string, source: CliConfig['sources'][number]) => {
     const root = ConfigCache.getRoot(source.root)
     const filePath = PathHelpers.concat('/', root, file)
     return {
@@ -832,7 +917,7 @@ export const MarkdownCompute = {
     )
     return tokens.filter(
       (t) =>
-        mode === 'preview' ||
+        ConfigCache.mode === 'preview' ||
         t.type !== 'inline' ||
         !drafts.some((d) => t.map[0] >= d.map[0] && t.map[1] <= d.map[1]),
     )

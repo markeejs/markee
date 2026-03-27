@@ -20,8 +20,6 @@ import './no-files.js'
 import './initial-loading.js'
 import './draft-warning.js'
 
-import '@markee/pipeline/plugins/styles'
-
 function noDataFiles() {
   const files = Object.keys($navigation.get().files)
   return files.filter((file) => !file.startsWith('/_assets/')).length === 0
@@ -53,7 +51,7 @@ export class MarkeeRoot extends MarkeeElement.with({
       }
       ${top && html`<div id="markee-section-top">${unsafeHTML(top)}</div>`}
 
-      <div id="markee-main">
+      <main id="markee-main">
         ${
           left &&
           html`<aside id="markee-section-left">${unsafeHTML(left)}</aside>`
@@ -69,7 +67,7 @@ export class MarkeeRoot extends MarkeeElement.with({
           right &&
           html`<aside id="markee-section-right">${unsafeHTML(right)}</aside>`
         }
-      </div>
+      </main>
 
       ${
         bottom &&

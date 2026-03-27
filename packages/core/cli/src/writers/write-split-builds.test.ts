@@ -1,4 +1,6 @@
+import type { MarkdownFile, SectionFile } from '@markee/types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+let ConfigCache: typeof import('../cache/config-cache.js').ConfigCache
 
 async function importWriteSplitBuilds({
   ensureDir = vi.fn(),
@@ -9,7 +11,6 @@ async function importWriteSplitBuilds({
   move?: ReturnType<typeof vi.fn>
   writeJSON?: ReturnType<typeof vi.fn>
 } = {}) {
-  vi.resetModules()
   vi.doMock('fs-extra', () => ({
     default: {
       ensureDir,
@@ -27,8 +28,13 @@ async function importWriteSplitBuilds({
 }
 
 describe('writeSplitBuilds', () => {
-  beforeEach(() => {
-    global.config = {
+  beforeEach(async () => {
+    vi.resetModules()
+    ;({ ConfigCache } = await vi.importActual<
+      typeof import('../cache/config-cache.js')
+    >('../cache/config-cache.js'))
+    ConfigCache.reset()
+    ConfigCache.config = {
       build: { outDir: 'site' },
     } as any
   })
@@ -47,7 +53,7 @@ describe('writeSplitBuilds', () => {
   })
 
   it('moves split content, flags external navigation entries, and writes nested metadata', async () => {
-    global.config.build.splits = {
+    ConfigCache.config.build.splits = {
       'Admin Area': 'docs',
       'Blog': '/blog',
     } as any

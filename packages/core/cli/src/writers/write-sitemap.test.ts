@@ -1,4 +1,6 @@
+import type { MarkdownFile } from '@markee/types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+let ConfigCache: typeof import('../cache/config-cache.js').ConfigCache
 
 const sitemapState = vi.hoisted(() => ({
   from: vi.fn((links) => ({
@@ -26,7 +28,15 @@ async function importWriteSitemap({
   ensureDir?: ReturnType<typeof vi.fn>
   writeFile?: ReturnType<typeof vi.fn>
 } = {}) {
+  const config = ConfigCache.config
+
   vi.resetModules()
+  ;({ ConfigCache } = await vi.importActual<
+    typeof import('../cache/config-cache.js')
+  >('../cache/config-cache.js'))
+  ConfigCache.reset()
+  ConfigCache.config = config
+
   sitemapState.from.mockClear()
   sitemapState.streamToPromise.mockClear()
   sitemapState.sitemapStream.mockClear()
@@ -45,8 +55,12 @@ async function importWriteSitemap({
 }
 
 describe('writeSitemap', () => {
-  beforeEach(() => {
-    global.config = {
+  beforeEach(async () => {
+    ;({ ConfigCache } = await vi.importActual<
+      typeof import('../cache/config-cache.js')
+    >('../cache/config-cache.js'))
+    ConfigCache.reset()
+    ConfigCache.config = {
       build: { outDir: 'site' },
     } as any
   })
@@ -65,7 +79,9 @@ describe('writeSitemap', () => {
       '/docs/one.md': { link: '/docs/one', alias: ['/docs/latest'] },
     } as unknown as Record<string, MarkdownFile>
 
-    global.config.build.sitemap = { site: 'https://example.com/docs' } as any
+    ConfigCache.config.build.sitemap = {
+      site: 'https://example.com/docs',
+    } as any
     sitemapState.streamToPromise.mockResolvedValueOnce(Buffer.from('<xml />'))
 
     const success = await importWriteSitemap({
@@ -109,7 +125,9 @@ describe('writeSitemap', () => {
     expect(failure.ensureDir).not.toHaveBeenCalled()
     expect(failure.writeFile).not.toHaveBeenCalled()
 
-    global.config.build.sitemap = { site: 'https://example.com/docs/' } as any
+    ConfigCache.config.build.sitemap = {
+      site: 'https://example.com/docs/',
+    } as any
     sitemapState.streamToPromise.mockResolvedValueOnce(Buffer.from('<xml />'))
 
     const trailing = await importWriteSitemap({

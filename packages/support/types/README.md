@@ -6,17 +6,17 @@ Full Markee documentation at https://markee.dev/
 
 ## Introduction
 
-This package provides the global types used across Markee, including:
+This package provides shared types used across Markee, including:
 
 - `Configuration`
-- `Frontmatter`
 - `MarkdownFile`
-- navigation tree types
-- search result types
-- Prism theme names
+- `SectionFile`
+- `SearchIndex`
 
 ## Typical Usage
 
-You should never need `@markee/types` directly.
+`@markee/types` is mostly used internally to share types between
+the CLI and the client-side packages.
 
-`@markee/runtime` already consumes it and exposes useful types for extensions.
+If you need one of the provided types while developing your
+Markee site or an extension, they are made available through `@markee/runtime`.

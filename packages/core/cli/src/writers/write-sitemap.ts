@@ -1,8 +1,10 @@
+import type { MarkdownFile } from '@markee/types'
 import fs from 'fs-extra'
 import { Readable } from 'stream'
 import { SitemapStream, streamToPromise } from 'sitemap'
 
 import { ROOT_DIR } from '../constants.js'
+import { ConfigCache } from '../cache/config-cache.js'
 import { PathHelpers } from '../helpers/path.js'
 
 /**
@@ -11,7 +13,7 @@ import { PathHelpers } from '../helpers/path.js'
  * @param files - Record of Markdown files
  */
 export async function writeSitemap(files: Record<string, MarkdownFile>) {
-  const hostname = config.build.sitemap?.site
+  const hostname = ConfigCache.config.build.sitemap?.site
   if (!hostname) return
 
   const links = Object.values(files).flatMap((f) => [
@@ -25,14 +27,24 @@ export async function writeSitemap(files: Record<string, MarkdownFile>) {
   const xml = await promise.then((data) => data.toString()).catch(() => '')
 
   if (xml) {
-    await fs.ensureDir(PathHelpers.concat(ROOT_DIR, config.build.outDir))
+    await fs.ensureDir(
+      PathHelpers.concat(ROOT_DIR, ConfigCache.config.build.outDir),
+    )
     await fs.writeFile(
-      PathHelpers.concat(ROOT_DIR, config.build.outDir, 'sitemap.xml'),
+      PathHelpers.concat(
+        ROOT_DIR,
+        ConfigCache.config.build.outDir,
+        'sitemap.xml',
+      ),
       xml,
       'utf-8',
     )
     await fs.writeFile(
-      PathHelpers.concat(ROOT_DIR, config.build.outDir, 'robots.txt'),
+      PathHelpers.concat(
+        ROOT_DIR,
+        ConfigCache.config.build.outDir,
+        'robots.txt',
+      ),
       `Sitemap: ${hostname}${hostname.endsWith('/') ? '' : '/'}sitemap.xml`,
     )
   }

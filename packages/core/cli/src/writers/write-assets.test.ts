@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+let ConfigCache: typeof import('../cache/config-cache.js').ConfigCache
 
 async function importWriteAssets({
   pathExists = vi.fn(),
@@ -13,7 +14,6 @@ async function importWriteAssets({
   handleCopyError?: ReturnType<typeof vi.fn>
   loadExtensionsContent?: ReturnType<typeof vi.fn>
 } = {}) {
-  vi.resetModules()
   vi.doMock('fs-extra', () => ({
     default: {
       pathExists,
@@ -42,8 +42,13 @@ async function importWriteAssets({
 }
 
 describe('writeAssets', () => {
-  beforeEach(() => {
-    global.config = {
+  beforeEach(async () => {
+    vi.resetModules()
+    ;({ ConfigCache } = await vi.importActual<
+      typeof import('../cache/config-cache.js')
+    >('../cache/config-cache.js'))
+    ConfigCache.reset()
+    ConfigCache.config = {
       build: { outDir: 'site' },
       sources: [{ root: 'docs' }, { root: '/blog' }],
     } as any

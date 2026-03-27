@@ -1,3 +1,4 @@
+import type { MarkdownFile } from '@markee/types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('../cache.js', () => ({
@@ -29,7 +30,7 @@ function markdownFile(
     layout,
     frontMatter: {
       excerpt: '',
-      ...(extra.frontMatter ?? {}),
+      ...extra.frontMatter,
     },
     readingTime: 0,
     payload: {},

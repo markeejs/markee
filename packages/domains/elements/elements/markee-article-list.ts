@@ -1,3 +1,4 @@
+import type { MarkdownFile } from '@markee/types'
 import { nothing } from 'lit'
 import { html, unsafeStatic } from 'lit/static-html.js'
 import { customElement, property, state } from 'lit/decorators.js'

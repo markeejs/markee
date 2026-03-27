@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ModuleHelpers } from '../helpers/module.js'
+let ConfigCache: typeof import('./config-cache.js').ConfigCache
 
 async function importExtensionsCache({
   readFileSync = vi.fn(),
@@ -14,8 +15,6 @@ async function importExtensionsCache({
   pathExists?: ReturnType<typeof vi.fn>
   parse?: ReturnType<typeof vi.fn>
 } = {}) {
-  vi.resetModules()
-
   vi.doMock('fs-extra', () => ({
     default: {
       readFileSync,
@@ -37,8 +36,14 @@ async function importExtensionsCache({
 }
 
 describe('ExtensionsCache', () => {
-  beforeEach(() => {
-    global.config = {
+  beforeEach(async () => {
+    vi.resetModules()
+    ;({ ConfigCache } =
+      await vi.importActual<typeof import('./config-cache.js')>(
+        './config-cache.js',
+      ))
+    ConfigCache.reset()
+    ConfigCache.config = {
       extensions: ['@markee/default', '@markee/missing'],
     } as any
     vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -191,7 +196,7 @@ describe('ExtensionsCache', () => {
   })
 
   it('handles missing configured extensions and blank yaml files', async () => {
-    global.config = {} as any
+    ConfigCache.config = {} as any
 
     const { ExtensionsCache, mocks } = await importExtensionsCache({
       readFileSync: vi.fn().mockReturnValue(''),
@@ -213,7 +218,7 @@ describe('ExtensionsCache', () => {
   })
 
   it('treats blank extension manifests as empty objects during dependency expansion', async () => {
-    global.config = {
+    ConfigCache.config = {
       extensions: ['@markee/default'],
     } as any
 

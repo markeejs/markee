@@ -18,13 +18,14 @@ describe('remarkDirectiveRemoveLeaf', () => {
         tokenize: 'other',
       },
     }
-    const data = {
+    const data: any = {
       micromarkExtensions: [otherExtension, directiveExtension],
+      pluginConfig: () => undefined,
     }
 
     remarkDirectiveRemoveLeaf.call({
       data: () => data,
-    })
+    } as any)
 
     expect(directiveExtension).toEqual({
       flow: {

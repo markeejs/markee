@@ -2,6 +2,7 @@ import fs from 'fs-extra'
 import colors from 'colors/safe.js'
 
 import { ROOT_DIR } from '../constants.js'
+import { ConfigCache } from '../cache/config-cache.js'
 
 import { PathHelpers } from '../helpers/path.js'
 import { FilesystemHelpers } from '../helpers/filesystem.js'
@@ -18,8 +19,8 @@ export async function writeAssets() {
   const extensions = ExtensionsCache.loadExtensionsContent()
   const extensionKeys = Object.keys(extensions).reverse()
 
-  const outDir = config.build.outDir
-  const sources = config.sources
+  const outDir = ConfigCache.config.build.outDir
+  const sources = ConfigCache.config.sources
 
   const promises: Promise<void>[] = []
 

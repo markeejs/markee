@@ -54,7 +54,7 @@ export function createMarkeeVitestConfig(options = {}) {
           'vitest.config.ts',
           'vitest.setup.ts',
           'dist/**',
-          '_assets/**',
+          '_assets/_head/assets/**',
         ],
       },
     },
