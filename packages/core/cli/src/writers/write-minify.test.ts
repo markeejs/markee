@@ -78,7 +78,7 @@ describe('writeMinify', () => {
     expect(writeFile).not.toHaveBeenCalled()
   })
 
-  it('minifies matching files from public assets, copied _assets, and source roots', async () => {
+  it('minifies matching files copied _assets', async () => {
     const { writeMinify, pathExists, writeFile, minifyContent } =
       await importWriteMinify({
         pathExists: vi.fn(async (path: string) =>
@@ -119,15 +119,12 @@ describe('writeMinify', () => {
 
     await writeMinify()
 
-    expect(pathExists).toHaveBeenCalledWith('/repo/public')
     expect(pathExists).toHaveBeenCalledWith('/repo/site/_assets')
-    expect(pathExists).toHaveBeenCalledWith('/repo/site/docs')
-    expect(pathExists).toHaveBeenCalledWith('/repo/site/blog')
-    expect(minifyContent).toHaveBeenCalledWith(
+    expect(minifyContent).not.toHaveBeenCalledWith(
       '/repo/site/public.js',
       'function publicFile () { return 1 }',
     )
-    expect(minifyContent).toHaveBeenCalledWith(
+    expect(minifyContent).not.toHaveBeenCalledWith(
       '/repo/site/nested/public.css',
       'body { color: red; }',
     )
@@ -135,16 +132,12 @@ describe('writeMinify', () => {
       '/repo/site/_assets/head.js',
       'function head () { return 2 }',
     )
-    expect(minifyContent).toHaveBeenCalledWith(
-      '/repo/site/docs/embed.js',
-      'function embed () { return 3 }',
-    )
-    expect(writeFile).toHaveBeenCalledWith(
+    expect(writeFile).not.toHaveBeenCalledWith(
       '/repo/site/public.js',
       'min:function publicFile () { return 1 }',
       'utf8',
     )
-    expect(writeFile).toHaveBeenCalledWith(
+    expect(writeFile).not.toHaveBeenCalledWith(
       '/repo/site/nested/public.css',
       'min:body { color: red; }',
       'utf8',
@@ -157,16 +150,6 @@ describe('writeMinify', () => {
     expect(writeFile).toHaveBeenCalledWith(
       '/repo/site/_assets/theme.css',
       'min:main { color: blue; }',
-      'utf8',
-    )
-    expect(writeFile).toHaveBeenCalledWith(
-      '/repo/site/docs/embed.js',
-      'min:function embed () { return 3 }',
-      'utf8',
-    )
-    expect(writeFile).not.toHaveBeenCalledWith(
-      '/repo/site/docs/keep.css',
-      expect.any(String),
       'utf8',
     )
   })

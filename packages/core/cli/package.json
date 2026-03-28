@@ -13,10 +13,9 @@
   },
   "scripts": {
     "build": "tsc",
-    "build:site": "cd ../../../website && tsx --tsconfig ../packages/core/cli/tsconfig.json ../packages/core/cli/src/index.ts build",
-    "build:website": "pnpm run build:site",
-    "preview:site": "cd ../../../website && tsx --tsconfig ../packages/core/cli/tsconfig.json ../packages/core/cli/src/index.ts serve",
     "start": "cd ../../../website && tsx --tsconfig ../packages/core/cli/tsconfig.json --watch ../packages/core/cli/src/index.ts dev",
+    "site:build": "cd ../../../website && tsx --tsconfig ../packages/core/cli/tsconfig.json ../packages/core/cli/src/index.ts build",
+    "site:preview": "cd ../../../website && tsx --tsconfig ../packages/core/cli/tsconfig.json ../packages/core/cli/src/index.ts serve",
     "lint:tsc": "tsc --noEmit",
     "test": "vitest run --coverage"
   },

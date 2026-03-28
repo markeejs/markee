@@ -55,28 +55,11 @@ export async function writeMinify() {
   const outRoot = PathHelpers.concat(ROOT_DIR, ConfigCache.config.build.outDir)
   const files = new Set<string>()
 
-  const publicRoot = PathHelpers.concat(ROOT_DIR, 'public')
-  if (await fs.pathExists(publicRoot)) {
-    const publicFiles = await globby(patterns, { cwd: publicRoot })
-    publicFiles.forEach((file) => files.add(PathHelpers.concat(outRoot, file)))
-  }
-
   await addFilesInDirectory(
     files,
     PathHelpers.concat(outRoot, '_assets'),
     patterns,
   )
-
-  for (const source of ConfigCache.config.sources) {
-    const root = source.root.startsWith('/')
-      ? source.root.slice(1)
-      : source.root
-    await addFilesInDirectory(
-      files,
-      PathHelpers.concat(outRoot, root),
-      patterns,
-    )
-  }
 
   await Promise.all(
     [...files].map(async (file) => {

@@ -32,7 +32,7 @@ plugins:
     footnotes: true
   kroki:
     serverUrl: 'https://kroki.io/'
-    prerender: false
+    prerender: true
 
 extensions:
   - '@markee/theme-flow'

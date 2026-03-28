@@ -101,9 +101,9 @@ build:
 #### `minify`
 
 `minify` enables an optional CSS and JS minification pass during `markee build`.
-It applies only to build output, never to `dev` or `serve`.
+It applies only to build output, never to `dev`.
 
-- `false` or omitted: do not minify copied or inlined CSS/JS.
+- `false` (default): do not minify copied or inlined CSS/JS.
 - `true`: minify both CSS and JS.
 - object form: enable minification per asset type.
 
@@ -119,23 +119,21 @@ build:
     js: true
 ```
 
-This minifies:
-
-- copied files from `public/`
-- copied files from `_assets/`
-- copied files from configured source roots
-- small `_assets/_head` CSS/JS fragments that get inlined into `index.html` when `build.inlineHeadAssets` is enabled
+This minifies JS and CSS files found in `_assets/`, including inside extensions.
 
 Markee uses a failure-safe strategy here: if a specific file cannot be minified,
 the build keeps the original content and logs a warning instead of failing.
+
+Files with a `.min.*` extension are never minified. You can use this to opt out of
+minification for specific files.
 
 #### `inlineHeadAssets`
 
 `inlineHeadAssets` controls whether small CSS and JS files found in `_assets/_head`
 are inlined directly into the generated `index.html` during `markee build`.
 
-- `false` or omitted: keep `_assets/_head` files external
-- `true`: inline small `_assets/_head` CSS and JS files when they are below Markee's built-in size limits (`4 KB` for JS, `16 KB` for CSS) and do not contain `import`
+- `false` (default): keep `_assets/_head` files external
+- `true`: inline small `_assets/_head` CSS and JS files when they are below Markee's built-in size limits (`4 KB` for JS, `16 KB` for CSS)
 - object form: inline `_assets/_head` CSS and JS files using custom thresholds in KB; omitted fields fall back to the built-in defaults
 
 ```yaml
@@ -152,6 +150,11 @@ build:
 
 This is a CLI build-time optimization only. It does not affect `dev` mode, where
 Markee keeps head assets external for hot reloading.
+
+:::note
+Any CSS or JS file containing an `import` keyword will not be inlined, in order to
+avoid breaking import mechanisms.
+:::
 
 #### `rss`
 

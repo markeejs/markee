@@ -18,11 +18,11 @@ A build-time plugin is a JavaScript file that exports pre-determined values:
 - `preloadFence?: (fence: Fence, params: Params, context: Context) => Promise<FenceReturn>`: a function that gets called for every code fence found in documents, and
   returns a promise that can either modify the fence's attributes, or return preloaded content, or both.
   
-  The second parameter contains the plugin's options, as found in `markee.yaml` or the document's frontmatter. The third parameter contains explicit build-time context from the CLI.
+  The second parameter contains the plugin's options, as found in `markee.yaml` or the document's frontmatter. The third parameter contains the current CLI context (executed command, and selected mode).
 - `preloadDirective?: (directive: Directive, params: Params, context: Context) => Promise<DirectiveReturn>`: a function that gets called for every directive found in documents, and
   returns a promise that can either modify the directive's attributes, or return preloaded content, or both.
 
-  The second parameter contains the plugin's options, as found in `markee.yaml` or the document's frontmatter. The third parameter contains explicit build-time context from the CLI.
+  The second parameter contains the plugin's options, as found in `markee.yaml` or the document's frontmatter. The third parameter contains the current CLI context (executed command, and selected mode).
 
 As soon as a JavaScript file placed in `_assets/_build` exports `name` and at least one of `preloadFence` or `preloadDirective`,
 it will be automatically loaded during build-time.
@@ -80,8 +80,7 @@ interface DirectiveReturn {
 }
 ```
 
-Build-time plugins should use the explicit `context` argument when they need CLI state such as the active command or mode.
-They should not rely on ambient globals such as `command`.
+Build-time plugins can use the received `context` argument when they need CLI state such as the active command or mode.
 
 ```js
 export const name = 'example'
