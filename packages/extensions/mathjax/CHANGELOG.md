@@ -1,4 +1,4 @@
-# @markee/likec4
+# @markee/mathjax
 
 ## 1.0.0
 
@@ -10,5 +10,3 @@
 
 - Updated dependencies [f989196]
   - @markee/pipeline@1.0.0
-
-## 0.4.5

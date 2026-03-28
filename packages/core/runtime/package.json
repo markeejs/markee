@@ -1,6 +1,6 @@
 {
   "name": "@markee/runtime",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Extension entrypoints for the Markee site generator",
   "license": "MIT",
   "main": "index.js",
@@ -13,7 +13,7 @@
     "test": "vitest run --coverage"
   },
   "dependencies": {
-    "@markee/state": "0.1.0",
+    "@markee/state": "1.0.0",
     "@nanostores/lit": "^0.2.3",
     "lit": "^3.3.2"
   },

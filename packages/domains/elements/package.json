@@ -1,6 +1,6 @@
 {
   "name": "@markee/elements",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "license": "MIT",
   "type": "module",
   "main": "./index.js",
@@ -13,8 +13,8 @@
     "test": "vitest run --coverage"
   },
   "dependencies": {
-    "@markee/state": "0.1.0",
-    "@markee/types": "0.1.0",
+    "@markee/state": "1.0.0",
+    "@markee/types": "1.0.0",
     "@nanostores/lit": "^0.2.3",
     "lit": "^3.3.2"
   },

@@ -1,4 +1,4 @@
-# @markee/likec4
+# @markee/state
 
 ## 1.0.0
 
@@ -10,5 +10,5 @@
 
 - Updated dependencies [f989196]
   - @markee/pipeline@1.0.0
-
-## 0.4.5
+  - @markee/search@1.0.0
+  - @markee/types@1.0.0

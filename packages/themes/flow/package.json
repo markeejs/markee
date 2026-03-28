@@ -1,6 +1,6 @@
 {
   "name": "@markee/theme-flow",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Markee theme used on the official Markee documentation website",
   "license": "MIT",
   "main": "extension.yaml",

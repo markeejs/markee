@@ -1,6 +1,6 @@
 {
   "name": "@markee/search",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Client-side search indexer for Markee",
   "license": "MIT",
   "type": "module",

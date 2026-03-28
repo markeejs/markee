@@ -1,4 +1,4 @@
-# @markee/swaggerui
+# @markee/types
 
 ## 1.0.0
 

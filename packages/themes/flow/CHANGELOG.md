@@ -1,4 +1,4 @@
-# @markee/swaggerui
+# @markee/theme-flow
 
 ## 1.0.0
 
