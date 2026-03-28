@@ -1,4 +1,4 @@
-# @markee/likec4
+# @markee/client
 
 ## 1.0.0
 
@@ -9,6 +9,4 @@
 ### Patch Changes
 
 - Updated dependencies [f989196]
-  - @markee/pipeline@1.0.0
-
-## 0.4.5
+  - @markee/types@1.0.0

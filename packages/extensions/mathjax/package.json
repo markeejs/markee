@@ -1,6 +1,6 @@
 {
   "name": "@markee/mathjax",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Markee MathJax support",
   "license": "MIT",
   "main": "extension.yaml",
@@ -13,11 +13,11 @@
     "test": "vitest run --coverage"
   },
   "dependencies": {
-    "@markee/pipeline": "0.1.0"
+    "@markee/pipeline": "1.0.0"
   },
   "devDependencies": {
     "@markee/tsconfig": "0.1.0",
-    "@markee/vite": "0.1.0",
+    "@markee/vite": "1.0.0",
     "@markee/vitest": "0.1.0",
     "@vitest/coverage-v8": "^3.2.4",
     "jsdom": "^29.0.0",

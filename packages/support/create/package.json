@@ -1,6 +1,6 @@
 {
   "name": "create-markee",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Create a new Markee project",
   "license": "MIT",
   "bin": {
@@ -11,6 +11,6 @@
   ],
   "type": "module",
   "dependencies": {
-    "@markee/cli": "0.1.0"
+    "@markee/cli": "1.0.0"
   }
 }
