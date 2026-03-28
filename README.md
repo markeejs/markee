@@ -90,15 +90,15 @@ Useful commands from the repo root:
 
 ```bash
 pnpm start
-pnpm test
 pnpm build
-pnpm preview
+pnpm site:build
+pnpm site:preview
 ```
 
 - `pnpm start` runs the client and CLI in watch mode against the local `website/`.
-- `pnpm test` runs the workspace test suites.
-- `pnpm build` builds all packages that expose a build step.
-- `pnpm preview` builds and serves the documentation website.
+- `pnpm build` builds all workspace packages that expose a build step
+- `pnpm site:build` builds the documentation website
+- `pnpm site:preview` previews the built documentation website
 
 ## Documentation
 

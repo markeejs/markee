@@ -41,18 +41,20 @@ This starts the client and CLI in watch mode against the local `website/` projec
 Other useful commands:
 
 ```bash
-pnpm preview
-pnpm build
 pnpm test
 pnpm lint
 pnpm lint:tsc
+pnpm build
+pnpm site:build
+pnpm site:preview
 ```
 
-- `pnpm preview` builds and serves the documentation website
-- `pnpm build` builds all workspace packages that expose a build step
 - `pnpm test` runs the workspace test suites
 - `pnpm lint` runs formatting, linting, and dependency consistency checks
 - `pnpm lint:tsc` runs TypeScript checks across the workspace
+- `pnpm build` builds all workspace packages that expose a build step
+- `pnpm site:build` builds the documentation website
+- `pnpm site:preview` previews the built documentation website
 
 If you only need to work on a single package, prefer filtered commands:
 

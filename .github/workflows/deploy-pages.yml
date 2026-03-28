@@ -43,7 +43,7 @@ jobs:
         run: pnpm -r --if-present build
 
       - name: Build website
-        run: pnpm -F @markee/cli build:website
+        run: pnpm run site:build
 
       - name: Setup SPA
         run: cp ./website/site/index.html ./website/site/404.html
