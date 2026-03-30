@@ -1,6 +1,6 @@
 {
   "name": "@markee/client",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "license": "MIT",
   "type": "module",
   "main": "dist/index.html",
@@ -15,12 +15,12 @@
     "test": "vitest run --coverage"
   },
   "dependencies": {
-    "@markee/types": "0.1.0"
+    "@markee/types": "1.0.0"
   },
   "devDependencies": {
-    "@markee/pipeline": "0.1.0",
-    "@markee/runtime": "0.1.0",
-    "@markee/state": "0.1.0",
+    "@markee/pipeline": "1.0.0",
+    "@markee/runtime": "1.0.0",
+    "@markee/state": "1.0.0",
     "@markee/tsconfig": "0.1.0",
     "@markee/vitest": "0.1.0",
     "@nanostores/lit": "^0.2.3",

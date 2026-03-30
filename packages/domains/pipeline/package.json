@@ -1,6 +1,6 @@
 {
   "name": "@markee/pipeline",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Client-side remark/rehype pipeline for Markee",
   "license": "MIT",
   "type": "module",
@@ -14,7 +14,7 @@
     "test": "vitest run --coverage"
   },
   "dependencies": {
-    "@markee/types": "0.1.0"
+    "@markee/types": "1.0.0"
   },
   "devDependencies": {
     "@discordapp/twemoji": "^15.1.0",
