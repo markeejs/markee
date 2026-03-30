@@ -1,5 +1,6 @@
-import { matchesOperationSelector, type ActiveFilter } from './base-layout'
+import type { ActiveFilter } from './base-layout'
 import { sanitizeFilterValue } from './helpers'
+import { matchesOperationSelector } from './operation-selector'
 
 export type SwaggerUiFilters = {
   tag: string

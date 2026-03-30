@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@markee/pipeline', () => ({
+vi.mock('@markee/pipeline/pipelines/client.js', () => ({
   clientPipeline: vi.fn(
     async (content: string, title: string, key: string) =>
       `html:${content}:${title ?? ''}:${key}`,
   ),
 }))
 
-import { clientPipeline } from '@markee/pipeline'
+import { clientPipeline } from '@markee/pipeline/pipelines/client.js'
 
 import { autoAppend, cache, clearCache } from './cache.js'
 import { $configLoader, $navigationLoader } from './store/metadata.js'

@@ -10,6 +10,7 @@ export interface MarkeeUnifiedData {
   config?: Configuration | null
   frontMatter?: MarkdownFile['frontMatter']
   pluginConfig: MarkeePluginConfig
+  content: string
 }
 
 declare module 'unified' {

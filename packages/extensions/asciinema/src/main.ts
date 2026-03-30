@@ -1,14 +1,39 @@
-import * as AsciinemaPlayer from 'asciinema-player'
 import { extend } from '@markee/runtime'
+import { loadAsciinemaStyles } from './styles.js'
 
-import 'asciinema-player/dist/bundle/asciinema-player.css'
-import './index.css'
+let asciinemaStylesPromise: Promise<void> | undefined
+let asciinemaPlayerPromise:
+  | Promise<typeof import('asciinema-player')>
+  | undefined
+
+function ensureAsciinemaStyles() {
+  asciinemaStylesPromise ??= loadAsciinemaStyles()
+
+  return asciinemaStylesPromise
+}
+
+function loadAsciinemaPlayer() {
+  asciinemaPlayerPromise ??= import('asciinema-player')
+
+  return asciinemaPlayerPromise
+}
 
 class Asciinema extends HTMLElement {
-  connectedCallback() {
+  async connectedCallback() {
+    const [AsciinemaPlayer] = await Promise.all([
+      loadAsciinemaPlayer(),
+      ensureAsciinemaStyles(),
+    ])
+    if (!this.isConnected) return
+
     AsciinemaPlayer.create(this.getAttribute('src'), this, { preload: true })
-    this.querySelector<HTMLDivElement>('.ap-wrapper')!.style.maxWidth =
-      this.getAttribute('width')!
+    const width = this.getAttribute('width')
+    if (width) {
+      this.querySelector<HTMLDivElement>('.ap-wrapper')?.style.setProperty(
+        'max-width',
+        width,
+      )
+    }
   }
 }
 

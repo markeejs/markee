@@ -1,10 +1,25 @@
-import RevealJS from 'reveal.js'
-import 'reveal.js/dist/reveal.css'
-import 'reveal.js/dist/theme/simple.css'
-import './index.css'
+import { loadRevealStyles } from './styles.js'
+
+let revealStylesPromise: Promise<void> | undefined
+let revealModulePromise: Promise<any> | undefined
+
+function ensureRevealStyles() {
+  revealStylesPromise ??= loadRevealStyles()
+
+  return revealStylesPromise
+}
+
+function loadRevealJs() {
+  revealModulePromise ??= import('reveal.js').then((module) => module.default)
+
+  return revealModulePromise
+}
 
 class Reveal extends HTMLElement {
-  connectedCallback() {
+  async connectedCallback() {
+    const [RevealJS] = await Promise.all([loadRevealJs(), ensureRevealStyles()])
+    if (!this.isConnected) return
+
     let config: Record<string, any> = {}
     try {
       config = JSON.parse(this.dataset.config || '{}')

@@ -1,4 +1,4 @@
-import { createFilterLayoutPlugin, type ActiveFilter } from './base-layout'
+import type { ActiveFilter } from './base-layout'
 import {
   decodeRecord,
   decodeText,
@@ -11,8 +11,13 @@ import {
   validateFilter,
   type SwaggerUiFilters,
 } from './filters'
+import { loadSwaggerUiStyles } from './styles'
 
 let swaggerUiBundlePromise: Promise<any> | null = null
+let swaggerUiStylesPromise: Promise<void> | null = null
+let swaggerUiFilterLayoutPromise: Promise<
+  (filter: ActiveFilter) => any
+> | null = null
 
 function loadSwaggerUiBundle() {
   if (!swaggerUiBundlePromise) {
@@ -22,6 +27,22 @@ function loadSwaggerUiBundle() {
       )
   }
   return swaggerUiBundlePromise
+}
+
+function ensureSwaggerUiStyles() {
+  if (!swaggerUiStylesPromise) {
+    swaggerUiStylesPromise = loadSwaggerUiStyles()
+  }
+  return swaggerUiStylesPromise
+}
+
+function loadSwaggerUiFilterLayout() {
+  if (!swaggerUiFilterLayoutPromise) {
+    swaggerUiFilterLayoutPromise = import('./base-layout.js').then(
+      (module) => module.createFilterLayoutPlugin,
+    )
+  }
+  return swaggerUiFilterLayoutPromise
 }
 
 class MarkeeSwaggerUi extends HTMLElement {
@@ -111,22 +132,23 @@ class MarkeeSwaggerUi extends HTMLElement {
 
   async #render() {
     const runId = ++this.#runId
+    const stylesPromise = ensureSwaggerUiStyles()
 
     try {
       const source = await this.#resolveSource()
       if (runId !== this.#runId) return
 
       const SwaggerUIBundle = await loadSwaggerUiBundle()
+      await stylesPromise
       if (runId !== this.#runId) return
 
       this.#destroyUi()
 
-      const parsedSpec = parseOpenApiSource(source)
+      const parsedSpec = await parseOpenApiSource(source)
       const activeFilter: ActiveFilter | null = validateFilter(
         parsedSpec,
         resolveActiveFilter(this.#resolveFilters()),
       )
-
       const container = document.createElement('div')
       container.className = 'markee-swaggerui__container'
       this.replaceChildren(container)
@@ -140,6 +162,8 @@ class MarkeeSwaggerUi extends HTMLElement {
       }
 
       if (activeFilter) {
+        const createFilterLayoutPlugin = await loadSwaggerUiFilterLayout()
+        if (runId !== this.#runId) return
         config.plugins = [createFilterLayoutPlugin(activeFilter)]
       }
 

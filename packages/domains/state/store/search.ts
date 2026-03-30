@@ -1,6 +1,6 @@
-import { computed } from 'nanostores'
-import { MarkeeSearchIndexer, type SearchOptions } from '@markee/search'
-import { searchPipeline } from '@markee/pipeline'
+import { atom, computed } from 'nanostores'
+import type { MarkeeSearchIndexer, SearchOptions } from '@markee/search'
+import type { searchPipeline } from '@markee/pipeline'
 import { $searchLoader, $navigationLoader } from './metadata.js'
 
 export interface SearchResult {
@@ -26,10 +26,39 @@ export interface SearchData {
   }
 }
 
+const $searchPipeline = atom<typeof searchPipeline | null>(null)
+const $searchIndexer = atom<typeof MarkeeSearchIndexer | null>(null)
+
+let firstSearch = true
+
 export const $search = computed(
-  [$searchLoader, $navigationLoader],
-  (searchLoader, navigationLoader) => {
-    if (!searchLoader.data || !navigationLoader.data)
+  [$searchLoader, $navigationLoader, $searchPipeline, $searchIndexer],
+  (searchLoader, navigationLoader, searchPipeline, MarkeeSearchIndexer) => {
+    if (firstSearch) {
+      return ((keyword: any) => {
+        if (!keyword) return []
+
+        firstSearch = false
+
+        import('@markee/pipeline/pipelines/search.js').then(
+          ({ searchPipeline }) => {
+            $searchPipeline.set(searchPipeline)
+          },
+        )
+        import('@markee/search').then(({ MarkeeSearchIndexer }) => {
+          $searchIndexer.set(MarkeeSearchIndexer)
+        })
+
+        return []
+      }) as unknown as typeof fn
+    }
+
+    if (
+      !searchLoader.data ||
+      !navigationLoader.data ||
+      !searchPipeline ||
+      !MarkeeSearchIndexer
+    )
       return (() => []) as unknown as typeof fn
 
     const search = searchLoader.data

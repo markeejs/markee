@@ -52,19 +52,21 @@ describe('swaggerui helpers', () => {
     expect(decodeRecord('%%%')).toEqual({})
   })
 
-  it('sanitizes filter values and parses json or yaml OpenAPI sources', () => {
+  it('sanitizes filter values and parses json or yaml OpenAPI sources', async () => {
     expect(sanitizeFilterValue(' "users" ')).toBe('users')
     expect(sanitizeFilterValue(" 'pets' ")).toBe('pets')
     expect(sanitizeFilterValue(' plain ')).toBe('plain')
 
-    expect(parseOpenApiSource('{"openapi":"3.1.0"}')).toEqual({
+    await expect(parseOpenApiSource('{"openapi":"3.1.0"}')).resolves.toEqual({
       openapi: '3.1.0',
     })
-    expect(parseOpenApiSource('openapi: 3.1.0\ninfo:\n  title: Demo')).toEqual({
+    await expect(
+      parseOpenApiSource('openapi: 3.1.0\ninfo:\n  title: Demo'),
+    ).resolves.toEqual({
       openapi: '3.1.0',
       info: { title: 'Demo' },
     })
-    expect(() => parseOpenApiSource('- not-an-object')).toThrow(
+    await expect(parseOpenApiSource('- not-an-object')).rejects.toThrow(
       'OpenAPI source must parse to an object.',
     )
   })

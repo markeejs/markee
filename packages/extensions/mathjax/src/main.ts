@@ -1,7 +1,6 @@
 import type { Processor } from 'unified'
-import remarkMath from 'remark-math'
-import rehypeMathJax from 'rehype-mathjax'
 import { extend } from '@markee/runtime'
+import remarkMath from 'remark-math'
 
 extend.markdownPipeline.remark(
   'markee-mathjax-remark',
@@ -14,4 +13,28 @@ extend.markdownPipeline.remark(
   },
 )
 
-extend.markdownPipeline.rehype('markee-mathjax-rehype', rehypeMathJax)
+let rehypeMathJaxModule: Promise<typeof import('rehype-mathjax')> | undefined
+
+function loadRehypeMathJax() {
+  rehypeMathJaxModule ??= import('rehype-mathjax')
+  return rehypeMathJaxModule
+}
+
+extend.markdownPipeline.rehype(
+  'markee-mathjax-rehype',
+  function (this: Processor) {
+    const { content } = this.data()
+    if (!content.includes('$')) return () => {}
+
+    let transformPromise: Promise<any> | undefined
+
+    return async (tree, file) => {
+      transformPromise ??= loadRehypeMathJax().then(
+        ({ default: rehypeMathJax }) => rehypeMathJax.call(this),
+      )
+
+      const transform = await transformPromise
+      return transform?.(tree, file)
+    }
+  },
+)

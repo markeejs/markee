@@ -1,4 +1,3 @@
-import { clientPipeline } from '@markee/pipeline'
 import { $navigation } from './store/metadata.js'
 import { $configLoader } from './store/metadata.js'
 
@@ -15,6 +14,8 @@ async function safeJsonParse(value: string) {
 }
 
 async function markdownToHtml(value: string, key: string) {
+  const { clientPipeline } =
+    await import('@markee/pipeline/pipelines/client.js')
   const { files } = $navigation.get()
   const file = files[key]
   return clientPipeline(value, file?.frontMatter?.title, key)

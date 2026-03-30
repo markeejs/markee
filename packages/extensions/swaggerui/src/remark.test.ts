@@ -1,8 +1,10 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
-const { remark, visit, parseAttrs } = vi.hoisted(() => ({
-  remark: vi.fn(),
-  visit: vi.fn(
+async function importRemark() {
+  vi.resetModules()
+
+  const remark = vi.fn()
+  const visit = vi.fn(
     (
       tree: any,
       _type: string,
@@ -12,40 +14,44 @@ const { remark, visit, parseAttrs } = vi.hoisted(() => ({
         callback(node, index, tree),
       )
     },
-  ),
-  parseAttrs: vi.fn((meta: string) => {
+  )
+  const parseAttrs = vi.fn((meta: string) => {
     if (meta.includes('tag=')) {
-      return { tag: '"users"', class: 'swagger compact', id: 'users-api' }
+      return {
+        tag: '"users"',
+        class: 'swagger compact',
+        id: 'users-api',
+      }
     }
     if (meta.includes('schema=')) {
       return { schema: 'Pet' }
     }
     return {}
-  }),
-}))
-
-vi.mock('@markee/runtime', () => ({
-  extend: {
-    markdownPipeline: {
-      remark,
-      visit,
-    },
-  },
-}))
-vi.mock('attributes-parser', () => ({
-  default: parseAttrs,
-}))
-
-import { registerSwaggerUiRemark } from './remark.js'
-
-describe('swaggerui remark', () => {
-  beforeEach(() => {
-    remark.mockClear()
-    visit.mockClear()
-    parseAttrs.mockClear()
   })
 
-  it('registers a remark plugin that rewrites openapi fences into custom elements', () => {
+  vi.doMock('@markee/runtime', () => ({
+    extend: {
+      markdownPipeline: {
+        remark,
+        visit,
+      },
+    },
+  }))
+  vi.doMock('attributes-parser', () => ({
+    default: parseAttrs,
+  }))
+
+  return {
+    ...(await import('./remark.js')),
+    remark,
+    visit,
+  }
+}
+
+describe('swaggerui remark', () => {
+  it('registers a remark plugin that rewrites openapi fences into custom elements', async () => {
+    const { registerSwaggerUiRemark, remark } = await importRemark()
+
     registerSwaggerUiRemark()
 
     expect(remark).toHaveBeenCalledWith(
@@ -112,20 +118,31 @@ describe('swaggerui remark', () => {
     })
   })
 
-  it('ignores fences without a parent, index, or supported language', () => {
+  it('ignores fences without a parent, index, or supported language', async () => {
+    const { registerSwaggerUiRemark, remark, visit } = await importRemark()
+
     registerSwaggerUiRemark()
 
-    const factory = remark.mock.calls[0]?.[1] as Function
-    const transform = factory()
-    const parentless = { lang: 'openapi', meta: '', value: 'x', data: {} }
-    const unsupported = { lang: 'yaml', meta: '', value: 'x', data: {} }
-    const missingLang = { meta: '', value: 'x', data: {} }
+    const transform = remark.mock.calls[0]?.[1]()
 
-    transform({
-      children: [parentless, unsupported, missingLang],
-    })
+    transform({ children: [] })
+    const callback = visit.mock.calls[0]?.[2] as Function
 
-    expect(parentless.lang).toBe('openapi')
+    expect(() =>
+      callback({ lang: 'openapi', value: 'x', data: {} }, undefined, undefined),
+    ).not.toThrow()
+
+    const tree = {
+      children: [
+        { lang: 'yaml', meta: '', value: 'x', data: {} },
+        { meta: '', value: 'x', data: {} },
+      ],
+    }
+
+    transform(tree)
+
+    const unsupported = tree.children[0]
+    const missingLang = tree.children[1]
     expect(unsupported.lang).toBe('yaml')
     expect(missingLang).toEqual({ meta: '', value: 'x', data: {} })
   })

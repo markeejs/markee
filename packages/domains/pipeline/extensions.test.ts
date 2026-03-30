@@ -1,15 +1,15 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import {
-  markdownPipeline,
-  withRehypeExtensions,
-  withRemarkExtensions,
-} from './extensions'
-
 let extensionId = 0
 
+async function importExtensions() {
+  vi.resetModules()
+  return import('./extensions')
+}
+
 describe('extensions', () => {
-  it('registers and applies remark extensions', () => {
+  it('registers and applies remark extensions', async () => {
+    const { markdownPipeline, withRemarkExtensions } = await importExtensions()
     const plugin = () => () => {}
     const base = { use: vi.fn().mockReturnThis() }
     const key = `remark-${extensionId++}`
@@ -21,7 +21,8 @@ describe('extensions', () => {
     expect(base.use).toHaveBeenCalledWith(plugin, 'alpha', 2)
   })
 
-  it('registers and applies rehype extensions', () => {
+  it('registers and applies rehype extensions', async () => {
+    const { markdownPipeline, withRehypeExtensions } = await importExtensions()
     const plugin = () => () => {}
     const base = { use: vi.fn().mockReturnThis() }
     const key = `rehype-${extensionId++}`

@@ -5,7 +5,7 @@ export default defineConfig(
   createMarkeeVitestConfig({
     test: {
       coverage: {
-        include: ['src/main.ts'],
+        include: ['src/main.ts', 'src/styles.ts'],
       },
     },
   }),

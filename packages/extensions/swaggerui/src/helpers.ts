@@ -1,4 +1,11 @@
-import { parse as parseYaml } from 'yaml'
+let yamlParsePromise: Promise<(source: string) => unknown> | null = null
+
+function loadYamlParser() {
+  if (!yamlParsePromise) {
+    yamlParsePromise = import('yaml').then((module) => module.parse)
+  }
+  return yamlParsePromise
+}
 
 export function encodeText(value: string) {
   const bytes = new TextEncoder().encode(value)
@@ -61,12 +68,14 @@ export function sanitizeFilterValue(value: string) {
   return trimmed.replace(/^"(.*)"$/, '$1').replace(/^'(.*)'$/, '$1')
 }
 
-export function parseOpenApiSource(source: string): Record<string, any> {
+export async function parseOpenApiSource(
+  source: string,
+): Promise<Record<string, any>> {
   const trimmed = source.trimStart()
   const parsed =
     trimmed.startsWith('{') || trimmed.startsWith('[')
       ? JSON.parse(source)
-      : parseYaml(source)
+      : (await loadYamlParser())(source)
 
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
     throw new Error('OpenAPI source must parse to an object.')
