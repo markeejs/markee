@@ -1,6 +1,6 @@
 {
   "name": "@markee/placeholders",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Markee placeholders variables support",
   "license": "MIT",
   "main": "extension.yaml",
@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@markee/tsconfig": "0.1.0",
-    "@markee/vite": "0.1.0",
+    "@markee/vite": "1.0.0",
     "@markee/vitest": "0.1.0",
     "jsdom": "^29.0.0",
     "vite": "^8.0.0",

@@ -1,6 +1,6 @@
 {
   "name": "@markee/cli",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "license": "MIT",
   "bin": {
     "markee": "./bin.js"
@@ -21,10 +21,10 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.11",
-    "@markee/client": "0.1.0",
-    "@markee/default": "0.1.0",
-    "@markee/runtime": "0.1.0",
-    "@markee/types": "0.1.0",
+    "@markee/client": "1.0.0",
+    "@markee/default": "1.0.0",
+    "@markee/runtime": "1.0.0",
+    "@markee/types": "1.0.0",
     "attributes-parser": "^2.2.3",
     "colors": "^1.4.0",
     "command-line-args": "^6.0.1",

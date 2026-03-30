@@ -1,6 +1,6 @@
 {
   "name": "@markee/revealjs",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Markee RevealJS support",
   "license": "MIT",
   "main": "extension.yaml",
@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@markee/tsconfig": "0.1.0",
-    "@markee/vite": "0.1.0",
+    "@markee/vite": "1.0.0",
     "@markee/vitest": "0.1.0",
     "@types/reveal.js": "^5.2.2",
     "@vitest/coverage-v8": "^3.2.4",
