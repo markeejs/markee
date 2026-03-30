@@ -32,7 +32,7 @@ class BlogAuthor extends MarkeeElement.with({
     const title = titles[author] ?? 'Fullstack Architect'
 
     return html`
-      <img alt="" src="/blog/_images/${author}.jpeg" />
+      ${author ? html`<img alt="" src="/blog/_images/${author}.jpeg" />` : nothing}
       <div>
         <span>${name}</span>
         ${this.variant === 'large' ? html`<span>${title}</span>` : nothing}
