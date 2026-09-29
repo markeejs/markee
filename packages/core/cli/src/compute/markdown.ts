@@ -1096,7 +1096,8 @@ export const MarkdownCompute = {
       await Promise.all(
         candidates.map(async (link) => {
           const file = PathHelpers.concat(ROOT_DIR, link.link)
-          if (!(await fs.exists(file))) {
+          const publicFile = PathHelpers.concat(ROOT_DIR, 'public', link.link)
+          if (!(await fs.exists(file)) && !(await fs.exists(publicFile))) {
             if (link.link.startsWith('/_assets/_extension/')) {
               const extensionFile = link.link.slice(
                 '/_assets/_extension/'.length,

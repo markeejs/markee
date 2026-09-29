@@ -368,7 +368,7 @@ describe('MarkdownCompute', () => {
     )
   })
 
-  it('detects broken links, handles versioned targets, and reports them', async () => {
+  it('detects broken links, accepts public files, handles versioned targets, and reports them', async () => {
     const markdownCacheGet = vi.fn((_file: string) => ({
       raw: 'See [bad](./missing.md)',
       readFromDisk: vi.fn(async () => 'Included line'),
@@ -378,7 +378,8 @@ describe('MarkdownCompute', () => {
       exists: vi.fn(
         async (candidate: string) =>
           candidate === '/project/docs/existing.md' ||
-          candidate === '/project/docs/versioned.md',
+          candidate === '/project/docs/versioned.md' ||
+          candidate === '/project/public/robots.txt',
       ),
       pathExists: vi.fn(
         async (file: string) => file === '/resolved/pkg/file.js',
@@ -411,6 +412,10 @@ describe('MarkdownCompute', () => {
         [
           '/docs/versioned.md',
           [{ line: 2, offset: 0, length: 9, file: '/docs/page.md' }],
+        ],
+        [
+          '/robots.txt',
+          [{ line: 3, offset: 0, length: 10, file: '/docs/page.md' }],
         ],
         [
           '/_assets/_extension/pkg/file.js',
