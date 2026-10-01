@@ -39,7 +39,7 @@ state.$colorScheme.subscribe((colorScheme) => {
       ? 'dark'
       : 'light'
   }
-  document.body.setAttribute('data-color-scheme', colorScheme)
+  document.body.setAttribute('data-color-scheme', selectedColorScheme)
   extend.prism?.loadTheme(
     selectedColorScheme === 'light'
       ? (extend.prism?.lightTheme ?? 'oneLight')
