@@ -2,6 +2,7 @@
   "name": "markee-expose-fixture",
   "type": "module",
   "main": "./main.js",
+  "private": true,
   "exports": {
     ".": {
       "browser": "./browser.js",

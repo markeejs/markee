@@ -31,13 +31,15 @@ state.$currentLoader.subscribe(({ loading: _loading, data }) => {
 })
 
 // Sync theme to body attributes
-state.$colorScheme.subscribe((colorScheme) => {
+const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+mediaQuery.addEventListener('change', () => {
+  colorSchemeUpdate(state.$colorScheme.get())
+})
+
+const colorSchemeUpdate = (colorScheme: 'auto' | 'light' | 'dark') => {
   let selectedColorScheme = colorScheme
   if (colorScheme === 'auto') {
-    selectedColorScheme = window.matchMedia('(prefers-color-scheme: dark)')
-      .matches
-      ? 'dark'
-      : 'light'
+    selectedColorScheme = mediaQuery.matches ? 'dark' : 'light'
   }
   document.body.setAttribute('data-color-scheme', selectedColorScheme)
   extend.prism?.loadTheme(
@@ -45,6 +47,10 @@ state.$colorScheme.subscribe((colorScheme) => {
       ? (extend.prism?.lightTheme ?? 'oneLight')
       : (extend.prism?.darkTheme ?? 'oneDark'),
   )
+}
+
+state.$colorScheme.subscribe((colorScheme) => {
+  colorSchemeUpdate(colorScheme)
 })
 
 // Sync current file title to HTML document title
