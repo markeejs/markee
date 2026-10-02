@@ -1,25 +1,27 @@
 ---
-"@markee/cli": major
-"@markee/client": major
-"@markee/runtime": major
-"@markee/elements": major
-"@markee/pipeline": major
-"@markee/search": major
-"@markee/state": major
-"@markee/asciinema": major
-"@markee/default": major
-"@markee/diagrams": major
-"@markee/kroki": major
-"@markee/likec4": major
-"@markee/mathjax": major
-"@markee/placeholders": major
-"@markee/revealjs": major
-"@markee/swaggerui": major
-"@markee/tooltips": major
-"create-markee": major
-"@markee/types": major
-"@markee/vite": major
-"@markee/theme-flow": major
+'@markee/cli': minor
+'@markee/client': minor
+'@markee/runtime': minor
+'@markee/elements': minor
+'@markee/pipeline': minor
+'@markee/search': minor
+'@markee/state': minor
+'@markee/asciinema': minor
+'@markee/default': minor
+'@markee/diagrams': minor
+'@markee/kroki': minor
+'@markee/likec4': minor
+'@markee/mathjax': minor
+'@markee/placeholders': minor
+'@markee/revealjs': minor
+'@markee/swaggerui': minor
+'@markee/tooltips': minor
+'create-markee': minor
+'@markee/types': minor
+'@markee/vite': minor
+'@markee/theme-flow': minor
 ---
 
-First Markee release
+Fix public files in broken links detection
+
+Fix dark theme when set to auto
