@@ -1,5 +1,13 @@
 # @markee/default
 
+## 0.2.0
+
+### Minor Changes
+
+- f989196: Fix public files in broken links detection
+
+  Fix dark theme when set to auto
+
 ## 0.4.5
 
 ## 0.4.4

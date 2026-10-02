@@ -1,4 +1,4 @@
-# @markee/tooltips
+# @markee/state
 
 ## 0.2.0
 
@@ -8,8 +8,9 @@
 
   Fix dark theme when set to auto
 
-## 0.4.5
-
 ### Patch Changes
 
-- 3b398eb: Add tooltip extension replacing title attributes with clean tooltips
+- Updated dependencies [f989196]
+  - @markee/pipeline@0.2.0
+  - @markee/search@0.2.0
+  - @markee/types@0.2.0

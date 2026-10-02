@@ -1,4 +1,4 @@
-# @markee/swaggerui
+# @markee/vite
 
 ## 0.2.0
 

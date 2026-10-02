@@ -1,4 +1,4 @@
-# @markee/swaggerui
+# create-markee
 
 ## 0.2.0
 
@@ -7,3 +7,8 @@
 - f989196: Fix public files in broken links detection
 
   Fix dark theme when set to auto
+
+### Patch Changes
+
+- Updated dependencies [f989196]
+  - @markee/cli@0.2.0
