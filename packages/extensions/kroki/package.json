@@ -3,6 +3,7 @@
   "version": "0.2.0",
   "description": "Extension for using Kroki as a diagram rendering backend",
   "license": "MIT",
+  "repository": "https://github.com/markeejs/markee",
   "main": "extension.yaml",
   "publishConfig": {
     "access": "public"

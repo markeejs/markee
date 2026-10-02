@@ -3,6 +3,7 @@
   "version": "0.2.0",
   "description": "Extension for turning title attributes into clean tooltips",
   "license": "MIT",
+  "repository": "https://github.com/markeejs/markee",
   "main": "extension.yaml",
   "publishConfig": {
     "access": "public"

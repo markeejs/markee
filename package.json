@@ -4,6 +4,7 @@
   "private": true,
   "description": "Markdown-based website generator",
   "license": "MIT",
+  "repository": "https://github.com/markeejs/markee",
   "scripts": {
     "format": "pnpm run format:syncpack && pnpm run format:oxfmt",
     "format:oxfmt": "oxfmt package.json packages",

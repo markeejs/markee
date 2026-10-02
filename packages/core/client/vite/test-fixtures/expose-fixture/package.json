@@ -1,8 +1,9 @@
 {
   "name": "markee-expose-fixture",
+  "private": true,
+  "repository": "https://github.com/markeejs/markee",
   "type": "module",
   "main": "./main.js",
-  "private": true,
   "exports": {
     ".": {
       "browser": "./browser.js",

@@ -3,6 +3,7 @@
   "version": "0.2.0",
   "description": "Client-side remark/rehype pipeline for Markee",
   "license": "MIT",
+  "repository": "https://github.com/markeejs/markee",
   "type": "module",
   "main": "./index.js",
   "types": "./index.ts",

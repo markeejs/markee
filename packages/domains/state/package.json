@@ -3,6 +3,7 @@
   "version": "0.2.0",
   "description": "Stateful atoms for the Markee site generator",
   "license": "MIT",
+  "repository": "https://github.com/markeejs/markee",
   "type": "module",
   "main": "index.js",
   "types": "index.ts",

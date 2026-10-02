@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "license": "MIT",
+  "repository": "https://github.com/markeejs/markee",
   "main": "index.mjs",
   "types": "index.d.ts",
   "exports": {

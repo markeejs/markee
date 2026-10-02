@@ -3,6 +3,7 @@
   "version": "0.2.0",
   "description": "Markee OpenAPI rendering with Swagger UI",
   "license": "MIT",
+  "repository": "https://github.com/markeejs/markee",
   "main": "extension.yaml",
   "publishConfig": {
     "access": "public"
