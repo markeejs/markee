@@ -1,4 +1,4 @@
-# @markee/diagrams
+# @markee/cli
 
 ## 0.2.0
 
@@ -11,6 +11,7 @@
 ### Patch Changes
 
 - Updated dependencies [f989196]
-  - @markee/pipeline@0.2.0
-
-## 0.4.5
+  - @markee/client@0.2.0
+  - @markee/runtime@0.2.0
+  - @markee/default@0.2.0
+  - @markee/types@0.2.0

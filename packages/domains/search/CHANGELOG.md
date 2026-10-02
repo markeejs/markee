@@ -1,4 +1,4 @@
-# @markee/swaggerui
+# @markee/search
 
 ## 0.2.0
 
