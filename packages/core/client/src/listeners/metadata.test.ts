@@ -5,6 +5,7 @@ const metadataState = vi.hoisted(() => ({
   currentFileCallback: undefined as undefined | ((value: any) => void),
   currentLoaderCallback: undefined as undefined | ((value: any) => void),
   colorSchemeCallback: undefined as undefined | ((value: any) => void),
+  colorSchemeGet: vi.fn(() => 'auto'),
   combineCallback: undefined as undefined | ((value: [any, any]) => void),
   loadTheme: vi.fn(),
   prism: {
@@ -34,6 +35,7 @@ vi.mock('@markee/runtime', () => ({
       },
     },
     $colorScheme: {
+      get: metadataState.colorSchemeGet,
       subscribe(callback: (value: any) => void) {
         metadataState.colorSchemeCallback = callback
         return () => {}
@@ -65,6 +67,7 @@ describe('metadata listener', () => {
   beforeEach(() => {
     vi.resetModules()
     metadataState.loadTheme.mockClear()
+    metadataState.colorSchemeGet.mockReset().mockReturnValue('auto')
     metadataState.prism.lightTheme = 'oneLight'
     metadataState.prism.darkTheme = 'oneDark'
     document.body.removeAttribute('class')
@@ -108,7 +111,7 @@ describe('metadata listener', () => {
   })
 
   it('handles loading state, auto color scheme, missing classes, and missing page titles', async () => {
-    vi.spyOn(window, 'matchMedia').mockReturnValue({
+    const mediaQuery = {
       matches: true,
       media: '',
       onchange: null,
@@ -119,7 +122,8 @@ describe('metadata listener', () => {
       dispatchEvent() {
         return false
       },
-    } as MediaQueryList)
+    }
+    vi.spyOn(window, 'matchMedia').mockReturnValue(mediaQuery as MediaQueryList)
 
     await import('./metadata.js')
 
@@ -134,22 +138,12 @@ describe('metadata listener', () => {
     expect(document.body.getAttribute('class')).toBeNull()
 
     metadataState.colorSchemeCallback?.('auto')
-    expect(document.body.dataset.colorScheme).toBe('auto')
+    expect(document.body.dataset.colorScheme).toBe('dark')
     expect(metadataState.loadTheme).toHaveBeenCalledWith('oneDark')
 
-    vi.spyOn(window, 'matchMedia').mockReturnValue({
-      matches: false,
-      media: '',
-      onchange: null,
-      addListener() {},
-      removeListener() {},
-      addEventListener() {},
-      removeEventListener() {},
-      dispatchEvent() {
-        return false
-      },
-    } as MediaQueryList)
+    mediaQuery.matches = false
     metadataState.colorSchemeCallback?.('auto')
+    expect(document.body.dataset.colorScheme).toBe('light')
     expect(metadataState.loadTheme).toHaveBeenLastCalledWith('oneLight')
 
     metadataState.prism.lightTheme = undefined
@@ -167,5 +161,46 @@ describe('metadata listener', () => {
 
     metadataState.configCallback?.(null)
     expect(document.body.dataset.theme).toBe('default')
+  })
+
+  it('updates auto color scheme when the system preference changes and respects explicit preferences', async () => {
+    const mediaQuery = {
+      matches: false,
+      addEventListener: vi.fn(),
+    }
+    const matchMedia = vi
+      .spyOn(window, 'matchMedia')
+      .mockReturnValue(mediaQuery as unknown as MediaQueryList)
+
+    await import('./metadata.js')
+
+    expect(matchMedia).toHaveBeenCalledWith('(prefers-color-scheme: dark)')
+    expect(mediaQuery.addEventListener).toHaveBeenCalledWith(
+      'change',
+      expect.any(Function),
+    )
+    const onChange = mediaQuery.addEventListener.mock.calls[0][1]
+
+    mediaQuery.matches = true
+    onChange()
+    expect(document.body.dataset.colorScheme).toBe('dark')
+    expect(metadataState.loadTheme).toHaveBeenLastCalledWith('oneDark')
+
+    mediaQuery.matches = false
+    onChange()
+    expect(document.body.dataset.colorScheme).toBe('light')
+    expect(metadataState.loadTheme).toHaveBeenLastCalledWith('oneLight')
+
+    metadataState.colorSchemeGet.mockReturnValue('light')
+    mediaQuery.matches = true
+    onChange()
+    expect(document.body.dataset.colorScheme).toBe('light')
+    expect(metadataState.loadTheme).toHaveBeenLastCalledWith('oneLight')
+
+    metadataState.colorSchemeGet.mockReturnValue('dark')
+    mediaQuery.matches = false
+    onChange()
+    expect(document.body.dataset.colorScheme).toBe('dark')
+    expect(metadataState.loadTheme).toHaveBeenLastCalledWith('oneDark')
   })
 })
