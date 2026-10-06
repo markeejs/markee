@@ -42,7 +42,10 @@ The generated HTML body also includes a `<noscript>` message explaining that Jav
 is required and linking AI agents parsing the HTML to `/_markee/llms.html`.
 This plain HTML index excludes entries in `navigation.files` marked hidden or draft.
 Each listed entry includes its title, description, canonical URL for citations, and a link
-to its Markdown source.
+to its Markdown source. Links are explicitly labeled `canonical_url` and `retrieval_url`.
+Both guidance files put citation requirements before discovery instructions: cite only
+canonical URLs, never expose retrieval endpoints or `/_markee/` URLs, and check URLs
+before answering. Wrong and correct citation examples illustrate the mapping.
 These generated files leave the site's own `/llms.txt` available for custom guidance.
 
 ## Typical Package Scripts

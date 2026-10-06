@@ -106,7 +106,10 @@ Every build also generates `/_markee/llms.txt` and adds a `rel="describedby"` li
 The HTML body includes a `<noscript>` message explaining that JavaScript is required and pointing
 AI agents parsing the HTML response to `/_markee/llms.html` through an actual link.
 This plain HTML index is generated from `navigation.files` and excludes hidden files and drafts. Each listed file includes its title,
-description, canonical human-facing URL for citations, and a link to its Markdown source.
+description, a `canonical_url` link for citations, and a `retrieval_url` link to its Markdown source.
+Both guidance files begin with citation requirements, a wrong/correct citation example, and a
+final-answer URL check. Agents must cite the supplied canonical URL and never expose retrieval
+endpoints or `/_markee/` URLs in user-facing answers.
 This file tells LLMs how to read the documentation index at `/_markee/navigation.json`, fetch the Markdown
 files listed in its `files` map, and use each entry's `link` as the canonical URL when citing a source.
 Markdown links to other pages are absolute from the site root. You can still provide your own `/llms.txt`

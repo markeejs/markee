@@ -72,10 +72,8 @@ describe('writeLlms', () => {
     const content = vi.mocked(fs.writeFile).mock.calls[1][1] as string
     expect(content).toMatch(/^<!doctype html>\n<html lang="en">/)
     expect(content).toContain('<meta charset="utf-8">')
-    expect(content).toContain('Follow the Markdown source links')
-    expect(content).toContain(
-      'Use the canonical human-facing URL when citing a page',
-    )
+    expect(content).toContain('Follow the retrieval_url links')
+    expect(content).toContain('Use the canonical_url when citing a page')
     expect(content).toContain(
       '<a href="/_markee/navigation.json">/_markee/navigation.json</a>',
     )
@@ -84,7 +82,7 @@ describe('writeLlms', () => {
       '<h2>Title &amp; &quot;&lt;tag&gt;&quot; &#39;</h2>',
     )
     expect(content).toContain(
-      'Canonical URL for citations: <a href="/docs/a?x=&quot;&lt;&gt;&amp;&#39;">/docs/a?x=&quot;&lt;&gt;&amp;&#39;</a>',
+      'canonical_url: <a href="/docs/a?x=&quot;&lt;&gt;&amp;&#39;">/docs/a?x=&quot;&lt;&gt;&amp;&#39;</a>',
     )
     expect(content).toContain(
       'Description &lt;script&gt; &amp; &quot;quotes&quot;',
@@ -92,10 +90,52 @@ describe('writeLlms', () => {
     expect(content).toContain('<a href="/docs/a&amp;&quot;&lt;&gt;&#39;.md">')
     expect(content).toContain('<h2>/docs/untitled.md</h2>')
     expect(content).toContain('<p>Fallback excerpt</p>')
-    expect(content).toContain('<a href="/_markee/layout.md">')
+    expect(content).toContain(
+      'retrieval_url: <a href="/_markee/layout.md">/_markee/layout.md</a>',
+    )
+    expect(content).toContain(
+      'canonical_url: Not available; retrieval-only resource. Do not cite.',
+    )
+    expect(content).not.toContain('<a href="">')
     expect(content).not.toContain('Unused excerpt')
     expect(content).not.toMatch(/<script|<style/)
     expect(content).toMatch(/<\/html>\n$/)
+  })
+
+  it('puts citation constraints and examples before discovery instructions in both formats', async () => {
+    await writeLlms({})
+
+    for (const [, content] of vi.mocked(fs.writeFile).mock.calls) {
+      const guidance = content as string
+      expect(guidance.indexOf('Citation requirements')).toBeLessThan(
+        guidance.indexOf('/_markee/navigation.json'),
+      )
+      expect(guidance).toContain(
+        'NEVER expose, cite, or link a /_markee/ URL in user-facing answers',
+      )
+      expect(guidance).toContain("NEVER cite a document's retrieval_url")
+      expect(guidance).toContain('ALWAYS use its corresponding canonical_url')
+      expect(guidance).toContain('Copy the supplied canonical_url')
+      expect(guidance).toContain('Wrong citation:')
+      expect(guidance).toContain('Correct citation:')
+      expect(guidance).toContain(
+        'Before producing your final response, inspect every URL',
+      )
+      expect(guidance).toContain('No user-visible URL may contain /_markee/')
+    }
+    const text = vi.mocked(fs.writeFile).mock.calls[0][1] as string
+    expect(text).toContain('Treat each map key as retrieval_url')
+    expect(text).toContain('this is canonical_url')
+    const html = vi.mocked(fs.writeFile).mock.calls[1][1] as string
+    expect(html.indexOf('Citation requirements')).toBeLessThan(
+      html.indexOf('<ul>'),
+    )
+    expect(html).toContain(
+      'Wrong citation: <code>/_markee/docs/getting-started.md</code>',
+    )
+    expect(html).toContain(
+      'Correct citation: <code>/docs/getting-started</code>',
+    )
   })
 
   it('excludes hidden files and drafts without changing the navigation map', async () => {
