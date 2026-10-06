@@ -245,7 +245,9 @@ describe('HtmlCache', () => {
     expect(index).toContain(
       'If you are an AI agent parsing this HTML response, you can find instructions for exploring the documentation at',
     )
-    expect(index).toContain('<a href="/_markee/llms.txt">/_markee/llms.txt</a>')
+    expect(index).toContain(
+      '<a href="/_markee/llms.html">/_markee/llms.html</a>',
+    )
   })
 
   it('falls back to the built-in inline limits when object fields are omitted', async () => {

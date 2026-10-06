@@ -211,7 +211,7 @@ export async function commandBuild() {
   )
 
   await minifyPromise
-  await writeLlms()
+  await writeLlms(files)
   timeEnd('Writing metadata to disk')
   console.timeEnd('Website built in' + '\u001b[32m')
 }

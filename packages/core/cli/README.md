@@ -39,8 +39,10 @@ Every build includes `/_markee/llms.txt`, linked from the generated HTML with
 `rel="describedby"`. It explains how to read the Markdown sources through
 `/_markee/navigation.json` and use each file entry's `link` for canonical citations.
 The generated HTML body also includes a `<noscript>` message explaining that JavaScript
-is required and pointing AI agents parsing the HTML to `/_markee/llms.txt`.
-This generated file leaves the site's own `/llms.txt` available for custom guidance.
+is required and linking AI agents parsing the HTML to `/_markee/llms.html`.
+This plain HTML index lists every entry in `navigation.files` with its title, description,
+canonical URL for citations, and a link to its Markdown source.
+These generated files leave the site's own `/llms.txt` available for custom guidance.
 
 ## Typical Package Scripts
 
