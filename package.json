@@ -20,7 +20,7 @@
     "start": "pnpm --parallel -F @markee/client -F @markee/cli start",
     "build": "pnpm -r --workspace-concurrency=1 --if-present build",
     "test": "pnpm -r --workspace-concurrency=1 --if-present test",
-    "changeset:version": "pnpm exec changeset version && pnpm install",
+    "changeset:version": "pnpm exec changeset version && pnpm install --no-frozen-lockfile",
     "changeset:publish": "pnpm -r --if-present build && pnpm exec changeset publish"
   },
   "devDependencies": {
