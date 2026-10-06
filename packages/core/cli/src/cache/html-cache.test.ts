@@ -102,7 +102,7 @@ describe('HtmlCache', () => {
         return '<meta name="partial" />'
       }
       if (file.endsWith('/index.html')) {
-        return '<html><head><title>Markee</title></head></html>'
+        return '<html><head><title>Markee</title></head><body></body></html>'
       }
       return ''
     })
@@ -238,6 +238,14 @@ describe('HtmlCache', () => {
       /<head>[\s\S]*<link rel="describedby" href="\/_markee\/llms.txt" type="text\/plain" \/>[\s\S]*<\/head>/,
     )
     expect(index).toContain('</head>')
+    expect(index).toMatch(/<body><noscript>[\s\S]*<\/noscript><\/body>/)
+    expect(index).toContain(
+      'This website requires JavaScript to render its content.',
+    )
+    expect(index).toContain(
+      'If you are an AI agent parsing this HTML response, you can find instructions for exploring the documentation at',
+    )
+    expect(index).toContain('<a href="/_markee/llms.txt">/_markee/llms.txt</a>')
   })
 
   it('falls back to the built-in inline limits when object fields are omitted', async () => {

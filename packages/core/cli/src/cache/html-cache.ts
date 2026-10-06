@@ -199,6 +199,13 @@ export class HtmlCache {
           ...head.map((item) => item.html),
         ].join('\n') + '</head>',
       )
+      index = index.replace(
+        '</body>',
+        `<noscript>
+  <p>This website requires JavaScript to render its content.</p>
+  <p>If you are an AI agent parsing this HTML response, you can find instructions for exploring the documentation at <a href="/_markee/llms.txt">/_markee/llms.txt</a>.</p>
+</noscript></body>`,
+      )
     } else {
       index = index.replace(
         /src="\/assets\/app-.*?.js"/,
