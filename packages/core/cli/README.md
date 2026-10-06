@@ -37,16 +37,15 @@ markee serve
 
 Every build includes `/llms.txt`, linked from the generated HTML with
 `rel="describedby"`. It points agents to `/_markee/llms.html` to discover Markdown
-sources through `retrieval_url` links and cite the supplied `canonical_url` links.
+sources through `content_url` links and cite the supplied `canonical_url` links.
 The generated HTML body also includes a `<noscript>` message explaining that JavaScript
 is required and linking AI agents parsing the HTML to `/_markee/llms.html`.
 This plain HTML index excludes entries in `navigation.files` marked hidden or draft,
 and files under `/_assets/`.
-Each listed entry includes its title, description, canonical URL for citations, and a link
-to its Markdown source. Links are explicitly labeled `canonical_url` and `retrieval_url`.
-Both guidance files put citation requirements before discovery instructions: cite only
-canonical URLs, never expose retrieval endpoints or `/_markee/` URLs, and check URLs
-before answering. Wrong and correct citation examples use the first listed document’s URLs.
+The HTML file is a discovery manifest with only `content_url` and `canonical_url` links;
+it omits titles, descriptions, and excerpts so agents fetch the document content.
+The `/llms.txt` guidance contains citation requirements, a wrong/correct example using
+the first listed document’s URLs, and a final-answer URL check.
 If you provide a custom `llms.txt` in `public/`, the build prepends
 Markee guidance to it, followed by a `---` separator and your original content.
 
