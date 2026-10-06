@@ -35,18 +35,20 @@ markee serve
 - `markee build` emits the production site to `site/` by default.
 - `markee serve` serves the built output for local preview.
 
-Every build includes `/_markee/llms.txt`, linked from the generated HTML with
+Every build includes `/llms.txt`, linked from the generated HTML with
 `rel="describedby"`. It explains how to read the Markdown sources through
 `/_markee/navigation.json` and use each file entry's `link` for canonical citations.
 The generated HTML body also includes a `<noscript>` message explaining that JavaScript
 is required and linking AI agents parsing the HTML to `/_markee/llms.html`.
-This plain HTML index excludes entries in `navigation.files` marked hidden or draft.
+This plain HTML index excludes entries in `navigation.files` marked hidden or draft,
+and files under `/_assets/`.
 Each listed entry includes its title, description, canonical URL for citations, and a link
 to its Markdown source. Links are explicitly labeled `canonical_url` and `retrieval_url`.
 Both guidance files put citation requirements before discovery instructions: cite only
 canonical URLs, never expose retrieval endpoints or `/_markee/` URLs, and check URLs
-before answering. Wrong and correct citation examples illustrate the mapping.
-These generated files leave the site's own `/llms.txt` available for custom guidance.
+before answering. Wrong and correct citation examples use the first listed document’s URLs.
+If you provide a custom `llms.txt` in `public/` or `_assets/`, the build prepends
+Markee guidance to it, followed by a `---` separator and your original content.
 
 ## Typical Package Scripts
 

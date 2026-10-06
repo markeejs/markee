@@ -235,7 +235,7 @@ describe('HtmlCache', () => {
     const index = await HtmlCache.index(true)
     expect(index).toContain('<title>Docs</title>')
     expect(index).toMatch(
-      /<head>[\s\S]*<link rel="describedby" href="\/_markee\/llms.txt" type="text\/plain" \/>[\s\S]*<\/head>/,
+      /<head>[\s\S]*<link rel="describedby" href="\/llms.txt" type="text\/plain" \/>[\s\S]*<\/head>/,
     )
     expect(index).toContain('</head>')
     expect(index).toMatch(/<body><noscript>[\s\S]*<\/noscript><\/body>/)
@@ -417,7 +417,7 @@ describe('HtmlCache', () => {
 
     const index = await HtmlCache.index(false)
     expect(index).toContain('src="/assets/development.js"')
-    expect(index).not.toContain('/_markee/llms.txt')
+    expect(index).not.toContain('/llms.txt')
     expect(index).toContain('<title>Docs</title>')
   })
 

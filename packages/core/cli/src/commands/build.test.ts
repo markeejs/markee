@@ -64,6 +64,7 @@ async function importCommandBuild({
 
   vi.doMock('fs-extra', () => ({
     default: {
+      pathExists: vi.fn().mockResolvedValue(false),
       emptyDir,
       ensureDir,
       writeFile,
@@ -201,7 +202,7 @@ describe('commandBuild', () => {
       title: 'Docs',
     })
     expect(writeFile).toHaveBeenCalledWith(
-      expect.stringContaining('/site/_markee/llms.txt'),
+      expect.stringContaining('/site/llms.txt'),
       expect.stringContaining('/_markee/navigation.json'),
       'utf8',
     )
@@ -210,6 +211,11 @@ describe('commandBuild', () => {
       expect.stringContaining('<a href="/docs/page.md">'),
       'utf8',
     )
+    const indexHtml = writeFile.mock.calls.find(([path]) =>
+      path.endsWith('/_markee/llms.html'),
+    )![1]
+    expect(indexHtml).not.toContain('/_assets/header.md')
+    expect(indexHtml).not.toContain('/_assets/layout-main.md')
     expect(writeFile).toHaveBeenCalledWith(
       'site/index.html',
       '<html />',
