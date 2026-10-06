@@ -112,7 +112,7 @@ final-answer URL check. Agents must cite the supplied canonical URL and never ex
 endpoints or `/_markee/` URLs in user-facing answers.
 This file tells LLMs how to read the documentation index at `/_markee/navigation.json`, fetch the Markdown
 files listed in its `files` map, and use each entry's `link` as the canonical URL when citing a source.
-Markdown links to other pages are absolute from the site root. You can provide a custom `llms.txt` in `public/` or `_assets/`.
+Markdown links to other pages are absolute from the site root. You can provide a custom `llms.txt` in `public/`.
 The generated `/llms.txt` contains Markee guidance first, followed by a `---` separator
 and your original custom content.
 

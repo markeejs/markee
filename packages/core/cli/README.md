@@ -47,7 +47,7 @@ to its Markdown source. Links are explicitly labeled `canonical_url` and `retrie
 Both guidance files put citation requirements before discovery instructions: cite only
 canonical URLs, never expose retrieval endpoints or `/_markee/` URLs, and check URLs
 before answering. Wrong and correct citation examples use the first listed document’s URLs.
-If you provide a custom `llms.txt` in `public/` or `_assets/`, the build prepends
+If you provide a custom `llms.txt` in `public/`, the build prepends
 Markee guidance to it, followed by a `---` separator and your original content.
 
 ## Typical Package Scripts
