@@ -206,6 +206,11 @@ describe('commandBuild', () => {
       'utf8',
     )
     expect(writeFile).toHaveBeenCalledWith(
+      expect.stringContaining('/site/_markee/llms.html'),
+      expect.stringContaining('<a href="/docs/page.md">'),
+      'utf8',
+    )
+    expect(writeFile).toHaveBeenCalledWith(
       'site/index.html',
       '<html />',
       'utf8',

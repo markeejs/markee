@@ -203,7 +203,7 @@ export class HtmlCache {
         '</body>',
         `<noscript>
   <p>This website requires JavaScript to render its content.</p>
-  <p>If you are an AI agent parsing this HTML response, you can find instructions for exploring the documentation at <a href="/_markee/llms.txt">/_markee/llms.txt</a>.</p>
+  <p>If you are an AI agent parsing this HTML response, you can find instructions for exploring the documentation at <a href="/_markee/llms.html">/_markee/llms.html</a>.</p>
 </noscript></body>`,
       )
     } else {
