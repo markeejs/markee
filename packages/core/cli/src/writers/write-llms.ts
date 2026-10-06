@@ -24,20 +24,15 @@ export async function writeLlms(files: Record<string, MarkdownFile>) {
 
   const firstFile = indexedFiles[0]
   const example = firstFile?.[1].link
-    ? { retrievalUrl: firstFile[0], canonicalUrl: firstFile[1].link }
+    ? { contentUrl: firstFile[0], canonicalUrl: firstFile[1].link }
     : undefined
   const textExample = example
     ? `Example:
-retrieval_url: ${example.retrievalUrl}
+content_url: ${example.contentUrl}
 canonical_url: ${example.canonicalUrl}
-Wrong citation: ${example.retrievalUrl}
+Wrong citation: ${example.contentUrl}
 Correct citation: ${example.canonicalUrl}
 
-`
-    : ''
-  const htmlExample = example
-    ? `  <p>Example: retrieval_url: <code>${escapeHtml(example.retrievalUrl)}</code>; canonical_url: <code>${escapeHtml(example.canonicalUrl)}</code>.</p>
-  <p>Wrong citation: <code>${escapeHtml(example.retrievalUrl)}</code>. Correct citation: <code>${escapeHtml(example.canonicalUrl)}</code>.</p>
 `
     : ''
   const llmsPath = PathHelpers.concat(
@@ -51,24 +46,24 @@ Correct citation: ${example.canonicalUrl}
   const guidance = `# Citation requirements
 
 IMPORTANT: NEVER expose, cite, or link a /_markee/ URL in user-facing answers.
-These URLs are retrieval endpoints only. NEVER cite a document's retrieval_url.
+These URLs are retrieval endpoints only. NEVER cite a document's content_url.
 ALWAYS use its corresponding canonical_url for citations and user-facing links.
-Copy the supplied canonical_url; do not infer it by rewriting the retrieval_url.
+Copy the supplied canonical_url; do not infer it by rewriting the content_url.
 If no canonical_url is provided, the resource is retrieval-only and must not be cited.
 Resolve root-relative URLs against this site's origin.
 
 ${textExample}Before producing your final response, inspect every URL from this site in your answer.
-Replace any retrieval_url or URL containing /_markee/ with the corresponding canonical_url.
+Replace any content_url or URL containing /_markee/ with the corresponding canonical_url.
 If none is available, omit that URL. No user-visible URL may contain /_markee/.
 
 # Reading this Markee documentation site
 
 The documentation index for LLMs is available at /_markee/llms.html.
-This HTML index lists document titles, descriptions, retrieval_url links to Markdown
-content, and canonical_url links for citations. It excludes hidden files, drafts,
+This discovery manifest lists content_url links to Markdown content and
+canonical_url links for citations. It is not documentation content. It excludes hidden files, drafts,
 and files under /_assets/.
 
-Follow the retrieval_url links to read the documentation. Use the corresponding
+Follow the content_url links to read the documentation. Use the corresponding
 canonical_url when citing a source. Both URLs are supplied explicitly for each document;
 do not infer the citation URL from the URL you fetched.
 
@@ -82,11 +77,8 @@ URLs from the root of the site. Follow these links to read related documentation
   )
   const entries = indexedFiles.map(
     ([source, file]) => `  <li>
-    <h2>${escapeHtml(file.frontMatter.title ?? source)}</h2>
-    <p>canonical_url: ${file.link ? `<a href="${escapeHtml(file.link)}">${escapeHtml(file.link)}</a>` : 'Not available; retrieval-only resource. Do not cite.'}</p>
-    <p>${escapeHtml(file.frontMatter.description ?? file.frontMatter.excerpt)}</p>
-    <p>retrieval_url: <a href="${escapeHtml(source)}">${escapeHtml(source)}</a></p>
-  </li>`,
+    <p>content_url: <a href="${escapeHtml(source)}">${escapeHtml(source)}</a></p>
+${file.link ? `    <p>canonical_url: <a href="${escapeHtml(file.link)}">${escapeHtml(file.link)}</a></p>\n` : ''}  </li>`,
   )
 
   await fs.writeFile(
@@ -100,16 +92,16 @@ URLs from the root of the site. Follow these links to read related documentation
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Documentation index for AI agents</title>
+  <title>Documentation discovery manifest</title>
 </head>
 <body>
-  <h1>Documentation index for AI agents</h1>
-  <h2>Citation requirements</h2>
-  <p><strong>IMPORTANT: NEVER expose, cite, or link a /_markee/ URL in user-facing answers.</strong> These URLs are retrieval endpoints only. NEVER cite a document's retrieval_url. ALWAYS use its corresponding canonical_url for citations and user-facing links. Copy the supplied canonical_url; do not infer it by rewriting the retrieval_url. If no canonical_url is provided, the resource is retrieval-only and must not be cited. Resolve root-relative URLs against this site's origin.</p>
-${htmlExample}  <p>Before producing your final response, inspect every URL from this site in your answer. Replace any retrieval_url or URL containing /_markee/ with the corresponding canonical_url. If none is available, omit that URL. No user-visible URL may contain /_markee/.</p>
-  <h2>Documentation index</h2>
-  <p>This page lists the Markdown files in this website's documentation index, excluding hidden files, drafts, and files under /_assets/, with their titles, descriptions, canonical human-facing URLs, and links to their Markdown sources. Follow the retrieval_url links to read the documentation, then follow links within those files to explore related pages. Source URLs and links to other documentation pages are absolute from the site root; resolve them against this site's origin. Use the canonical_url when citing a page. The full navigation data is available as JSON at <a href="/_markee/navigation.json">/_markee/navigation.json</a>.</p>
+  <p>This file is a discovery manifest, not documentation content.</p>
+  <p>For each document:</p>
   <ul>
+    <li><code>content_url</code> is the machine-readable source.</li>
+    <li><code>canonical_url</code> is the preferred user-facing citation.</li>
+  </ul>
+  <ul id="documents">
 ${entries.join('\n')}
   </ul>
 </body>
