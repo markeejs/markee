@@ -34,11 +34,15 @@ describe('writeLlms', () => {
       'utf8',
     )
     const content = vi.mocked(fs.writeFile).mock.calls[0][1] as string
-    expect(content).toContain('/_markee/navigation.json')
-    expect(content).toContain('"files" property is a map')
-    expect(content).toContain('Each key is the URL of a served Markdown file')
-    expect(content).toContain('"link" property with the canonical URL')
-    expect(content).toContain('Use this URL when citing a source')
+    expect(content).toContain('/_markee/llms.html')
+    expect(content).toContain('retrieval_url links to Markdown')
+    expect(content).toContain('canonical_url links for citations')
+    expect(content).toContain(
+      'Follow the retrieval_url links to read the documentation',
+    )
+    expect(content).toContain('canonical_url when citing a source')
+    expect(content).not.toContain('/_markee/navigation.json')
+    expect(content).not.toContain('"files" property')
     expect(content).toContain(
       "Resolve root-relative URLs against this site's origin",
     )
@@ -136,9 +140,6 @@ describe('writeLlms', () => {
 
     for (const [, content] of vi.mocked(fs.writeFile).mock.calls) {
       const guidance = content as string
-      expect(guidance.indexOf('Citation requirements')).toBeLessThan(
-        guidance.indexOf('/_markee/navigation.json'),
-      )
       expect(guidance).toContain(
         'NEVER expose, cite, or link a /_markee/ URL in user-facing answers',
       )
@@ -153,8 +154,9 @@ describe('writeLlms', () => {
       expect(guidance).toContain('No user-visible URL may contain /_markee/')
     }
     const text = vi.mocked(fs.writeFile).mock.calls[0][1] as string
-    expect(text).toContain('Treat each map key as retrieval_url')
-    expect(text).toContain('this is canonical_url')
+    expect(text.indexOf('Citation requirements')).toBeLessThan(
+      text.indexOf('/_markee/llms.html'),
+    )
     expect(text).toContain('Wrong citation: /_markee/start.md')
     expect(text).toContain('Correct citation: /guide/start')
     expect(text).not.toContain('Wrong citation: /_markee/next.md')

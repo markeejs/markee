@@ -63,18 +63,14 @@ If none is available, omit that URL. No user-visible URL may contain /_markee/.
 
 # Reading this Markee documentation site
 
-Explore the documentation through /_markee/llms.html, which lists retrieval_url
-and canonical_url links and excludes hidden files, drafts, and /_assets/ files.
-The full documentation index is available at /_markee/navigation.json.
+The documentation index for LLMs is available at /_markee/llms.html.
+This HTML index lists document titles, descriptions, retrieval_url links to Markdown
+content, and canonical_url links for citations. It excludes hidden files, drafts,
+and files under /_assets/.
 
-The index's "files" property is a map. Each key is the URL of a served Markdown file,
-absolute from the root of the site (for example, /docs/getting-started.md).
-Read these Markdown files to access the documentation content.
-
-Treat each map key as retrieval_url.
-Each entry contains a "link" property with the canonical URL of the corresponding
-client-rendered page: this is canonical_url. Use this URL when citing a source,
-rather than the Markdown file URL. Resolve root-relative URLs against this site's origin.
+Follow the retrieval_url links to read the documentation. Use the corresponding
+canonical_url when citing a source. Both URLs are supplied explicitly for each document;
+do not infer the citation URL from the URL you fetched.
 
 When reading Markdown files, links to other documentation pages are also absolute
 URLs from the root of the site. Follow these links to read related documentation.

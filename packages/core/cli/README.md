@@ -36,8 +36,8 @@ markee serve
 - `markee serve` serves the built output for local preview.
 
 Every build includes `/llms.txt`, linked from the generated HTML with
-`rel="describedby"`. It explains how to read the Markdown sources through
-`/_markee/navigation.json` and use each file entry's `link` for canonical citations.
+`rel="describedby"`. It points agents to `/_markee/llms.html` to discover Markdown
+sources through `retrieval_url` links and cite the supplied `canonical_url` links.
 The generated HTML body also includes a `<noscript>` message explaining that JavaScript
 is required and linking AI agents parsing the HTML to `/_markee/llms.html`.
 This plain HTML index excludes entries in `navigation.files` marked hidden or draft,

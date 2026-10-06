@@ -203,7 +203,7 @@ describe('commandBuild', () => {
     })
     expect(writeFile).toHaveBeenCalledWith(
       expect.stringContaining('/site/llms.txt'),
-      expect.stringContaining('/_markee/navigation.json'),
+      expect.stringContaining('/_markee/llms.html'),
       'utf8',
     )
     expect(writeFile).toHaveBeenCalledWith(

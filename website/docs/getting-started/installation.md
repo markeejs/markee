@@ -110,8 +110,8 @@ description, a `canonical_url` link for citations, and a `retrieval_url` link to
 Both guidance files begin with citation requirements, a wrong/correct citation example from the first listed document, and a
 final-answer URL check. Agents must cite the supplied canonical URL and never expose retrieval
 endpoints or `/_markee/` URLs in user-facing answers.
-This file tells LLMs how to read the documentation index at `/_markee/navigation.json`, fetch the Markdown
-files listed in its `files` map, and use each entry's `link` as the canonical URL when citing a source.
+`/llms.txt` directs LLMs to the HTML index at `/_markee/llms.html`, fetch the Markdown
+content through its `retrieval_url` links, and cite the supplied `canonical_url` links.
 Markdown links to other pages are absolute from the site root. You can provide a custom `llms.txt` in `public/`.
 The generated `/llms.txt` contains Markee guidance first, followed by a `---` separator
 and your original custom content.
