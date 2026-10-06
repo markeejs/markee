@@ -14,6 +14,7 @@ export default defineConfig(
       },
     ],
     test: {
+      fileParallelism: false,
       coverage: {
         provider: 'v8',
         include: ['index.ts', 'cache.ts', 'store/**/*.ts'],
