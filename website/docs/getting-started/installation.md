@@ -105,7 +105,7 @@ By default, the output is located in the `site` folder.
 Every build also generates `/_markee/llms.txt` and adds a `rel="describedby"` link to it in the HTML head.
 The HTML body includes a `<noscript>` message explaining that JavaScript is required and pointing
 AI agents parsing the HTML response to `/_markee/llms.html` through an actual link.
-This plain HTML index is generated from `navigation.files` and lists every file with its title,
+This plain HTML index is generated from `navigation.files` and excludes hidden files and drafts. Each listed file includes its title,
 description, canonical human-facing URL for citations, and a link to its Markdown source.
 This file tells LLMs how to read the documentation index at `/_markee/navigation.json`, fetch the Markdown
 files listed in its `files` map, and use each entry's `link` as the canonical URL when citing a source.

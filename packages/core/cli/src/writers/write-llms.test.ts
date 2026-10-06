@@ -98,6 +98,54 @@ describe('writeLlms', () => {
     expect(content).toMatch(/<\/html>\n$/)
   })
 
+  it('excludes hidden files and drafts without changing the navigation map', async () => {
+    const files = {
+      '/docs/public.md': {
+        link: '/docs/public',
+        frontMatter: {
+          title: 'Public page',
+          excerpt: '',
+          hidden: false,
+          draft: false,
+        },
+      },
+      '/docs/unflagged.md': {
+        link: '/docs/unflagged',
+        frontMatter: { title: 'Unflagged page', excerpt: '' },
+      },
+      '/docs/hidden.md': {
+        link: '/docs/hidden',
+        frontMatter: { title: 'Hidden page', excerpt: '', hidden: true },
+      },
+      '/docs/draft.md': {
+        link: '/docs/draft',
+        frontMatter: { title: 'Draft page', excerpt: '', draft: true },
+      },
+      '/docs/hidden-draft.md': {
+        link: '/docs/hidden-draft',
+        frontMatter: {
+          title: 'Hidden draft page',
+          excerpt: '',
+          hidden: true,
+          draft: true,
+        },
+      },
+    } as any
+    const original = structuredClone(files)
+
+    await writeLlms(files)
+
+    const content = vi.mocked(fs.writeFile).mock.calls[1][1] as string
+    expect(content.match(/<li>/g)).toHaveLength(2)
+    expect(content).toContain('<a href="/docs/public.md">')
+    expect(content).toContain('<a href="/docs/unflagged.md">')
+    for (const name of ['hidden', 'draft', 'hidden-draft']) {
+      expect(content).not.toContain(`/docs/${name}`)
+      expect(content).not.toContain(files[`/docs/${name}.md`].frontMatter.title)
+    }
+    expect(files).toEqual(original)
+  })
+
   it('propagates write failures so the build cannot silently omit the guidance', async () => {
     vi.mocked(fs.writeFile).mockRejectedValueOnce(new Error('write failed'))
 

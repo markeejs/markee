@@ -39,14 +39,16 @@ URLs from the root of the site. Follow these links to read related documentation
 `,
     'utf8',
   )
-  const entries = Object.entries(files).map(
-    ([source, file]) => `  <li>
+  const entries = Object.entries(files)
+    .filter(([, file]) => !file.frontMatter.hidden && !file.frontMatter.draft)
+    .map(
+      ([source, file]) => `  <li>
     <h2>${escapeHtml(file.frontMatter.title ?? source)}</h2>
     <p>Canonical URL for citations: <a href="${escapeHtml(file.link)}">${escapeHtml(file.link)}</a></p>
     <p>${escapeHtml(file.frontMatter.description ?? file.frontMatter.excerpt)}</p>
     <p><a href="${escapeHtml(source)}">Read Markdown source: ${escapeHtml(source)}</a></p>
   </li>`,
-  )
+    )
 
   await fs.writeFile(
     PathHelpers.concat(
@@ -63,7 +65,7 @@ URLs from the root of the site. Follow these links to read related documentation
 </head>
 <body>
   <h1>Documentation index for AI agents</h1>
-  <p>This page lists all Markdown files in this website's documentation index, with their titles, descriptions, canonical human-facing URLs, and links to their Markdown sources. Follow the Markdown source links to read the documentation, then follow links within those files to explore related pages. Source URLs and links to other documentation pages are absolute from the site root; resolve them against this site's origin. Use the canonical human-facing URL when citing a page. The same index is available as JSON at <a href="/_markee/navigation.json">/_markee/navigation.json</a>.</p>
+  <p>This page lists the Markdown files in this website's documentation index, excluding hidden files and drafts, with their titles, descriptions, canonical human-facing URLs, and links to their Markdown sources. Follow the Markdown source links to read the documentation, then follow links within those files to explore related pages. Source URLs and links to other documentation pages are absolute from the site root; resolve them against this site's origin. Use the canonical human-facing URL when citing a page. The full navigation data is available as JSON at <a href="/_markee/navigation.json">/_markee/navigation.json</a>.</p>
   <ul>
 ${entries.join('\n')}
   </ul>
