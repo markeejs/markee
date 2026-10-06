@@ -17,6 +17,7 @@ import { writeAssets } from '../writers/write-assets.js'
 import { writeClient } from '../writers/write-client.js'
 import { writeMinify } from '../writers/write-minify.js'
 import { writeSitemap } from '../writers/write-sitemap.js'
+import { writeLlms } from '../writers/write-llms.js'
 import { writeSplitBuilds } from '../writers/write-split-builds.js'
 
 const time = (label: string) => {
@@ -210,6 +211,7 @@ export async function commandBuild() {
   )
 
   await minifyPromise
+  await writeLlms()
   timeEnd('Writing metadata to disk')
   console.timeEnd('Website built in' + '\u001b[32m')
 }

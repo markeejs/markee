@@ -201,6 +201,11 @@ describe('commandBuild', () => {
       title: 'Docs',
     })
     expect(writeFile).toHaveBeenCalledWith(
+      expect.stringContaining('/site/_markee/llms.txt'),
+      expect.stringContaining('/_markee/navigation.json'),
+      'utf8',
+    )
+    expect(writeFile).toHaveBeenCalledWith(
       'site/index.html',
       '<html />',
       'utf8',

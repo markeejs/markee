@@ -102,6 +102,12 @@ will check your files for invalid syntaxes as well as dead links between your so
 static website you can publish to any hosting provider, as long as it supports Single-Page Applications.
 By default, the output is located in the `site` folder.
 
+Every build also generates `/_markee/llms.txt` and adds a `rel="describedby"` link to it in the HTML head.
+This file tells LLMs how to read the documentation index at `/_markee/navigation.json`, fetch the Markdown
+files listed in its `files` map, and use each entry's `link` as the canonical URL when citing a source.
+Markdown links to other pages are absolute from the site root. You can still provide your own `/llms.txt`
+with additional guidance for your site.
+
 ### Previsualizing your website
 
 You can test your built website by using the `markee serve` command. This command will start a very simple SPA server

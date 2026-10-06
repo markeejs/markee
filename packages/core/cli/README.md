@@ -35,6 +35,11 @@ markee serve
 - `markee build` emits the production site to `site/` by default.
 - `markee serve` serves the built output for local preview.
 
+Every build includes `/_markee/llms.txt`, linked from the generated HTML with
+`rel="describedby"`. It explains how to read the Markdown sources through
+`/_markee/navigation.json` and use each file entry's `link` for canonical citations.
+This generated file leaves the site's own `/llms.txt` available for custom guidance.
+
 ## Typical Package Scripts
 
 ```json

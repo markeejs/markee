@@ -194,7 +194,10 @@ export class HtmlCache {
 
       index = index.replace(
         '</head>',
-        head.map((item) => item.html).join('\n') + '</head>',
+        [
+          '<link rel="describedby" href="/_markee/llms.txt" type="text/plain" />',
+          ...head.map((item) => item.html),
+        ].join('\n') + '</head>',
       )
     } else {
       index = index.replace(
