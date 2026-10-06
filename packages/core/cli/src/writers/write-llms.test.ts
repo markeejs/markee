@@ -84,7 +84,7 @@ describe('writeLlms', () => {
       '<h2>Title &amp; &quot;&lt;tag&gt;&quot; &#39;</h2>',
     )
     expect(content).toContain(
-      'Canonical URL for citations: /docs/a?x=&quot;&lt;&gt;&amp;&#39;',
+      'Canonical URL for citations: <a href="/docs/a?x=&quot;&lt;&gt;&amp;&#39;">/docs/a?x=&quot;&lt;&gt;&amp;&#39;</a>',
     )
     expect(content).toContain(
       'Description &lt;script&gt; &amp; &quot;quotes&quot;',

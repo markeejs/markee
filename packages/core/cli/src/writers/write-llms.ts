@@ -42,7 +42,7 @@ URLs from the root of the site. Follow these links to read related documentation
   const entries = Object.entries(files).map(
     ([source, file]) => `  <li>
     <h2>${escapeHtml(file.frontMatter.title ?? source)}</h2>
-    <p>Canonical URL for citations: ${escapeHtml(file.link)}</p>
+    <p>Canonical URL for citations: <a href="${escapeHtml(file.link)}">${escapeHtml(file.link)}</a></p>
     <p>${escapeHtml(file.frontMatter.description ?? file.frontMatter.excerpt)}</p>
     <p><a href="${escapeHtml(source)}">Read Markdown source: ${escapeHtml(source)}</a></p>
   </li>`,
