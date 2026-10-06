@@ -41,16 +41,16 @@ importers:
         specifier: ^1.19.11
         version: 1.19.11(hono@4.12.7)
       '@markee/client':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../client
       '@markee/default':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../../extensions/default
       '@markee/runtime':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../runtime
       '@markee/types':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../../support/types
       attributes-parser:
         specifier: ^2.2.3
@@ -162,17 +162,17 @@ importers:
   packages/core/client:
     dependencies:
       '@markee/types':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../../support/types
     devDependencies:
       '@markee/pipeline':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../../domains/pipeline
       '@markee/runtime':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../runtime
       '@markee/state':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../../domains/state
       '@markee/tsconfig':
         specifier: 0.1.0
@@ -216,7 +216,7 @@ importers:
   packages/core/runtime:
     dependencies:
       '@markee/state':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../../domains/state
       '@nanostores/lit':
         specifier: ^0.2.3
@@ -244,10 +244,10 @@ importers:
   packages/domains/elements:
     dependencies:
       '@markee/state':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../state
       '@markee/types':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../../support/types
       '@nanostores/lit':
         specifier: ^0.2.3
@@ -290,7 +290,7 @@ importers:
   packages/domains/pipeline:
     dependencies:
       '@markee/types':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../../support/types
     devDependencies:
       '@discordapp/twemoji':
@@ -426,13 +426,13 @@ importers:
   packages/domains/state:
     dependencies:
       '@markee/pipeline':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../pipeline
       '@markee/search':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../search
       '@markee/types':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../../support/types
       '@nanostores/persistent':
         specifier: ^1.2.0
@@ -466,7 +466,7 @@ importers:
         specifier: 0.1.0
         version: link:../../support/tsconfig
       '@markee/vite':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../../support/vite
       '@markee/vitest':
         specifier: 0.1.0
@@ -502,14 +502,14 @@ importers:
   packages/extensions/diagrams:
     dependencies:
       '@markee/pipeline':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../../domains/pipeline
     devDependencies:
       '@markee/tsconfig':
         specifier: 0.1.0
         version: link:../../support/tsconfig
       '@markee/vite':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../../support/vite
       '@markee/vitest':
         specifier: 0.1.0
@@ -557,7 +557,7 @@ importers:
   packages/extensions/likec4:
     dependencies:
       '@markee/pipeline':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../../domains/pipeline
     devDependencies:
       '@likec4/diagram':
@@ -570,7 +570,7 @@ importers:
         specifier: 0.1.0
         version: link:../../support/tsconfig
       '@markee/vite':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../../support/vite
       '@markee/vitest':
         specifier: 0.1.0
@@ -606,14 +606,14 @@ importers:
   packages/extensions/mathjax:
     dependencies:
       '@markee/pipeline':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../../domains/pipeline
     devDependencies:
       '@markee/tsconfig':
         specifier: 0.1.0
         version: link:../../support/tsconfig
       '@markee/vite':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../../support/vite
       '@markee/vitest':
         specifier: 0.1.0
@@ -643,7 +643,7 @@ importers:
         specifier: 0.1.0
         version: link:../../support/tsconfig
       '@markee/vite':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../../support/vite
       '@markee/vitest':
         specifier: 0.1.0
@@ -664,7 +664,7 @@ importers:
         specifier: 0.1.0
         version: link:../../support/tsconfig
       '@markee/vite':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../../support/vite
       '@markee/vitest':
         specifier: 0.1.0
@@ -694,7 +694,7 @@ importers:
         specifier: 0.1.0
         version: link:../../support/tsconfig
       '@markee/vite':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../../support/vite
       '@markee/vitest':
         specifier: 0.1.0
@@ -739,7 +739,7 @@ importers:
   packages/support/create:
     dependencies:
       '@markee/cli':
-        specifier: 0.2.0
+        specifier: 0.3.0
         version: link:../../core/cli
 
   packages/support/tsconfig: {}

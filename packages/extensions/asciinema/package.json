@@ -1,6 +1,6 @@
 {
   "name": "@markee/asciinema",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Markee Asciinema support",
   "license": "MIT",
   "repository": "https://github.com/markeejs/markee",
@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "@markee/tsconfig": "0.1.0",
-    "@markee/vite": "0.2.0",
+    "@markee/vite": "0.3.0",
     "@markee/vitest": "0.1.0",
     "@vitest/coverage-v8": "^3.2.4",
     "asciinema-player": "^3.15.1",
