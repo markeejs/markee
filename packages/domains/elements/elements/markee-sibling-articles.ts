@@ -1,3 +1,4 @@
+import { nothing } from 'lit'
 import { html, unsafeStatic } from 'lit/static-html.js'
 import { customElement, property } from 'lit/decorators.js'
 import { MarkeeElement } from '@markee/runtime'
@@ -15,6 +16,10 @@ abstract class MarkeeSibling extends MarkeeElement.with({
   render() {
     const article = this.getArticle()
     const element = unsafeStatic(this.articleElement)
+
+    if (!article) {
+      return nothing
+    }
 
     return html`<${element} data-article="${article}"></${element}> `
   }
