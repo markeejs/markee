@@ -1,6 +1,6 @@
 {
   "name": "@markee/vite",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Vite helpers for Markee extension bundles",
   "license": "MIT",
   "repository": "https://github.com/markeejs/markee",

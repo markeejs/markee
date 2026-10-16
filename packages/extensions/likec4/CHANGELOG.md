@@ -1,5 +1,11 @@
 # @markee/likec4
 
+## 0.3.2
+
+### Patch Changes
+
+- @markee/pipeline@0.3.2
+
 ## 0.3.1
 
 ### Patch Changes

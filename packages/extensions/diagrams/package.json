@@ -1,6 +1,6 @@
 {
   "name": "@markee/diagrams",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Markee Mermaid and DBML diagram support",
   "license": "MIT",
   "repository": "https://github.com/markeejs/markee",
@@ -14,11 +14,11 @@
     "test": "vitest run --coverage"
   },
   "dependencies": {
-    "@markee/pipeline": "0.3.1"
+    "@markee/pipeline": "0.3.2"
   },
   "devDependencies": {
     "@markee/tsconfig": "0.1.1",
-    "@markee/vite": "0.3.1",
+    "@markee/vite": "0.3.2",
     "@markee/vitest": "0.1.0",
     "@softwaretechnik/dbml-renderer": "^1.0.31",
     "attributes-parser": "^2.2.3",

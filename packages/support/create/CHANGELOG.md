@@ -1,5 +1,12 @@
 # create-markee
 
+## 0.3.2
+
+### Patch Changes
+
+- Updated dependencies [625ba55]
+  - @markee/cli@0.3.2
+
 ## 0.3.1
 
 ### Patch Changes

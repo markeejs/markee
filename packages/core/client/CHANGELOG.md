@@ -1,5 +1,11 @@
 # @markee/client
 
+## 0.3.2
+
+### Patch Changes
+
+- @markee/types@0.3.2
+
 ## 0.3.1
 
 ### Patch Changes
