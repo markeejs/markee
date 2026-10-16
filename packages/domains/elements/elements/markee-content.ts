@@ -9,15 +9,17 @@ import './markee-content.css'
  * @param smooth - whether to do smooth scrolling or instant scrolling
  */
 function scroll(hash: string | undefined, smooth?: boolean) {
+  const behavior = smooth ? 'auto' : 'instant'
+
   if (hash) {
     try {
       const target = document.querySelector(`[id="${hash.slice(1)}"]`)
-      target?.scrollIntoView({ behavior: smooth ? 'auto' : 'instant' })
+      target?.scrollIntoView({ behavior })
     } catch (err) {
       void err
     }
   } else {
-    window.scrollTo({ top: 0, behavior: smooth ? 'auto' : 'instant' })
+    window.scrollTo({ top: 0, behavior })
   }
 }
 

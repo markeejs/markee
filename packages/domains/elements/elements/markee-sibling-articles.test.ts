@@ -54,9 +54,9 @@ describe('markee-sibling-articles', () => {
 
     expect(
       next.querySelector('markee-article')?.getAttribute('data-article'),
-    ).toBe('')
+    ).toBe(undefined)
     expect(
       previous.querySelector('markee-article')?.getAttribute('data-article'),
-    ).toBe('')
+    ).toBe(undefined)
   })
 })

@@ -144,6 +144,7 @@ describe('markee-content', () => {
   it('scrolls to the top when the location hash is empty', () => {
     connectContent()
 
+    history.replaceState({}, '', '/docs/one#second')
     onLoad?.({
       data: {
         key: 'docs/one.md',
@@ -151,7 +152,43 @@ describe('markee-content', () => {
       },
     })
 
-    expect(window.scrollTo).toHaveBeenCalledWith({ top: 0 })
+    // Load twice: no key change
+    history.replaceState({}, '', '/docs/one')
+    onLoad?.({
+      data: {
+        key: 'docs/one.md',
+        content: '<h3 id="first">First</h3>',
+      },
+    })
+
+    expect(window.scrollTo).toHaveBeenLastCalledWith({
+      top: 0,
+      behavior: 'auto',
+    })
+  })
+
+  it('scrolls instantly when key changes', () => {
+    connectContent()
+
+    onLoad?.({
+      data: {
+        key: 'docs/one.md',
+        content: '<h3 id="first">First</h3>',
+      },
+    })
+
+    // Load twice: key change
+    onLoad?.({
+      data: {
+        key: 'docs/two.md',
+        content: '<h3 id="second">Second</h3>',
+      },
+    })
+
+    expect(window.scrollTo).toHaveBeenLastCalledWith({
+      top: 0,
+      behavior: 'instant',
+    })
   })
 
   it('avoids duplicate scroll scheduling until the hash or key changes', () => {
