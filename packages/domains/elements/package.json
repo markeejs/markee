@@ -1,6 +1,6 @@
 {
   "name": "@markee/elements",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "license": "MIT",
   "repository": "https://github.com/markeejs/markee",
   "type": "module",
@@ -14,8 +14,8 @@
     "test": "vitest run --coverage"
   },
   "dependencies": {
-    "@markee/state": "0.3.1",
-    "@markee/types": "0.3.1",
+    "@markee/state": "0.3.2",
+    "@markee/types": "0.3.2",
     "@nanostores/lit": "^0.2.3",
     "lit": "^3.3.2"
   },

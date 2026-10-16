@@ -1,5 +1,15 @@
 # @markee/cli
 
+## 0.3.2
+
+### Patch Changes
+
+- 625ba55: Fix markee/cli build output
+  - @markee/client@0.3.2
+  - @markee/default@0.3.2
+  - @markee/runtime@0.3.2
+  - @markee/types@0.3.2
+
 ## 0.3.1
 
 ### Patch Changes
