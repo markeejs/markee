@@ -1,5 +1,14 @@
 # @markee/elements
 
+## 0.3.1
+
+### Patch Changes
+
+- 488e15f: Hide sibling navigation item when no previous or next article was found
+- 4ec11b5: Fix smooth-scrolling on page change
+  - @markee/state@0.3.1
+  - @markee/types@0.3.1
+
 ## 0.3.0
 
 ### Patch Changes

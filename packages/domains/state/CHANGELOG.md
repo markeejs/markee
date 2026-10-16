@@ -1,5 +1,13 @@
 # @markee/state
 
+## 0.3.1
+
+### Patch Changes
+
+- @markee/pipeline@0.3.1
+- @markee/search@0.3.1
+- @markee/types@0.3.1
+
 ## 0.3.0
 
 ### Patch Changes
