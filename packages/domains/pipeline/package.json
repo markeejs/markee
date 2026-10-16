@@ -1,6 +1,6 @@
 {
   "name": "@markee/pipeline",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Client-side remark/rehype pipeline for Markee",
   "license": "MIT",
   "repository": "https://github.com/markeejs/markee",
@@ -15,12 +15,12 @@
     "test": "vitest run --coverage"
   },
   "dependencies": {
-    "@markee/types": "0.3.0"
+    "@markee/types": "0.3.1"
   },
   "devDependencies": {
     "@discordapp/twemoji": "^15.1.0",
     "@fortawesome/fontawesome-free": "^6.7.2",
-    "@markee/tsconfig": "0.1.0",
+    "@markee/tsconfig": "0.1.1",
     "@markee/vitest": "0.1.0",
     "@mdi/font": "^7.4.47",
     "@types/hast": "^3.0.4",

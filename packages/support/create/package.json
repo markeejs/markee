@@ -1,6 +1,6 @@
 {
   "name": "create-markee",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Create a new Markee project",
   "license": "MIT",
   "repository": "https://github.com/markeejs/markee",
@@ -12,6 +12,6 @@
   ],
   "type": "module",
   "dependencies": {
-    "@markee/cli": "0.3.0"
+    "@markee/cli": "0.3.1"
   }
 }

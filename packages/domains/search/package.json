@@ -1,6 +1,6 @@
 {
   "name": "@markee/search",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Client-side search indexer for Markee",
   "license": "MIT",
   "repository": "https://github.com/markeejs/markee",
@@ -15,7 +15,7 @@
     "test": "vitest run --coverage"
   },
   "devDependencies": {
-    "@markee/tsconfig": "0.1.0",
+    "@markee/tsconfig": "0.1.1",
     "@markee/vitest": "0.1.0",
     "@vitest/coverage-v8": "^3.2.4",
     "jsdom": "^29.0.0",

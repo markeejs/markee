@@ -1,6 +1,6 @@
 {
   "name": "@markee/cli",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "license": "MIT",
   "repository": "https://github.com/markeejs/markee",
   "bin": {
@@ -22,10 +22,10 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.11",
-    "@markee/client": "0.3.0",
-    "@markee/default": "0.3.0",
-    "@markee/runtime": "0.3.0",
-    "@markee/types": "0.3.0",
+    "@markee/client": "0.3.1",
+    "@markee/default": "0.3.1",
+    "@markee/runtime": "0.3.1",
+    "@markee/types": "0.3.1",
     "attributes-parser": "^2.2.3",
     "colors": "^1.4.0",
     "command-line-args": "^6.0.1",
@@ -52,7 +52,7 @@
     "yaml": "^2.8.2"
   },
   "devDependencies": {
-    "@markee/tsconfig": "0.1.0",
+    "@markee/tsconfig": "0.1.1",
     "@markee/vitest": "0.1.0",
     "@types/command-line-args": "^5.2.3",
     "@types/command-line-usage": "^5.0.4",

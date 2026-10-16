@@ -1,5 +1,11 @@
 # @markee/runtime
 
+## 0.3.1
+
+### Patch Changes
+
+- @markee/state@0.3.1
+
 ## 0.3.0
 
 ### Patch Changes
