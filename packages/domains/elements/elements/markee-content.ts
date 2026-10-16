@@ -6,17 +6,18 @@ import './markee-content.css'
 /**
  * Scroll the page to the given hash, if present
  * @param hash - hash to scroll to
+ * @param smooth - whether to do smooth scrolling or instant scrolling
  */
-function scroll(hash: string | undefined) {
+function scroll(hash: string | undefined, smooth?: boolean) {
   if (hash) {
     try {
       const target = document.querySelector(`[id="${hash.slice(1)}"]`)
-      target?.scrollIntoView({ behavior: 'auto' })
+      target?.scrollIntoView({ behavior: smooth ? 'auto' : 'instant' })
     } catch (err) {
       void err
     }
   } else {
-    window.scrollTo({ top: 0 })
+    window.scrollTo({ top: 0, behavior: smooth ? 'auto' : 'instant' })
   }
 }
 
@@ -69,10 +70,11 @@ export class MarkeeContent extends HTMLElement {
         this.#lastHash !== window.location.hash ||
         this.#lastKey !== data.data?.key
       ) {
+        const keyChanged = this.#lastKey !== data.data?.key
         this.#lastHash = window.location.hash
         this.#lastKey = data.data?.key as string
         requestAnimationFrame(() => {
-          scroll(window.location.hash)
+          scroll(window.location.hash, !keyChanged)
         })
       }
     })
