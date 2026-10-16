@@ -1,0 +1,8 @@
+{
+  "extends": "@markee/tsconfig/node.json",
+  "include": ["src"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "outDir": "dist"
+  }
+}

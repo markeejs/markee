@@ -41,8 +41,8 @@ jobs:
       - name: Create release pull request or publish
         uses: changesets/action@v1.5.3
         with:
-          title: Release packages
-          commit: Release packages
+          title: 'chore: release packages'
+          commit: 'chore: release packages'
           version: pnpm changeset:version
           publish: pnpm changeset:publish
         env:
